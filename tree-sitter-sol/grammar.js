@@ -122,7 +122,7 @@ module.exports = grammar({
       optional(field('visibility', $.visibility)),
       field('name', $.path),
       repeat(field('argument', $._argument_list)),
-      optional(field('clause_type', $.clause_type)),
+      optional(seq(':', field('clause_type', $._type_expr))),
       optional(field('value', $.block)),
     ),
 

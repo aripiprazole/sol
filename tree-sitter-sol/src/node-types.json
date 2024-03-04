@@ -477,104 +477,6 @@
     }
   },
   {
-    "type": "class_decl",
-    "named": true,
-    "fields": {
-      "argument": {
-        "multiple": true,
-        "required": false,
-        "types": [
-          {
-            "type": "explicit_arguments",
-            "named": true
-          },
-          {
-            "type": "implicit_arguments",
-            "named": true
-          }
-        ]
-      },
-      "attribute": {
-        "multiple": true,
-        "required": false,
-        "types": [
-          {
-            "type": "attribute",
-            "named": true
-          }
-        ]
-      },
-      "class_body": {
-        "multiple": true,
-        "required": false,
-        "types": [
-          {
-            "type": "signature",
-            "named": true
-          },
-          {
-            "type": "{",
-            "named": false
-          },
-          {
-            "type": "}",
-            "named": false
-          }
-        ]
-      },
-      "clause_type": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "clause_type",
-            "named": true
-          }
-        ]
-      },
-      "doc_string": {
-        "multiple": true,
-        "required": false,
-        "types": [
-          {
-            "type": "doc_string",
-            "named": true
-          }
-        ]
-      },
-      "field": {
-        "multiple": true,
-        "required": false,
-        "types": [
-          {
-            "type": "signature",
-            "named": true
-          }
-        ]
-      },
-      "name": {
-        "multiple": false,
-        "required": true,
-        "types": [
-          {
-            "type": "path",
-            "named": true
-          }
-        ]
-      },
-      "visibility": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "visibility",
-            "named": true
-          }
-        ]
-      }
-    }
-  },
-  {
     "type": "clause",
     "named": true,
     "fields": {
@@ -668,54 +570,6 @@
           },
           {
             "type": "sigma_expr",
-            "named": true
-          }
-        ]
-      }
-    }
-  },
-  {
-    "type": "clause_type",
-    "named": true,
-    "fields": {
-      "clause_type": {
-        "multiple": false,
-        "required": true,
-        "types": [
-          {
-            "type": "ann_expr",
-            "named": true
-          },
-          {
-            "type": "binary_expr",
-            "named": true
-          },
-          {
-            "type": "forall_expr",
-            "named": true
-          },
-          {
-            "type": "lam_expr",
-            "named": true
-          },
-          {
-            "type": "match_expr",
-            "named": true
-          },
-          {
-            "type": "pi_expr",
-            "named": true
-          },
-          {
-            "type": "primary",
-            "named": true
-          },
-          {
-            "type": "sigma_expr",
-            "named": true
-          },
-          {
-            "type": "type_app_expr",
             "named": true
           }
         ]
@@ -832,148 +686,6 @@
           },
           {
             "type": "rest_pattern",
-            "named": true
-          }
-        ]
-      }
-    }
-  },
-  {
-    "type": "data_decl",
-    "named": true,
-    "fields": {
-      "argument": {
-        "multiple": true,
-        "required": false,
-        "types": [
-          {
-            "type": "explicit_arguments",
-            "named": true
-          },
-          {
-            "type": "implicit_arguments",
-            "named": true
-          }
-        ]
-      },
-      "attribute": {
-        "multiple": true,
-        "required": false,
-        "types": [
-          {
-            "type": "attribute",
-            "named": true
-          }
-        ]
-      },
-      "clause_type": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "clause_type",
-            "named": true
-          }
-        ]
-      },
-      "constructor": {
-        "multiple": true,
-        "required": false,
-        "types": [
-          {
-            "type": ",",
-            "named": false
-          },
-          {
-            "type": "function_constructor",
-            "named": true
-          },
-          {
-            "type": "signature_constructor",
-            "named": true
-          }
-        ]
-      },
-      "data_body": {
-        "multiple": true,
-        "required": false,
-        "types": [
-          {
-            "type": ",",
-            "named": false
-          },
-          {
-            "type": ";",
-            "named": false
-          },
-          {
-            "type": "function_constructor",
-            "named": true
-          },
-          {
-            "type": "signature",
-            "named": true
-          },
-          {
-            "type": "signature_constructor",
-            "named": true
-          },
-          {
-            "type": "{",
-            "named": false
-          },
-          {
-            "type": "}",
-            "named": false
-          }
-        ]
-      },
-      "doc_string": {
-        "multiple": true,
-        "required": false,
-        "types": [
-          {
-            "type": "doc_string",
-            "named": true
-          }
-        ]
-      },
-      "field": {
-        "multiple": true,
-        "required": false,
-        "types": [
-          {
-            "type": "signature",
-            "named": true
-          }
-        ]
-      },
-      "method": {
-        "multiple": true,
-        "required": false,
-        "types": [
-          {
-            "type": "signature",
-            "named": true
-          }
-        ]
-      },
-      "name": {
-        "multiple": false,
-        "required": true,
-        "types": [
-          {
-            "type": "path",
-            "named": true
-          }
-        ]
-      },
-      "visibility": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "visibility",
             "named": true
           }
         ]
@@ -1530,12 +1242,7 @@
     }
   },
   {
-    "type": "infix_op",
-    "named": true,
-    "fields": {}
-  },
-  {
-    "type": "instance_decl",
+    "type": "inductive",
     "named": true,
     "fields": {
       "argument": {
@@ -1562,32 +1269,72 @@
           }
         ]
       },
+      "clause_type": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "ann_expr",
+            "named": true
+          },
+          {
+            "type": "binary_expr",
+            "named": true
+          },
+          {
+            "type": "forall_expr",
+            "named": true
+          },
+          {
+            "type": "lam_expr",
+            "named": true
+          },
+          {
+            "type": "match_expr",
+            "named": true
+          },
+          {
+            "type": "pi_expr",
+            "named": true
+          },
+          {
+            "type": "primary",
+            "named": true
+          },
+          {
+            "type": "sigma_expr",
+            "named": true
+          },
+          {
+            "type": "type_app_expr",
+            "named": true
+          }
+        ]
+      },
+      "constructor": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": ",",
+            "named": false
+          },
+          {
+            "type": "function_constructor",
+            "named": true
+          },
+          {
+            "type": "signature_constructor",
+            "named": true
+          }
+        ]
+      },
       "doc_string": {
         "multiple": true,
         "required": false,
         "types": [
           {
             "type": "doc_string",
-            "named": true
-          }
-        ]
-      },
-      "field": {
-        "multiple": true,
-        "required": false,
-        "types": [
-          {
-            "type": "signature",
-            "named": true
-          }
-        ]
-      },
-      "item": {
-        "multiple": true,
-        "required": true,
-        "types": [
-          {
-            "type": "primary",
             "named": true
           }
         ]
@@ -1602,24 +1349,6 @@
           }
         ]
       },
-      "trait_body": {
-        "multiple": true,
-        "required": false,
-        "types": [
-          {
-            "type": "signature",
-            "named": true
-          },
-          {
-            "type": "{",
-            "named": false
-          },
-          {
-            "type": "}",
-            "named": false
-          }
-        ]
-      },
       "visibility": {
         "multiple": false,
         "required": false,
@@ -1631,6 +1360,11 @@
         ]
       }
     }
+  },
+  {
+    "type": "infix_op",
+    "named": true,
+    "fields": {}
   },
   {
     "type": "lam_expr",
@@ -2462,7 +2196,39 @@
         "required": false,
         "types": [
           {
-            "type": "clause_type",
+            "type": "ann_expr",
+            "named": true
+          },
+          {
+            "type": "binary_expr",
+            "named": true
+          },
+          {
+            "type": "forall_expr",
+            "named": true
+          },
+          {
+            "type": "lam_expr",
+            "named": true
+          },
+          {
+            "type": "match_expr",
+            "named": true
+          },
+          {
+            "type": "pi_expr",
+            "named": true
+          },
+          {
+            "type": "primary",
+            "named": true
+          },
+          {
+            "type": "sigma_expr",
+            "named": true
+          },
+          {
+            "type": "type_app_expr",
             "named": true
           }
         ]
@@ -2596,10 +2362,6 @@
         "required": false,
         "types": [
           {
-            "type": "class_decl",
-            "named": true
-          },
-          {
             "type": "clause",
             "named": true
           },
@@ -2608,23 +2370,11 @@
             "named": true
           },
           {
-            "type": "data_decl",
-            "named": true
-          },
-          {
-            "type": "instance_decl",
+            "type": "inductive",
             "named": true
           },
           {
             "type": "signature",
-            "named": true
-          },
-          {
-            "type": "trait_decl",
-            "named": true
-          },
-          {
-            "type": "type_decl",
             "named": true
           },
           {
@@ -2712,104 +2462,6 @@
     }
   },
   {
-    "type": "trait_decl",
-    "named": true,
-    "fields": {
-      "argument": {
-        "multiple": true,
-        "required": false,
-        "types": [
-          {
-            "type": "explicit_arguments",
-            "named": true
-          },
-          {
-            "type": "implicit_arguments",
-            "named": true
-          }
-        ]
-      },
-      "attribute": {
-        "multiple": true,
-        "required": false,
-        "types": [
-          {
-            "type": "attribute",
-            "named": true
-          }
-        ]
-      },
-      "clause_type": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "clause_type",
-            "named": true
-          }
-        ]
-      },
-      "doc_string": {
-        "multiple": true,
-        "required": false,
-        "types": [
-          {
-            "type": "doc_string",
-            "named": true
-          }
-        ]
-      },
-      "field": {
-        "multiple": true,
-        "required": false,
-        "types": [
-          {
-            "type": "signature",
-            "named": true
-          }
-        ]
-      },
-      "name": {
-        "multiple": false,
-        "required": true,
-        "types": [
-          {
-            "type": "path",
-            "named": true
-          }
-        ]
-      },
-      "trait_body": {
-        "multiple": true,
-        "required": false,
-        "types": [
-          {
-            "type": "signature",
-            "named": true
-          },
-          {
-            "type": "{",
-            "named": false
-          },
-          {
-            "type": "}",
-            "named": false
-          }
-        ]
-      },
-      "visibility": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "visibility",
-            "named": true
-          }
-        ]
-      }
-    }
-  },
-  {
     "type": "tuple_expr",
     "named": true,
     "fields": {},
@@ -2876,118 +2528,6 @@
         "types": [
           {
             "type": "primary",
-            "named": true
-          }
-        ]
-      }
-    }
-  },
-  {
-    "type": "type_decl",
-    "named": true,
-    "fields": {
-      "argument": {
-        "multiple": true,
-        "required": false,
-        "types": [
-          {
-            "type": "explicit_arguments",
-            "named": true
-          },
-          {
-            "type": "implicit_arguments",
-            "named": true
-          }
-        ]
-      },
-      "attribute": {
-        "multiple": true,
-        "required": false,
-        "types": [
-          {
-            "type": "attribute",
-            "named": true
-          }
-        ]
-      },
-      "clause_type": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "clause_type",
-            "named": true
-          }
-        ]
-      },
-      "doc_string": {
-        "multiple": true,
-        "required": false,
-        "types": [
-          {
-            "type": "doc_string",
-            "named": true
-          }
-        ]
-      },
-      "name": {
-        "multiple": false,
-        "required": true,
-        "types": [
-          {
-            "type": "path",
-            "named": true
-          }
-        ]
-      },
-      "value": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "ann_expr",
-            "named": true
-          },
-          {
-            "type": "binary_expr",
-            "named": true
-          },
-          {
-            "type": "forall_expr",
-            "named": true
-          },
-          {
-            "type": "lam_expr",
-            "named": true
-          },
-          {
-            "type": "match_expr",
-            "named": true
-          },
-          {
-            "type": "pi_expr",
-            "named": true
-          },
-          {
-            "type": "primary",
-            "named": true
-          },
-          {
-            "type": "sigma_expr",
-            "named": true
-          },
-          {
-            "type": "type_app_expr",
-            "named": true
-          }
-        ]
-      },
-      "visibility": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "visibility",
             "named": true
           }
         ]
@@ -3280,14 +2820,6 @@
     "named": true
   },
   {
-    "type": "class",
-    "named": false
-  },
-  {
-    "type": "data",
-    "named": false
-  },
-  {
     "type": "else",
     "named": false
   },
@@ -3328,7 +2860,7 @@
     "named": false
   },
   {
-    "type": "instance",
+    "type": "inductive",
     "named": false
   },
   {
@@ -3349,10 +2881,6 @@
   },
   {
     "type": "n",
-    "named": false
-  },
-  {
-    "type": "of",
     "named": false
   },
   {
@@ -3385,14 +2913,6 @@
   },
   {
     "type": "then",
-    "named": false
-  },
-  {
-    "type": "trait",
-    "named": false
-  },
-  {
-    "type": "type",
     "named": false
   },
   {

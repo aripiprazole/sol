@@ -12,16 +12,12 @@
     "vscode": "^1.80.1"
   },
   "enabledApiProposals": [],
-  "activationEvents": [
-    "onLanguage:sol"
-  ],
+  "activationEvents": ["onLanguage:sol"],
   "contributes": {
     "languages": [
       {
         "id": "sol",
-        "extensions": [
-          ".sol"
-        ],
+        "extensions": [".sol"],
         "configuration": "./language-configuration.json"
       }
     ],
@@ -32,16 +28,8 @@
         "sol-language-server.trace.server": {
           "type": "string",
           "scope": "window",
-          "enum": [
-            "off",
-            "messages",
-            "verbose"
-          ],
-          "enumDescriptions": [
-            "No traces",
-            "Error only",
-            "Full log"
-          ],
+          "enum": ["off", "messages", "verbose"],
+          "enumDescriptions": ["No traces", "Error only", "Full log"],
           "default": "off",
           "description": "Traces the communication between VS Code and the language server."
         }
@@ -50,7 +38,8 @@
   },
   "scripts": {
     "prepare": "husky install",
-    "postinstall": "sh regen_grammar.sh && cd editors/vscode && yarn",
+    "preinstall": "cd tree-sitter-sol && yarn --ignore-scripts",
+    "postinstall": "cd tree-sitter-sol && yarn tree-sitter generate && yarn tree-sitter build-wasm && cd ../editors/vscode && yarn",
     "vscode:prepublish": "npm run esbuild-base -- --minify",
     "esbuild-base": "esbuild ./editors/vscode/src/extension.ts --bundle --outfile=editors/vscode/build/main.js --external:vscode --format=cjs --platform=node",
     "esbuild": "yarn run esbuild-base -- --sourcemap",

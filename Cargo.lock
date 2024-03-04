@@ -1064,271 +1064,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "sol-ariadne"
-version = "0.0.1"
-dependencies = [
- "ariadne",
- "dashmap",
- "fxhash",
- "itertools",
- "sol-diagnostic",
- "sol-eyre",
- "sol-syntax",
- "sol-vfs",
- "salsa-2022",
- "tree-sitter",
- "type-sitter-lib",
-]
-
-[[package]]
-name = "sol-cli"
-version = "0.0.1"
-dependencies = [
- "ariadne",
- "clap",
- "colored",
- "dashmap",
- "env_logger",
- "fxhash",
- "im",
- "itertools",
- "log",
- "sol-ariadne",
- "sol-diagnostic",
- "sol-driver",
- "sol-eyre",
- "sol-hir",
- "sol-hir-lowering",
- "sol-js",
- "sol-syntax",
- "sol-vfs",
- "ropey",
- "salsa-2022",
- "serde",
- "toml",
- "tree-sitter",
- "tree-sitter-sol",
- "type-sitter-lib",
-]
-
-[[package]]
-name = "sol-diagnostic"
-version = "0.0.1"
-dependencies = [
- "eyre",
- "paste",
- "salsa-2022",
- "tree-sitter",
- "type-sitter-lib",
-]
-
-[[package]]
-name = "sol-docs-backend"
-version = "0.0.1"
-dependencies = [
- "axum",
- "im",
- "sol-diagnostic",
- "sol-hir",
- "sol-syntax",
- "sol-vfs",
- "salsa-2022",
-]
-
-[[package]]
-name = "sol-driver"
-version = "0.0.1"
-dependencies = [
- "ariadne",
- "dashmap",
- "env_logger",
- "fxhash",
- "itertools",
- "log",
- "sol-ariadne",
- "sol-diagnostic",
- "sol-eval",
- "sol-eyre",
- "sol-hir",
- "sol-hir-lowering",
- "sol-syntax",
- "sol-tt",
- "sol-typer",
- "sol-vfs",
- "salsa-2022",
- "similar",
- "strip-ansi-escapes",
-]
-
-[[package]]
-name = "sol-eval"
-version = "0.0.1"
-dependencies = [
- "im",
- "sol-diagnostic",
- "sol-hir",
- "sol-syntax",
- "sol-tt",
- "sol-vfs",
- "salsa-2022",
-]
-
-[[package]]
-name = "sol-eyre"
-version = "0.0.1"
-dependencies = [
- "eyre",
- "im",
- "sol-diagnostic",
- "sol-hir",
- "sol-syntax",
- "sol-vfs",
- "miette",
- "salsa-2022",
- "thiserror",
-]
-
-[[package]]
-name = "sol-hir"
-version = "0.0.1"
-dependencies = [
- "dashmap",
- "eyre",
- "fxhash",
- "if_chain",
- "im",
- "sol-diagnostic",
- "sol-syntax",
- "once_cell",
- "petgraph",
- "salsa-2022",
- "thiserror",
-]
-
-[[package]]
-name = "sol-hir-lowering"
-version = "0.0.1"
-dependencies = [
- "dashmap",
- "eyre",
- "fxhash",
- "im",
- "sol-diagnostic",
- "sol-hir",
- "sol-syntax",
- "sol-vfs",
- "salsa-2022",
- "tree-sitter",
- "type-sitter-lib",
-]
-
-[[package]]
-name = "sol-ide"
-version = "0.0.1"
-dependencies = [
- "async-trait",
- "colored",
- "crossbeam-channel",
- "dashmap",
- "env_logger",
- "eyre",
- "fxhash",
- "im",
- "itertools",
- "log",
- "sol-diagnostic",
- "sol-driver",
- "sol-hir",
- "sol-hir-lowering",
- "sol-syntax",
- "sol-vfs",
- "notify-debouncer-mini",
- "ropey",
- "salsa-2022",
- "serde",
- "serde_json",
- "tokio",
- "tower-lsp",
- "tree-sitter",
- "tree-sitter-highlight",
- "tree-sitter-sol",
- "type-sitter-lib",
-]
-
-[[package]]
-name = "sol-js"
-version = "0.0.1"
-dependencies = [
- "axum",
- "deno_core",
- "eyre",
- "im",
- "sol-diagnostic",
- "sol-eyre",
- "sol-hir",
- "sol-syntax",
- "sol-vfs",
- "resast",
- "resw",
- "salsa-2022",
-]
-
-[[package]]
-name = "sol-syntax"
-version = "0.0.1"
-dependencies = [
- "sol-diagnostic",
- "sol-vfs",
- "rust-format",
- "salsa-2022",
- "tree-sitter",
- "tree-sitter-sol",
- "type-sitter-gen",
- "type-sitter-lib",
-]
-
-[[package]]
-name = "sol-tt"
-version = "0.0.1"
-dependencies = [
- "im",
- "sol-diagnostic",
- "sol-hir",
- "sol-syntax",
- "sol-vfs",
- "salsa-2022",
-]
-
-[[package]]
-name = "sol-typer"
-version = "0.0.1"
-dependencies = [
- "dashmap",
- "eyre",
- "fxhash",
- "if_chain",
- "im",
- "im-rc",
- "log",
- "sol-diagnostic",
- "sol-hir",
- "petgraph",
- "salsa-2022",
- "tree-sitter",
- "type-sitter-lib",
-]
-
-[[package]]
-name = "sol-vfs"
-version = "0.0.1"
-dependencies = [
- "eyre",
- "salsa-2022",
- "tree-sitter",
- "type-sitter-lib",
-]
-
-[[package]]
 name = "matchit"
 version = "0.7.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2009,6 +1744,271 @@ checksum = "9f7916fc008ca5542385b89a3d3ce689953c143e9304a9bf8beec1de48994c0d"
 dependencies = [
  "libc",
  "winapi",
+]
+
+[[package]]
+name = "sol-ariadne"
+version = "0.0.1"
+dependencies = [
+ "ariadne",
+ "dashmap",
+ "fxhash",
+ "itertools",
+ "salsa-2022",
+ "sol-diagnostic",
+ "sol-eyre",
+ "sol-syntax",
+ "sol-vfs",
+ "tree-sitter",
+ "type-sitter-lib",
+]
+
+[[package]]
+name = "sol-cli"
+version = "0.0.1"
+dependencies = [
+ "ariadne",
+ "clap",
+ "colored",
+ "dashmap",
+ "env_logger",
+ "fxhash",
+ "im",
+ "itertools",
+ "log",
+ "ropey",
+ "salsa-2022",
+ "serde",
+ "sol-ariadne",
+ "sol-diagnostic",
+ "sol-driver",
+ "sol-eyre",
+ "sol-hir",
+ "sol-hir-lowering",
+ "sol-js",
+ "sol-syntax",
+ "sol-vfs",
+ "toml",
+ "tree-sitter",
+ "tree-sitter-sol",
+ "type-sitter-lib",
+]
+
+[[package]]
+name = "sol-diagnostic"
+version = "0.0.1"
+dependencies = [
+ "eyre",
+ "paste",
+ "salsa-2022",
+ "tree-sitter",
+ "type-sitter-lib",
+]
+
+[[package]]
+name = "sol-docs-backend"
+version = "0.0.1"
+dependencies = [
+ "axum",
+ "im",
+ "salsa-2022",
+ "sol-diagnostic",
+ "sol-hir",
+ "sol-syntax",
+ "sol-vfs",
+]
+
+[[package]]
+name = "sol-driver"
+version = "0.0.1"
+dependencies = [
+ "ariadne",
+ "dashmap",
+ "env_logger",
+ "fxhash",
+ "itertools",
+ "log",
+ "salsa-2022",
+ "similar",
+ "sol-ariadne",
+ "sol-diagnostic",
+ "sol-eval",
+ "sol-eyre",
+ "sol-hir",
+ "sol-hir-lowering",
+ "sol-syntax",
+ "sol-tt",
+ "sol-typer",
+ "sol-vfs",
+ "strip-ansi-escapes",
+]
+
+[[package]]
+name = "sol-eval"
+version = "0.0.1"
+dependencies = [
+ "im",
+ "salsa-2022",
+ "sol-diagnostic",
+ "sol-hir",
+ "sol-syntax",
+ "sol-tt",
+ "sol-vfs",
+]
+
+[[package]]
+name = "sol-eyre"
+version = "0.0.1"
+dependencies = [
+ "eyre",
+ "im",
+ "miette",
+ "salsa-2022",
+ "sol-diagnostic",
+ "sol-hir",
+ "sol-syntax",
+ "sol-vfs",
+ "thiserror",
+]
+
+[[package]]
+name = "sol-hir"
+version = "0.0.1"
+dependencies = [
+ "dashmap",
+ "eyre",
+ "fxhash",
+ "if_chain",
+ "im",
+ "once_cell",
+ "petgraph",
+ "salsa-2022",
+ "sol-diagnostic",
+ "sol-syntax",
+ "thiserror",
+]
+
+[[package]]
+name = "sol-hir-lowering"
+version = "0.0.1"
+dependencies = [
+ "dashmap",
+ "eyre",
+ "fxhash",
+ "im",
+ "salsa-2022",
+ "sol-diagnostic",
+ "sol-hir",
+ "sol-syntax",
+ "sol-vfs",
+ "tree-sitter",
+ "type-sitter-lib",
+]
+
+[[package]]
+name = "sol-ide"
+version = "0.0.1"
+dependencies = [
+ "async-trait",
+ "colored",
+ "crossbeam-channel",
+ "dashmap",
+ "env_logger",
+ "eyre",
+ "fxhash",
+ "im",
+ "itertools",
+ "log",
+ "notify-debouncer-mini",
+ "ropey",
+ "salsa-2022",
+ "serde",
+ "serde_json",
+ "sol-diagnostic",
+ "sol-driver",
+ "sol-hir",
+ "sol-hir-lowering",
+ "sol-syntax",
+ "sol-vfs",
+ "tokio",
+ "tower-lsp",
+ "tree-sitter",
+ "tree-sitter-highlight",
+ "tree-sitter-sol",
+ "type-sitter-lib",
+]
+
+[[package]]
+name = "sol-js"
+version = "0.0.1"
+dependencies = [
+ "axum",
+ "deno_core",
+ "eyre",
+ "im",
+ "resast",
+ "resw",
+ "salsa-2022",
+ "sol-diagnostic",
+ "sol-eyre",
+ "sol-hir",
+ "sol-syntax",
+ "sol-vfs",
+]
+
+[[package]]
+name = "sol-syntax"
+version = "0.0.1"
+dependencies = [
+ "rust-format",
+ "salsa-2022",
+ "sol-diagnostic",
+ "sol-vfs",
+ "tree-sitter",
+ "tree-sitter-sol",
+ "type-sitter-gen",
+ "type-sitter-lib",
+]
+
+[[package]]
+name = "sol-tt"
+version = "0.0.1"
+dependencies = [
+ "im",
+ "salsa-2022",
+ "sol-diagnostic",
+ "sol-hir",
+ "sol-syntax",
+ "sol-vfs",
+]
+
+[[package]]
+name = "sol-typer"
+version = "0.0.1"
+dependencies = [
+ "dashmap",
+ "eyre",
+ "fxhash",
+ "if_chain",
+ "im",
+ "im-rc",
+ "log",
+ "petgraph",
+ "salsa-2022",
+ "sol-diagnostic",
+ "sol-hir",
+ "tree-sitter",
+ "type-sitter-lib",
+]
+
+[[package]]
+name = "sol-vfs"
+version = "0.0.1"
+dependencies = [
+ "eyre",
+ "salsa-2022",
+ "tree-sitter",
+ "type-sitter-lib",
 ]
 
 [[package]]

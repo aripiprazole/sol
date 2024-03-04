@@ -15,7 +15,7 @@
     "type": "git",
     "url": "git+https://github.com/aripiprazole/sol.git"
   },
-  "author": "Gabrielle Guimarães",
+  "author": "Gabrielle Oliveira",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/aripiprazole/sol/issues"
@@ -24,13 +24,8 @@
   "tree-sitter": [
     {
       "scope": "source.sol",
-      "file-types": [
-        "sol"
-      ],
-      "highlights": [
-        "queries/highlights.scm",
-        "queries/locals.scm"
-      ],
+      "file-types": ["sol"],
+      "highlights": ["queries/highlights.scm", "queries/locals.scm"],
       "injection-regex": "^(sol)$"
     }
   ]
