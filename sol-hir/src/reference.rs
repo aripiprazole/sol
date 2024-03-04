@@ -132,30 +132,12 @@ impl<'db, U: Checkable> HirListener for ReferenceWalker<'db, U> {
         }
     }
 
-    fn enter_data_top_level(&mut self, decl: top_level::Inductive) {
+    fn enter_inductive_top_level(&mut self, decl: top_level::Inductive) {
         self.enter_scope(self.db, decl.location(self.db), decl.scope(self.db));
         self.stack.push(decl.scope(self.db));
     }
 
-    fn exit_data_top_level(&mut self, _: top_level::Inductive) {
-        self.stack.pop();
-    }
-
-    fn enter_class_top_level(&mut self, decl: top_level::ClassDecl) {
-        self.enter_scope(self.db, decl.location(self.db), decl.scope(self.db));
-        self.stack.push(decl.scope(self.db));
-    }
-
-    fn exit_class_top_level(&mut self, _: top_level::ClassDecl) {
-        self.stack.pop();
-    }
-
-    fn enter_trait_top_level(&mut self, decl: top_level::TraitDecl) {
-        self.enter_scope(self.db, decl.location(self.db), decl.scope(self.db));
-        self.stack.push(decl.scope(self.db));
-    }
-
-    fn exit_trait_top_level(&mut self, _: top_level::TraitDecl) {
+    fn exit_inductive_top_level(&mut self, _: top_level::Inductive) {
         self.stack.pop();
     }
 

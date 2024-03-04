@@ -920,275 +920,6 @@ pub mod top_level {
     }
 
     #[salsa::tracked]
-    pub struct TypeDecl {
-        pub attributes: HashSet<declaration::Attribute, FxBuildHasher>,
-        pub docs: Vec<declaration::DocString>,
-        pub visibility: Spanned<declaration::Vis>,
-        pub name: Definition,
-        pub parameters: Vec<declaration::Parameter>,
-        pub return_type: type_rep::TypeRep,
-        pub location: Location,
-        pub scope: Arc<Scope>,
-    }
-
-    impl walking::Walker for TypeDecl {
-        fn accept<T: HirListener>(self, db: &dyn crate::HirDb, listener: &mut T) {
-            listener.enter_type_top_level(self);
-            self.attributes(db).accept(db, listener);
-            self.docs(db).accept(db, listener);
-            self.visibility(db).accept(db, listener);
-            self.name(db).accept(db, listener);
-            self.parameters(db).accept(db, listener);
-            self.return_type(db).accept(db, listener);
-            self.location(db).accept(db, listener);
-            listener.exit_type_top_level(self);
-        }
-    }
-
-    impl declaration::Declaration for TypeDecl {
-        fn attributes(
-            &self,
-            db: &dyn crate::HirDb,
-        ) -> HashSet<declaration::Attribute, FxBuildHasher> {
-            Self::attributes(*self, db)
-        }
-
-        fn visibility(&self, db: &dyn crate::HirDb) -> Spanned<declaration::Vis> {
-            Self::visibility(*self, db)
-        }
-
-        fn docs(&self, db: &dyn crate::HirDb) -> Vec<declaration::DocString> {
-            Self::docs(*self, db)
-        }
-
-        fn name(&self, db: &dyn crate::HirDb) -> Definition {
-            Self::name(*self, db)
-        }
-
-        fn parameters(&self, _db: &dyn crate::HirDb) -> Vec<declaration::Parameter> {
-            Vec::new()
-        }
-
-        fn type_rep(&self, db: &dyn crate::HirDb) -> Option<type_rep::TypeRep> {
-            Self::return_type(*self, db).into()
-        }
-
-        fn upcast(&self, _db: &dyn crate::HirDb) -> top_level::DeclDescriptor {
-            top_level::DeclDescriptor::TypeDecl(*self)
-        }
-    }
-
-    impl HirElement for TypeDecl {
-        fn location(&self, db: &dyn crate::HirDb) -> Location {
-            Self::location(*self, db)
-        }
-    }
-
-    #[salsa::tracked]
-    pub struct ClassDecl {
-        pub attributes: HashSet<declaration::Attribute, FxBuildHasher>,
-        pub docs: Vec<declaration::DocString>,
-        pub visibility: Spanned<declaration::Vis>,
-        pub name: Definition,
-        pub parameters: Vec<declaration::Parameter>,
-        pub return_type: type_rep::TypeRep,
-        pub fields: Vec<Signature>,
-        pub methods: Vec<BindingGroup>,
-        pub location: Location,
-        pub scope: Arc<Scope>,
-    }
-
-    impl walking::Walker for ClassDecl {
-        fn accept<T: HirListener>(self, db: &dyn crate::HirDb, listener: &mut T) {
-            listener.enter_class_top_level(self);
-            self.attributes(db).accept(db, listener);
-            self.docs(db).accept(db, listener);
-            self.visibility(db).accept(db, listener);
-            self.name(db).accept(db, listener);
-            self.parameters(db).accept(db, listener);
-            self.return_type(db).accept(db, listener);
-            self.fields(db).accept(db, listener);
-            self.methods(db).accept(db, listener);
-            self.location(db).accept(db, listener);
-            listener.exit_class_top_level(self);
-        }
-    }
-
-    impl declaration::Declaration for ClassDecl {
-        fn attributes(
-            &self,
-            db: &dyn crate::HirDb,
-        ) -> HashSet<declaration::Attribute, FxBuildHasher> {
-            Self::attributes(*self, db)
-        }
-
-        fn visibility(&self, db: &dyn crate::HirDb) -> Spanned<declaration::Vis> {
-            Self::visibility(*self, db)
-        }
-
-        fn docs(&self, db: &dyn crate::HirDb) -> Vec<declaration::DocString> {
-            Self::docs(*self, db)
-        }
-
-        fn name(&self, db: &dyn crate::HirDb) -> Definition {
-            Self::name(*self, db)
-        }
-
-        fn parameters(&self, _db: &dyn crate::HirDb) -> Vec<declaration::Parameter> {
-            Vec::new()
-        }
-
-        fn type_rep(&self, db: &dyn crate::HirDb) -> Option<type_rep::TypeRep> {
-            Self::return_type(*self, db).into()
-        }
-
-        fn upcast(&self, _db: &dyn crate::HirDb) -> top_level::DeclDescriptor {
-            top_level::DeclDescriptor::ClassDecl(*self)
-        }
-    }
-
-    impl HirElement for ClassDecl {
-        fn location(&self, db: &dyn crate::HirDb) -> Location {
-            Self::location(*self, db)
-        }
-    }
-
-    #[salsa::tracked]
-    pub struct InstanceDecl {
-        pub attributes: HashSet<declaration::Attribute, FxBuildHasher>,
-        pub docs: Vec<declaration::DocString>,
-        pub visibility: Spanned<declaration::Vis>,
-        /// The name of the trait being implemented.
-        pub name: Definition,
-        pub parameters: Vec<declaration::Parameter>,
-        pub types: Vec<type_rep::TypeRep>,
-        pub methods: Vec<BindingGroup>,
-        pub location: Location,
-        pub scope: Arc<Scope>,
-    }
-
-    impl walking::Walker for InstanceDecl {
-        fn accept<T: HirListener>(self, db: &dyn crate::HirDb, listener: &mut T) {
-            listener.enter_instance_top_level(self);
-            self.attributes(db).accept(db, listener);
-            self.docs(db).accept(db, listener);
-            self.visibility(db).accept(db, listener);
-            self.name(db).accept(db, listener);
-            self.parameters(db).accept(db, listener);
-            self.types(db).accept(db, listener);
-            self.methods(db).accept(db, listener);
-            self.location(db).accept(db, listener);
-            listener.exit_instance_top_level(self);
-        }
-    }
-
-    impl declaration::Declaration for InstanceDecl {
-        fn attributes(
-            &self,
-            db: &dyn crate::HirDb,
-        ) -> HashSet<declaration::Attribute, FxBuildHasher> {
-            Self::attributes(*self, db)
-        }
-
-        fn visibility(&self, db: &dyn crate::HirDb) -> Spanned<declaration::Vis> {
-            Self::visibility(*self, db)
-        }
-
-        fn docs(&self, db: &dyn crate::HirDb) -> Vec<declaration::DocString> {
-            Self::docs(*self, db)
-        }
-
-        fn name(&self, db: &dyn crate::HirDb) -> Definition {
-            Self::name(*self, db)
-        }
-
-        fn parameters(&self, db: &dyn crate::HirDb) -> Vec<declaration::Parameter> {
-            Self::parameters(*self, db)
-        }
-
-        fn type_rep(&self, _db: &dyn crate::HirDb) -> Option<type_rep::TypeRep> {
-            None
-        }
-
-        fn upcast(&self, _db: &dyn crate::HirDb) -> top_level::DeclDescriptor {
-            top_level::DeclDescriptor::InstanceDecl(*self)
-        }
-    }
-
-    impl HirElement for InstanceDecl {
-        fn location(&self, db: &dyn crate::HirDb) -> Location {
-            Self::location(*self, db)
-        }
-    }
-
-    #[salsa::tracked]
-    pub struct TraitDecl {
-        pub attributes: HashSet<declaration::Attribute, FxBuildHasher>,
-        pub docs: Vec<declaration::DocString>,
-        pub visibility: Spanned<declaration::Vis>,
-        pub name: Definition,
-        pub parameters: Vec<declaration::Parameter>,
-        pub return_type: type_rep::TypeRep,
-        pub methods: Vec<BindingGroup>,
-        pub location: Location,
-        pub scope: Arc<Scope>,
-    }
-
-    impl walking::Walker for TraitDecl {
-        fn accept<T: HirListener>(self, db: &dyn crate::HirDb, listener: &mut T) {
-            listener.enter_trait_top_level(self);
-            self.attributes(db).accept(db, listener);
-            self.docs(db).accept(db, listener);
-            self.visibility(db).accept(db, listener);
-            self.name(db).accept(db, listener);
-            self.parameters(db).accept(db, listener);
-            self.return_type(db).accept(db, listener);
-            self.methods(db).accept(db, listener);
-            self.location(db).accept(db, listener);
-            listener.exit_trait_top_level(self);
-        }
-    }
-
-    impl declaration::Declaration for TraitDecl {
-        fn attributes(
-            &self,
-            db: &dyn crate::HirDb,
-        ) -> HashSet<declaration::Attribute, FxBuildHasher> {
-            Self::attributes(*self, db)
-        }
-
-        fn visibility(&self, db: &dyn crate::HirDb) -> Spanned<declaration::Vis> {
-            Self::visibility(*self, db)
-        }
-
-        fn docs(&self, db: &dyn crate::HirDb) -> Vec<declaration::DocString> {
-            Self::docs(*self, db)
-        }
-
-        fn name(&self, db: &dyn crate::HirDb) -> Definition {
-            Self::name(*self, db)
-        }
-
-        fn parameters(&self, db: &dyn crate::HirDb) -> Vec<declaration::Parameter> {
-            Self::parameters(*self, db)
-        }
-
-        fn type_rep(&self, db: &dyn crate::HirDb) -> Option<type_rep::TypeRep> {
-            Self::return_type(*self, db).into()
-        }
-
-        fn upcast(&self, _db: &dyn crate::HirDb) -> top_level::DeclDescriptor {
-            top_level::DeclDescriptor::TraitDecl(*self)
-        }
-    }
-
-    impl HirElement for TraitDecl {
-        fn location(&self, db: &dyn crate::HirDb) -> Location {
-            Self::location(*self, db)
-        }
-    }
-
-    #[salsa::tracked]
     pub struct Inductive {
         pub attributes: HashSet<declaration::Attribute, FxBuildHasher>,
         pub docs: Vec<declaration::DocString>,
@@ -1203,7 +934,7 @@ pub mod top_level {
 
     impl walking::Walker for Inductive {
         fn accept<T: HirListener>(self, db: &dyn crate::HirDb, listener: &mut T) {
-            listener.enter_data_top_level(self);
+            listener.enter_inductive_top_level(self);
             self.attributes(db).accept(db, listener);
             self.docs(db).accept(db, listener);
             self.visibility(db).accept(db, listener);
@@ -1211,9 +942,8 @@ pub mod top_level {
             self.parameters(db).accept(db, listener);
             self.return_type(db).accept(db, listener);
             self.variants(db).accept(db, listener);
-            self.methods(db).accept(db, listener);
             self.location(db).accept(db, listener);
-            listener.exit_data_top_level(self);
+            listener.exit_inductive_top_level(self);
         }
     }
 
@@ -1246,7 +976,7 @@ pub mod top_level {
         }
 
         fn upcast(&self, _db: &dyn crate::HirDb) -> top_level::DeclDescriptor {
-            top_level::DeclDescriptor::DataDecl(*self)
+            top_level::DeclDescriptor::Inductive(*self)
         }
     }
 
@@ -1343,11 +1073,7 @@ pub mod top_level {
         Using(UsingTopLevel),
         Command(CommandTopLevel),
         BindingGroup(BindingGroup),
-        ClassDecl(ClassDecl),
-        InstanceDecl(InstanceDecl),
-        TraitDecl(TraitDecl),
         Inductive(Inductive),
-        TypeDecl(TypeDecl),
     }
 
     impl salsa::DebugWithDb<<crate::Jar as salsa::jar::Jar<'_>>::DynDb> for TopLevel {
@@ -1357,11 +1083,7 @@ pub mod top_level {
                 TopLevel::Using(using) => using.debug_all(db).fmt(f),
                 TopLevel::Command(command) => command.debug_all(db).fmt(f),
                 TopLevel::BindingGroup(binding) => binding.debug_all(db).fmt(f),
-                TopLevel::ClassDecl(class_decl) => class_decl.debug_all(db).fmt(f),
-                TopLevel::InstanceDecl(instance_decl) => instance_decl.debug_all(db).fmt(f),
-                TopLevel::TraitDecl(trait_decl) => trait_decl.debug_all(db).fmt(f),
                 TopLevel::Inductive(data_decl) => data_decl.debug_all(db).fmt(f),
-                TopLevel::TypeDecl(type_decl) => type_decl.debug_all(db).fmt(f),
             }
         }
     }
@@ -1377,11 +1099,7 @@ pub mod top_level {
                 TopLevel::Using(using) => using.accept(db, listener),
                 TopLevel::Command(command) => command.accept(db, listener),
                 TopLevel::BindingGroup(binding) => binding.accept(db, listener),
-                TopLevel::ClassDecl(class_decl) => class_decl.accept(db, listener),
-                TopLevel::InstanceDecl(instance_decl) => instance_decl.accept(db, listener),
-                TopLevel::TraitDecl(trait_decl) => trait_decl.accept(db, listener),
                 TopLevel::Inductive(data_decl) => data_decl.accept(db, listener),
-                TopLevel::TypeDecl(type_decl) => type_decl.accept(db, listener),
             }
         }
     }
@@ -1393,11 +1111,7 @@ pub mod top_level {
                 Self::Using(downcast) => downcast.location(db),
                 Self::Command(downcast) => downcast.location(db),
                 Self::BindingGroup(downcast) => downcast.location(db),
-                Self::ClassDecl(downcast) => downcast.location(db),
-                Self::InstanceDecl(downcast) => downcast.location(db),
-                Self::TraitDecl(downcast) => downcast.location(db),
                 Self::Inductive(downcast) => downcast.location(db),
-                Self::TypeDecl(downcast) => downcast.location(db),
             }
         }
     }
@@ -1408,11 +1122,7 @@ pub mod top_level {
     pub enum DeclDescriptor {
         Error(HirError),
         BindingGroup(BindingGroup),
-        ClassDecl(ClassDecl),
-        TraitDecl(TraitDecl),
-        InstanceDecl(InstanceDecl),
-        DataDecl(Inductive),
-        TypeDecl(TypeDecl),
+        Inductive(Inductive),
     }
 
     impl HirElement for DeclDescriptor {
@@ -1420,11 +1130,7 @@ pub mod top_level {
             match self {
                 Self::Error(downcast) => downcast.location(db),
                 Self::BindingGroup(downcast) => downcast.location(db),
-                Self::ClassDecl(downcast) => downcast.location(db),
-                Self::InstanceDecl(downcast) => downcast.location(db),
-                Self::TraitDecl(downcast) => downcast.location(db),
-                Self::DataDecl(downcast) => downcast.location(db),
-                Self::TypeDecl(downcast) => downcast.location(db),
+                Self::Inductive(downcast) => downcast.location(db),
             }
         }
     }
@@ -1438,11 +1144,7 @@ pub mod top_level {
             Ok(match value {
                 DeclDescriptor::Error(downcast) => Self::Error(downcast),
                 DeclDescriptor::BindingGroup(downcast) => Self::BindingGroup(downcast),
-                DeclDescriptor::ClassDecl(downcast) => Self::ClassDecl(downcast),
-                DeclDescriptor::InstanceDecl(downcast) => Self::InstanceDecl(downcast),
-                DeclDescriptor::TraitDecl(downcast) => Self::TraitDecl(downcast),
-                DeclDescriptor::DataDecl(downcast) => Self::Inductive(downcast),
-                DeclDescriptor::TypeDecl(downcast) => Self::TypeDecl(downcast),
+                DeclDescriptor::Inductive(downcast) => Self::Inductive(downcast),
             })
         }
     }
@@ -1458,11 +1160,7 @@ pub mod top_level {
                 TopLevel::Using(_) => return Err(()),
                 TopLevel::Command(_) => return Err(()),
                 TopLevel::BindingGroup(downcast) => Self::BindingGroup(downcast),
-                TopLevel::ClassDecl(downcast) => Self::ClassDecl(downcast),
-                TopLevel::InstanceDecl(downcast) => Self::InstanceDecl(downcast),
-                TopLevel::TraitDecl(downcast) => Self::TraitDecl(downcast),
-                TopLevel::Inductive(downcast) => Self::DataDecl(downcast),
-                TopLevel::TypeDecl(downcast) => Self::TypeDecl(downcast),
+                TopLevel::Inductive(downcast) => Self::Inductive(downcast),
             })
         }
     }
@@ -1480,11 +1178,7 @@ pub mod top_level {
             match self {
                 Self::Error(_) => Default::default(),
                 Self::BindingGroup(downcast) => downcast.attributes(db),
-                Self::ClassDecl(downcast) => downcast.attributes(db),
-                Self::InstanceDecl(downcast) => downcast.attributes(db),
-                Self::TraitDecl(downcast) => downcast.attributes(db),
-                Self::DataDecl(downcast) => downcast.attributes(db),
-                Self::TypeDecl(downcast) => downcast.attributes(db),
+                Self::Inductive(downcast) => downcast.attributes(db),
             }
         }
 
@@ -1492,11 +1186,7 @@ pub mod top_level {
             match self {
                 Self::Error(_) => Default::default(),
                 Self::BindingGroup(downcast) => downcast.visibility(db),
-                Self::ClassDecl(downcast) => downcast.visibility(db),
-                Self::InstanceDecl(downcast) => downcast.visibility(db),
-                Self::TraitDecl(downcast) => downcast.visibility(db),
-                Self::DataDecl(downcast) => downcast.visibility(db),
-                Self::TypeDecl(downcast) => downcast.visibility(db),
+                Self::Inductive(downcast) => downcast.visibility(db),
             }
         }
 
@@ -1504,11 +1194,7 @@ pub mod top_level {
             match self {
                 Self::Error(_) => Default::default(),
                 Self::BindingGroup(downcast) => downcast.docs(db),
-                Self::ClassDecl(downcast) => downcast.docs(db),
-                Self::InstanceDecl(downcast) => downcast.docs(db),
-                Self::TraitDecl(downcast) => downcast.docs(db),
-                Self::DataDecl(downcast) => downcast.docs(db),
-                Self::TypeDecl(downcast) => downcast.docs(db),
+                Self::Inductive(downcast) => downcast.docs(db),
             }
         }
 
@@ -1516,11 +1202,7 @@ pub mod top_level {
             match self {
                 Self::Error(_) => default_with_db(db),
                 Self::BindingGroup(downcast) => downcast.name(db),
-                Self::ClassDecl(downcast) => downcast.name(db),
-                Self::InstanceDecl(downcast) => downcast.name(db),
-                Self::TraitDecl(downcast) => downcast.name(db),
-                Self::DataDecl(downcast) => downcast.name(db),
-                Self::TypeDecl(downcast) => downcast.name(db),
+                Self::Inductive(downcast) => downcast.name(db),
             }
         }
 
@@ -1528,11 +1210,7 @@ pub mod top_level {
             match self {
                 Self::Error(_) => Default::default(),
                 Self::BindingGroup(downcast) => downcast.parameters(db),
-                Self::ClassDecl(downcast) => downcast.parameters(db),
-                Self::InstanceDecl(downcast) => downcast.parameters(db),
-                Self::TraitDecl(downcast) => downcast.parameters(db),
-                Self::DataDecl(downcast) => downcast.parameters(db),
-                Self::TypeDecl(downcast) => downcast.parameters(db),
+                Self::Inductive(downcast) => downcast.parameters(db),
             }
         }
 
@@ -1540,11 +1218,7 @@ pub mod top_level {
             match self {
                 Self::Error(_) => Default::default(),
                 Self::BindingGroup(downcast) => downcast.type_rep(db),
-                Self::ClassDecl(downcast) => downcast.type_rep(db),
-                Self::InstanceDecl(downcast) => downcast.type_rep(db),
-                Self::TraitDecl(downcast) => downcast.type_rep(db),
-                Self::DataDecl(downcast) => downcast.type_rep(db),
-                Self::TypeDecl(downcast) => downcast.type_rep(db),
+                Self::Inductive(downcast) => downcast.type_rep(db),
             }
         }
 

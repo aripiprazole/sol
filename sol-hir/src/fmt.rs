@@ -316,40 +316,6 @@ mod impls {
         }
     }
 
-    impl HirFormatter for top_level::ClassDecl {
-        fn hir_fmt(&self, db: &dyn HirDb, f: &mut Formatter, scope: &Scope) -> std::fmt::Result {
-            format_decl(self, "class", db, scope, f, |db, f, scope| {
-                // Write the classes' methods wi
-                code_block(db, scope, f, |db, f, scope| {
-                    scope.unlined(db, f, self.methods(db), ";")
-                })
-            })
-        }
-    }
-
-    impl HirFormatter for top_level::InstanceDecl {
-        fn hir_fmt(&self, db: &dyn HirDb, f: &mut Formatter, scope: &Scope) -> std::fmt::Result {
-            // TODO: Print implementation's type
-            format_decl(self, "instance", db, scope, f, |db, f, scope| {
-                // Write the classes' methods wi
-                code_block(db, scope, f, |db, f, scope| {
-                    scope.unlined(db, f, self.methods(db), ";")
-                })
-            })
-        }
-    }
-
-    impl HirFormatter for top_level::TraitDecl {
-        fn hir_fmt(&self, db: &dyn HirDb, f: &mut Formatter, scope: &Scope) -> std::fmt::Result {
-            format_decl(self, "trait", db, scope, f, |db, f, scope| {
-                // Write the classes' methods wi
-                code_block(db, scope, f, |db, f, scope| {
-                    scope.unlined(db, f, self.methods(db), ";")
-                })
-            })
-        }
-    }
-
     impl HirFormatter for top_level::Constructor {
         fn hir_fmt(&self, db: &dyn HirDb, f: &mut Formatter, scope: &Scope) -> std::fmt::Result {
             scope.write_indent(f)?;
@@ -361,22 +327,11 @@ mod impls {
 
     impl HirFormatter for top_level::Inductive {
         fn hir_fmt(&self, db: &dyn HirDb, f: &mut Formatter, scope: &Scope) -> std::fmt::Result {
-            format_decl(self, "data", db, scope, f, |db, f, scope| {
+            format_decl(self, "inductive", db, scope, f, |db, f, scope| {
                 // Write the classes' methods wi
                 code_block(db, scope, f, |db, f, scope| {
-                    scope.unlined(db, f, self.variants(db), ";")?;
-                    scope.unlined(db, f, self.methods(db), ";")
+                    scope.unlined(db, f, self.variants(db), ";")
                 })
-            })
-        }
-    }
-
-    impl HirFormatter for top_level::TypeDecl {
-        fn hir_fmt(&self, db: &dyn HirDb, f: &mut Formatter, scope: &Scope) -> std::fmt::Result {
-            format_decl(self, "type", db, scope, f, |_, _, _| {
-                // Nothing to do as [`format_decl`] does everything
-                // for us
-                Ok(())
             })
         }
     }
@@ -393,11 +348,7 @@ mod impls {
                 Using(using_top_level) => using_top_level.hir_fmt(db, f, scope),
                 Command(command_top_level) => command_top_level.hir_fmt(db, f, scope),
                 BindingGroup(binding_group) => binding_group.hir_fmt(db, f, scope),
-                ClassDecl(class_decl) => class_decl.hir_fmt(db, f, scope),
-                InstanceDecl(instance_decl) => instance_decl.hir_fmt(db, f, scope),
-                TraitDecl(trait_decl) => trait_decl.hir_fmt(db, f, scope),
-                Inductive(decl_decl) => decl_decl.hir_fmt(db, f, scope),
-                TypeDecl(type_decl) => type_decl.hir_fmt(db, f, scope),
+                Inductive(inductive) => inductive.hir_fmt(db, f, scope),
             }
         }
     }

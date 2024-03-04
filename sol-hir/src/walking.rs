@@ -101,11 +101,7 @@ pub trait HirListener {
     fn enter_using_top_level(&mut self, using: top_level::UsingTopLevel) {}
     fn enter_binding_top_level(&mut self, binding: top_level::BindingGroup) {}
     fn enter_command_top_level(&mut self, command: top_level::CommandTopLevel) {}
-    fn enter_class_top_level(&mut self, class: top_level::ClassDecl) {}
-    fn enter_type_top_level(&mut self, type_: top_level::TypeDecl) {}
-    fn enter_instance_top_level(&mut self, trait_: top_level::InstanceDecl) {}
-    fn enter_trait_top_level(&mut self, trait_: top_level::TraitDecl) {}
-    fn enter_data_top_level(&mut self, data: top_level::Inductive) {}
+    fn enter_inductive_top_level(&mut self, inductive: top_level::Inductive) {}
 
     // SECTION: type_rep
     fn exit_arrow_type_rep(&mut self, arrow: type_rep::ArrowTypeRep) {}
@@ -145,9 +141,5 @@ pub trait HirListener {
     fn exit_using_top_level(&mut self, using: top_level::UsingTopLevel) {}
     fn exit_binding_top_level(&mut self, binding: top_level::BindingGroup) {}
     fn exit_command_top_level(&mut self, command: top_level::CommandTopLevel) {}
-    fn exit_class_top_level(&mut self, class: top_level::ClassDecl) {}
-    fn exit_type_top_level(&mut self, class: top_level::TypeDecl) {}
-    fn exit_instance_top_level(&mut self, trait_: top_level::InstanceDecl) {}
-    fn exit_trait_top_level(&mut self, trait_: top_level::TraitDecl) {}
-    fn exit_data_top_level(&mut self, data: top_level::Inductive) {}
+    fn exit_inductive_top_level(&mut self, inductive: top_level::Inductive) {}
 }
