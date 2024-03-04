@@ -26,14 +26,6 @@ type SyntaxExpr<'tree> = sol_syntax::anon_unions::AnnExpr_AppExpr_BinaryExpr_For
 type SyntaxTypeRep<'tree> = sol_syntax::anon_unions::AnnExpr_BinaryExpr_ForallExpr_LamExpr_MatchExpr_PiExpr_Primary_SigmaExpr_TypeAppExpr<'tree>;
 
 impl HirLowering<'_, '_> {
-    /// Resolves a clause type for GADTs, and other things that are not expressions but are
-    /// type level expressions.
-    pub fn clause_type(&mut self, clause: sol_syntax::ClauseType) -> TypeRep {
-        clause
-            .clause_type()
-            .solve(self, |this, node| this.type_expr(node))
-    }
-
     /// Resolves a type level expression.
     ///
     /// It does use the type level of expressions to resolve syntax

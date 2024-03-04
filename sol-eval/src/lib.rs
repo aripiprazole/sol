@@ -56,11 +56,7 @@ pub fn hir_eval(
             Using(_) => todo!(),
             Command(_) => todo!(),
             BindingGroup(_) => todo!(),
-            ClassDecl(_) => todo!(),
-            InstanceDecl(_) => todo!(),
-            TraitDecl(_) => todo!(),
             Inductive(_) => todo!(),
-            TypeDecl(_) => todo!(),
         }
     }
     todo!()

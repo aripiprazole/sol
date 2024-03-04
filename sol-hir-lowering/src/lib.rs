@@ -32,8 +32,8 @@ use sol_hir::{
         expr::{AbsExpr, AnnExpr, CallExpr, CallKind, Callee, Expr},
         pattern::{BindingPattern, Pattern},
         top_level::{
-            BindingGroup, ClassDecl, Clause, CommandTopLevel, Constructor, ConstructorKind,
-            Inductive, InstanceDecl, Signature, TopLevel, TraitDecl, TypeDecl, UsingTopLevel,
+            BindingGroup, Clause, CommandTopLevel, Constructor, ConstructorKind, Inductive,
+            Signature, TopLevel, UsingTopLevel,
         },
         type_rep::{AppTypeRep, ArrowKind, ArrowTypeRep, TypeRep},
         DefaultWithDb, HirPath, HirSource, Identifier, Location, OptionExt, Spanned,
@@ -54,7 +54,7 @@ pub trait HirLoweringDb: HirDb + DbWithJar<Jar> {}
 impl<T> HirLoweringDb for T where T: HirDb + DbWithJar<Jar> {}
 
 #[rustfmt::skip]
-type SyntaxDecl<'tree> = sol_syntax::anon_unions::ClassDecl_Clause_Command_DataDecl_InstanceDecl_Signature_TraitDecl_TypeDecl_Using<'tree>;
+type SyntaxDecl<'tree> = sol_syntax::anon_unions::Clause_Command_Inductive_Signature_Using<'tree>;
 
 #[rustfmt::skip]
 type SyntaxIdentifier<'tree> = sol_syntax::anon_unions::SimpleIdentifier_SymbolIdentifier<'tree>;
@@ -303,7 +303,7 @@ impl<'db, 'tree> HirLowering<'db, 'tree> {
             let type_rep = tree
                 .clause_type()
                 .flatten()
-                .map(|node| this.clause_type(node))
+                .map(|node| this.type_expr(node))
                 .unwrap_or_default_with_db(db);
 
             // Solve the variants within the current scope
@@ -534,7 +534,7 @@ impl<'db, 'tree> HirLowering<'db, 'tree> {
             let type_rep = tree
                 .clause_type()
                 .flatten()
-                .map(|node| this.clause_type(node))
+                .map(|node| this.type_expr(node))
                 .unwrap_or_default_with_db(db);
 
             let signature = Signature::new(

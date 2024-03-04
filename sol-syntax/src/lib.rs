@@ -1,4 +1,5 @@
 #![feature(trait_upcasting)]
+#![allow(incomplete_features)]
 
 #[allow(clippy::all)]
 #[allow(unused_variables)]
