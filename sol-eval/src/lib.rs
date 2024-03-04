@@ -56,7 +56,7 @@ pub fn hir_eval(
             Using(_) => todo!(),
             Command(_) => todo!(),
             BindingGroup(_) => todo!(),
-            Inductive(_) => todo!(),
+            Inductive(_) => todo!("inductive type system"),
         }
     }
     todo!()

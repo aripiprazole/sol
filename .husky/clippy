@@ -1,0 +1,4 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+cargo clippy --message-format=json-diagnostic-rendered-ansi -- -Wclippy::pedantic -Dclippy::all
