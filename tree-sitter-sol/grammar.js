@@ -73,11 +73,7 @@ module.exports = grammar({
     _decl: $ => choice(
       $.command,
       $.using,
-      $.class_decl,
-      $.trait_decl,
-      $.data_decl,
-      $.type_decl,
-      $.instance_decl,
+      $.inductive,
       $.signature,
       $.clause,
     ),
@@ -139,7 +135,7 @@ module.exports = grammar({
       optional(field('value', $._expr)),
     ),
 
-    data_decl: $ => seq(
+    inductive: $ => seq(
       repeat(field('doc_string', $.doc_string)),
       repeat(field('attribute', $.attribute)),
       optional(field('visibility', $.visibility)),
