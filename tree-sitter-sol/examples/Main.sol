@@ -1,6 +1,5 @@
 //! Represents a nullable value
-@stdlib
-data Maybe (a) {
+inductive Maybe a {
     Just : a -> Maybe a,
     Nothing : Maybe a;
 }
