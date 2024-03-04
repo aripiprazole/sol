@@ -59,7 +59,7 @@ pub fn hir_eval(
             ClassDecl(_) => todo!(),
             InstanceDecl(_) => todo!(),
             TraitDecl(_) => todo!(),
-            DataDecl(_) => todo!(),
+            Inductive(_) => todo!(),
             TypeDecl(_) => todo!(),
         }
     }

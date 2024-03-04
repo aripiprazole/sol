@@ -1189,7 +1189,7 @@ pub mod top_level {
     }
 
     #[salsa::tracked]
-    pub struct DataDecl {
+    pub struct Inductive {
         pub attributes: HashSet<declaration::Attribute, FxBuildHasher>,
         pub docs: Vec<declaration::DocString>,
         pub visibility: Spanned<declaration::Vis>,
@@ -1197,12 +1197,11 @@ pub mod top_level {
         pub parameters: Vec<declaration::Parameter>,
         pub return_type: type_rep::TypeRep,
         pub variants: Vec<Constructor>,
-        pub methods: Vec<BindingGroup>,
         pub location: Location,
         pub scope: Arc<Scope>,
     }
 
-    impl walking::Walker for DataDecl {
+    impl walking::Walker for Inductive {
         fn accept<T: HirListener>(self, db: &dyn crate::HirDb, listener: &mut T) {
             listener.enter_data_top_level(self);
             self.attributes(db).accept(db, listener);
@@ -1218,7 +1217,7 @@ pub mod top_level {
         }
     }
 
-    impl declaration::Declaration for DataDecl {
+    impl declaration::Declaration for Inductive {
         fn attributes(
             &self,
             db: &dyn crate::HirDb,
@@ -1251,7 +1250,7 @@ pub mod top_level {
         }
     }
 
-    impl HirElement for DataDecl {
+    impl HirElement for Inductive {
         fn location(&self, db: &dyn crate::HirDb) -> Location {
             Self::location(*self, db)
         }
@@ -1347,7 +1346,7 @@ pub mod top_level {
         ClassDecl(ClassDecl),
         InstanceDecl(InstanceDecl),
         TraitDecl(TraitDecl),
-        DataDecl(DataDecl),
+        Inductive(Inductive),
         TypeDecl(TypeDecl),
     }
 
@@ -1361,7 +1360,7 @@ pub mod top_level {
                 TopLevel::ClassDecl(class_decl) => class_decl.debug_all(db).fmt(f),
                 TopLevel::InstanceDecl(instance_decl) => instance_decl.debug_all(db).fmt(f),
                 TopLevel::TraitDecl(trait_decl) => trait_decl.debug_all(db).fmt(f),
-                TopLevel::DataDecl(data_decl) => data_decl.debug_all(db).fmt(f),
+                TopLevel::Inductive(data_decl) => data_decl.debug_all(db).fmt(f),
                 TopLevel::TypeDecl(type_decl) => type_decl.debug_all(db).fmt(f),
             }
         }
@@ -1381,7 +1380,7 @@ pub mod top_level {
                 TopLevel::ClassDecl(class_decl) => class_decl.accept(db, listener),
                 TopLevel::InstanceDecl(instance_decl) => instance_decl.accept(db, listener),
                 TopLevel::TraitDecl(trait_decl) => trait_decl.accept(db, listener),
-                TopLevel::DataDecl(data_decl) => data_decl.accept(db, listener),
+                TopLevel::Inductive(data_decl) => data_decl.accept(db, listener),
                 TopLevel::TypeDecl(type_decl) => type_decl.accept(db, listener),
             }
         }
@@ -1397,7 +1396,7 @@ pub mod top_level {
                 Self::ClassDecl(downcast) => downcast.location(db),
                 Self::InstanceDecl(downcast) => downcast.location(db),
                 Self::TraitDecl(downcast) => downcast.location(db),
-                Self::DataDecl(downcast) => downcast.location(db),
+                Self::Inductive(downcast) => downcast.location(db),
                 Self::TypeDecl(downcast) => downcast.location(db),
             }
         }
@@ -1412,7 +1411,7 @@ pub mod top_level {
         ClassDecl(ClassDecl),
         TraitDecl(TraitDecl),
         InstanceDecl(InstanceDecl),
-        DataDecl(DataDecl),
+        DataDecl(Inductive),
         TypeDecl(TypeDecl),
     }
 
@@ -1442,7 +1441,7 @@ pub mod top_level {
                 DeclDescriptor::ClassDecl(downcast) => Self::ClassDecl(downcast),
                 DeclDescriptor::InstanceDecl(downcast) => Self::InstanceDecl(downcast),
                 DeclDescriptor::TraitDecl(downcast) => Self::TraitDecl(downcast),
-                DeclDescriptor::DataDecl(downcast) => Self::DataDecl(downcast),
+                DeclDescriptor::DataDecl(downcast) => Self::Inductive(downcast),
                 DeclDescriptor::TypeDecl(downcast) => Self::TypeDecl(downcast),
             })
         }
@@ -1462,7 +1461,7 @@ pub mod top_level {
                 TopLevel::ClassDecl(downcast) => Self::ClassDecl(downcast),
                 TopLevel::InstanceDecl(downcast) => Self::InstanceDecl(downcast),
                 TopLevel::TraitDecl(downcast) => Self::TraitDecl(downcast),
-                TopLevel::DataDecl(downcast) => Self::DataDecl(downcast),
+                TopLevel::Inductive(downcast) => Self::DataDecl(downcast),
                 TopLevel::TypeDecl(downcast) => Self::TypeDecl(downcast),
             })
         }

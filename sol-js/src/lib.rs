@@ -73,7 +73,7 @@ pub fn transform_top_level(
         TopLevel::ClassDecl(_) => bail!("class declarations are not supported"),
         TopLevel::InstanceDecl(_) => bail!("instance declarations are not supported"),
         TopLevel::TraitDecl(_) => bail!("trait declarations are not supported"),
-        TopLevel::DataDecl(_) => bail!("data declarations are not supported"),
+        TopLevel::Inductive(_) => bail!("data declarations are not supported"),
         TopLevel::TypeDecl(_) => bail!("type declarations are not supported"),
     }
 }

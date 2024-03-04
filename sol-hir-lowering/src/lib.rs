@@ -33,7 +33,7 @@ use sol_hir::{
         pattern::{BindingPattern, Pattern},
         top_level::{
             BindingGroup, ClassDecl, Clause, CommandTopLevel, Constructor, ConstructorKind,
-            DataDecl, InstanceDecl, Signature, TopLevel, TraitDecl, TypeDecl, UsingTopLevel,
+            Inductive, InstanceDecl, Signature, TopLevel, TraitDecl, TypeDecl, UsingTopLevel,
         },
         type_rep::{AppTypeRep, ArrowKind, ArrowTypeRep, TypeRep},
         DefaultWithDb, HirPath, HirSource, Identifier, Location, OptionExt, Spanned,
@@ -206,17 +206,13 @@ impl<'db, 'tree> HirLowering<'db, 'tree> {
     /// It will return `Some` if the declaration is "resolvable", and it will return a solver for
     /// the declaration.
     pub fn define<'a>(&mut self, decl: SyntaxDecl<'a>) -> Option<Solver<'a, TopLevel>> {
-        use sol_syntax::anon_unions::ClassDecl_Clause_Command_DataDecl_InstanceDecl_Signature_TraitDecl_TypeDecl_Using::*;
+        use sol_syntax::anon_unions::Clause_Command_Inductive_Signature_Using::*;
 
         // Creates a new [`TopLevel`] instance.
         let decl = match decl {
             Command(command) => self.hir_command(command),
-            ClassDecl(class_decl) => return self.hir_class(class_decl).into(),
             Clause(clause) => return self.hir_clause(clause).into(),
-            DataDecl(data_decl) => return self.hir_data(data_decl).into(),
-            InstanceDecl(instance_decl) => return self.hir_instance(instance_decl).into(),
-            TraitDecl(trait_decl) => return self.hir_trait(trait_decl).into(),
-            TypeDecl(type_decl) => return self.hir_type(type_decl).into(),
+            Inductive(data_decl) => return self.hir_inductive(data_decl).into(),
             Signature(signature) => return self.hir_signature(signature).into(),
             Using(decl) => return self.hir_using(decl).into(),
         };
@@ -267,300 +263,12 @@ impl<'db, 'tree> HirLowering<'db, 'tree> {
         })
     }
 
-    /// Creates a new high level type declaration [`TypeDecl`] solver, for the given
-    /// concrete syntax tree [`sol_syntax::TypeDecl`].
-    ///
-    /// It will return a [`Solver`] for the [`Signature`], and it will solve the [`Signature`] in
-    /// the [`hir_lower`] query.
-    pub fn hir_type<'a>(&mut self, tree: sol_syntax::TypeDecl<'a>) -> Solver<'a, TopLevel> {
-        let range = self.range(tree.range());
-        let path = tree.name().solve(self, |this, node| this.path(node));
-
-        let attrs = self.hir_attributes(tree.attributes(&mut tree.walk()));
-        let docs = self.hir_docs(tree.doc_strings(&mut tree.walk()));
-
-        // Converts the visibility to default visibility, if it is not specified.
-        let vis = tree
-            .visibility()
-            .map(|vis| vis.solve(self, |this, node| this.hir_visibility(node)))
-            .unwrap_or(Spanned::on_call_site(Vis::Public));
-
-        // Defines the node on the scope
-        let node = self
-            .scope
-            .define(self.db, path, range.clone(), DefinitionKind::Type);
-
-        Solver::new(move |db, this| {
-            // Creates a new scope for the function, and it will be used to store the parameters,
-            // and the variables.
-            this.scope = this.scope.fork(ScopeKind::Type);
-
-            let parameters = this.parameters(tree.arguments(&mut tree.walk()));
-
-            let type_rep = tree
-                .clause_type()
-                .flatten()
-                .map(|node| this.clause_type(node))
-                .unwrap_or_default_with_db(db);
-
-            let type_decl = TypeDecl::new(
-                this.db,
-                /* attributes  = */ attrs,
-                /* docs        = */ docs,
-                /* visibility  = */ vis,
-                /* name        = */ node,
-                /* parameters  = */ parameters,
-                /* return_type = */ type_rep,
-                /* location    = */ range.clone(),
-                /* scope       = */ this.pop_scope(),
-            );
-
-            // It's not needed to solve the clause, because it is already solved in the next steps.
-            //
-            // The entire next step, is getting the clauses from the scope, and transforms into
-            // declarations, so it is not needed to solve the clause here.
-            TopLevel::TypeDecl(type_decl)
-        })
-    }
-
-    /// Creates a new high level class declaration [`ClassDecl`] solver, for the given
-    /// concrete syntax tree [`sol_syntax::ClassDecl`].
-    ///
-    /// It will return a [`Solver`] for the [`Signature`], and it will solve the [`Signature`] in
-    /// the [`hir_lower`] query.
-    pub fn hir_class<'a>(&mut self, tree: sol_syntax::ClassDecl<'a>) -> Solver<'a, TopLevel> {
-        let range = self.range(tree.range());
-        let path = tree.name().solve(self, |this, node| this.path(node));
-
-        let attrs = self.hir_attributes(tree.attributes(&mut tree.walk()));
-        let docs = self.hir_docs(tree.doc_strings(&mut tree.walk()));
-
-        // Converts the visibility to default visibility, if it is not specified.
-        let vis = tree
-            .visibility()
-            .map(|vis| vis.solve(self, |this, node| this.hir_visibility(node)))
-            .unwrap_or(Spanned::on_call_site(Vis::Public));
-
-        // Defines the node on the scope
-        let node = self
-            .scope
-            .define(self.db, path, range.clone(), DefinitionKind::Function);
-
-        let methods = tree
-            .fields(&mut tree.walk())
-            .flatten()
-            .filter_map(|method| method.regular())
-            .map(|method| self.hir_signature(method))
-            .collect::<Vec<_>>();
-
-        Solver::new(move |db, this| {
-            // Creates a new scope for the function, and it will be used to store the parameters,
-            // and the variables.
-            this.scope = this.scope.fork(ScopeKind::Class);
-
-            let parameters = this.parameters(tree.arguments(&mut tree.walk()));
-
-            let methods = methods
-                .into_iter()
-                .map(|method| method.run_solver(this))
-                .filter_map(|top_level| match top_level {
-                    TopLevel::BindingGroup(binding_group) => Some(binding_group),
-                    _ => None,
-                })
-                .collect::<Vec<_>>();
-
-            let type_rep = tree
-                .clause_type()
-                .flatten()
-                .map(|node| this.clause_type(node))
-                .unwrap_or_default_with_db(db);
-
-            // Publish all definitions to parent scope
-            this.scope.publish_all_definitions(this.db, node);
-
-            let class_decl = ClassDecl::new(
-                this.db,
-                /* attributes  = */ attrs,
-                /* docs        = */ docs,
-                /* visibility  = */ vis,
-                /* name        = */ node,
-                /* parameters  = */ parameters,
-                /* return_type = */ type_rep,
-                /* fields      = */ vec![], // TODO
-                /* methods     = */ methods,
-                /* location    = */ range.clone(),
-                /* scope       = */ this.pop_scope(),
-            );
-
-            // It's not needed to solve the clause, because it is already solved in the next steps.
-            //
-            // The entire next step, is getting the clauses from the scope, and transforms into
-            // declarations, so it is not needed to solve the clause here.
-            TopLevel::ClassDecl(class_decl)
-        })
-    }
-
-    /// Creates a new high instance trait declaration [`InstanceDecl`] solver, for the given
-    /// concrete syntax tree [`sol_syntax::TraitDecl`].
-    ///
-    /// It will return a [`Solver`] for the [`Signature`], and it will solve the [`Signature`] in
-    /// the [`hir_lower`] query.
-    pub fn hir_instance<'a>(&mut self, tree: sol_syntax::InstanceDecl<'a>) -> Solver<'a, TopLevel> {
-        let range = self.range(tree.range());
-        let path = tree.name().solve(self, |this, path| this.path(path));
-
-        let attrs = self.hir_attributes(tree.attributes(&mut tree.walk()));
-        let docs = self.hir_docs(tree.doc_strings(&mut tree.walk()));
-
-        // Converts the visibility to default visibility, if it is not specified.
-        let vis = tree
-            .visibility()
-            .map(|vis| vis.solve(self, |this, node| this.hir_visibility(node)))
-            .unwrap_or(Spanned::on_call_site(Vis::Public));
-
-        let methods = tree
-            .fields(&mut tree.walk())
-            .flatten()
-            .filter_map(|method| method.regular())
-            .map(|method| self.hir_signature(method))
-            .collect::<Vec<_>>();
-
-        Solver::new(move |db, this| {
-            // Creates a new scope for the function, and it will be used to store the parameters,
-            // and the variables.
-            this.scope = this.scope.fork(ScopeKind::Class);
-
-            // Defines the node on the scope
-            let node = this.qualify(path, DefinitionKind::Trait);
-
-            let parameters = this.parameters(tree.arguments(&mut tree.walk()));
-
-            let methods = methods
-                .into_iter()
-                .map(|method| method.run_solver(this))
-                .filter_map(|top_level| match top_level {
-                    TopLevel::BindingGroup(binding_group) => Some(binding_group),
-                    _ => None,
-                })
-                .collect::<Vec<_>>();
-
-            let types = tree
-                .items(&mut tree.walk())
-                .flatten()
-                .filter_map(|node| node.regular())
-                .map(|node| this.primary(node, HirLevel::Type).upgrade(db))
-                .collect();
-
-            // Publish all definitions to parent scope
-            this.scope.publish_all_definitions(this.db, node);
-
-            let instance_decl = InstanceDecl::new(
-                this.db,
-                /* attributes  = */ attrs,
-                /* docs        = */ docs,
-                /* visibility  = */ vis,
-                /* name        = */ node,
-                /* parameters  = */ parameters,
-                /* types       = */ types,
-                /* methods     = */ methods,
-                /* location    = */ range.clone(),
-                /* scope       = */ this.pop_scope(),
-            );
-
-            // It's not needed to solve the clause, because it is already solved in the next steps.
-            //
-            // The entire next step, is getting the clauses from the scope, and transforms into
-            // declarations, so it is not needed to solve the clause here.
-            TopLevel::InstanceDecl(instance_decl)
-        })
-    }
-
-    /// Creates a new high level trait declaration [`TraitDecl`] solver, for the given
-    /// concrete syntax tree [`sol_syntax::TraitDecl`].
-    ///
-    /// It will return a [`Solver`] for the [`Signature`], and it will solve the [`Signature`] in
-    /// the [`hir_lower`] query.
-    pub fn hir_trait<'a>(&mut self, tree: sol_syntax::TraitDecl<'a>) -> Solver<'a, TopLevel> {
-        let range = self.range(tree.range());
-        let path = tree.name().solve(self, |this, path| this.path(path));
-
-        let attrs = self.hir_attributes(tree.attributes(&mut tree.walk()));
-        let docs = self.hir_docs(tree.doc_strings(&mut tree.walk()));
-
-        // Converts the visibility to default visibility, if it is not specified.
-        let vis = tree
-            .visibility()
-            .map(|vis| vis.solve(self, |this, node| this.hir_visibility(node)))
-            .unwrap_or(Spanned::on_call_site(Vis::Public));
-
-        // Defines the node on the scope
-        let node = self
-            .scope
-            .define(self.db, path, range.clone(), DefinitionKind::Type);
-
-        // Defines a trait for the trait too, so we can destruct it later.
-        self.scope
-            .define(self.db, path, range.clone(), DefinitionKind::Trait);
-
-        let methods = tree
-            .fields(&mut tree.walk())
-            .flatten()
-            .filter_map(|method| method.regular())
-            .map(|method| self.hir_signature(method))
-            .collect::<Vec<_>>();
-
-        Solver::new(move |db, this| {
-            // Creates a new scope for the function, and it will be used to store the parameters,
-            // and the variables.
-            this.scope = this.scope.fork(ScopeKind::Class);
-
-            let parameters = this.parameters(tree.arguments(&mut tree.walk()));
-
-            let methods = methods
-                .into_iter()
-                .map(|method| method.run_solver(this))
-                .filter_map(|top_level| match top_level {
-                    TopLevel::BindingGroup(binding_group) => Some(binding_group),
-                    _ => None,
-                })
-                .collect::<Vec<_>>();
-
-            let type_rep = tree
-                .clause_type()
-                .flatten()
-                .map(|node| this.clause_type(node))
-                .unwrap_or_default_with_db(db);
-
-            // Publish all definitions to parent scope
-            this.scope.publish_all_definitions(this.db, node);
-
-            let trait_decl = TraitDecl::new(
-                this.db,
-                /* attributes  = */ attrs,
-                /* docs        = */ docs,
-                /* visibility  = */ vis,
-                /* name        = */ node,
-                /* parameters  = */ parameters,
-                /* return_type = */ type_rep,
-                /* methods     = */ methods,
-                /* location    = */ range.clone(),
-                /* scope       = */ this.pop_scope(),
-            );
-
-            // It's not needed to solve the clause, because it is already solved in the next steps.
-            //
-            // The entire next step, is getting the clauses from the scope, and transforms into
-            // declarations, so it is not needed to solve the clause here.
-            TopLevel::TraitDecl(trait_decl)
-        })
-    }
-
-    /// Creates a new high level data declaration [`DataDecl`] solver, for the given
+    /// Creates a new high level data declaration [`Inductive`] solver, for the given
     /// concrete syntax tree [`sol_syntax::DataDecl`].
     ///
     /// It will return a [`Solver`] for the [`Signature`], and it will solve the [`Signature`] in
     /// the [`hir_lower`] query.
-    pub fn hir_data<'a>(&mut self, tree: sol_syntax::DataDecl<'a>) -> Solver<'a, TopLevel> {
+    pub fn hir_inductive<'a>(&mut self, tree: sol_syntax::Inductive<'a>) -> Solver<'a, TopLevel> {
         let range = self.range(tree.range());
         let path = tree.name().solve(self, |this, path| this.path(path));
 
@@ -585,28 +293,12 @@ impl<'db, 'tree> HirLowering<'db, 'tree> {
             .filter_map(|constructor| self.hir_variant(constructor))
             .collect::<Vec<_>>();
 
-        let methods = tree
-            .methods(&mut tree.walk())
-            .flatten()
-            .filter_map(|method| method.regular())
-            .map(|method| self.hir_signature(method))
-            .collect::<Vec<_>>();
-
         Solver::new(move |db, this| {
             // Creates a new scope for the function, and it will be used to store the parameters,
             // and the variables.
             this.scope = this.scope.fork(ScopeKind::Data);
 
             let parameters = this.parameters(tree.arguments(&mut tree.walk()));
-
-            let methods = methods
-                .into_iter()
-                .map(|method| method.run_solver(this))
-                .filter_map(|top_level| match top_level {
-                    TopLevel::BindingGroup(binding_group) => Some(binding_group),
-                    _ => None,
-                })
-                .collect::<Vec<_>>();
 
             let type_rep = tree
                 .clause_type()
@@ -623,7 +315,7 @@ impl<'db, 'tree> HirLowering<'db, 'tree> {
             // Publish all definitions to parent scope
             this.scope.publish_all_definitions(this.db, node);
 
-            let data_decl = DataDecl::new(
+            let inductive = Inductive::new(
                 this.db,
                 /* attributes  = */ attrs,
                 /* docs        = */ docs,
@@ -632,7 +324,6 @@ impl<'db, 'tree> HirLowering<'db, 'tree> {
                 /* parameters  = */ parameters,
                 /* return_type = */ type_rep,
                 /* variants    = */ variants,
-                /* methods     = */ methods,
                 /* location    = */ range.clone(),
                 /* scope       = */ this.pop_scope(),
             );
@@ -641,7 +332,7 @@ impl<'db, 'tree> HirLowering<'db, 'tree> {
             //
             // The entire next step, is getting the clauses from the scope, and transforms into
             // declarations, so it is not needed to solve the clause here.
-            TopLevel::DataDecl(data_decl)
+            TopLevel::Inductive(inductive)
         })
     }
 

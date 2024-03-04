@@ -105,7 +105,7 @@ pub trait HirListener {
     fn enter_type_top_level(&mut self, type_: top_level::TypeDecl) {}
     fn enter_instance_top_level(&mut self, trait_: top_level::InstanceDecl) {}
     fn enter_trait_top_level(&mut self, trait_: top_level::TraitDecl) {}
-    fn enter_data_top_level(&mut self, data: top_level::DataDecl) {}
+    fn enter_data_top_level(&mut self, data: top_level::Inductive) {}
 
     // SECTION: type_rep
     fn exit_arrow_type_rep(&mut self, arrow: type_rep::ArrowTypeRep) {}
@@ -149,5 +149,5 @@ pub trait HirListener {
     fn exit_type_top_level(&mut self, class: top_level::TypeDecl) {}
     fn exit_instance_top_level(&mut self, trait_: top_level::InstanceDecl) {}
     fn exit_trait_top_level(&mut self, trait_: top_level::TraitDecl) {}
-    fn exit_data_top_level(&mut self, data: top_level::DataDecl) {}
+    fn exit_data_top_level(&mut self, data: top_level::Inductive) {}
 }
