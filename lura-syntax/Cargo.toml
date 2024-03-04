@@ -1,0 +1,21 @@
+[package]
+name = "lura-syntax"
+edition.workspace = true
+authors.workspace = true
+documentation.workspace = true
+version.workspace = true
+
+[dependencies]
+lura-diagnostic = {version = "0.0.1", path = "../lura-diagnostic"}
+lura-vfs = {version = "0.0.1", path = "../lura-vfs"}
+
+salsa-2022.workspace = true
+
+tree-sitter.workspace = true
+type-sitter-lib.workspace = true
+
+tree-sitter-lura = {version = "0.1.20", path = "../tree-sitter-lura"}
+
+[build-dependencies]
+type-sitter-gen.workspace = true
+rust-format = "0.3.4"

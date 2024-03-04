@@ -1,0 +1,14 @@
+[package]
+name = "lura-vfs"
+edition.workspace = true
+authors.workspace = true
+documentation.workspace = true
+version.workspace = true
+
+[dependencies]
+salsa-2022.workspace = true
+
+tree-sitter.workspace = true
+type-sitter-lib.workspace = true
+
+eyre.workspace = true

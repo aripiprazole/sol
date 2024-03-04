@@ -1,0 +1,30 @@
+[package]
+name = "lura-driver"
+edition.workspace = true
+authors.workspace = true
+documentation.workspace = true
+version.workspace = true
+
+[dependencies]
+lura-diagnostic = { version = "0.0.1", path = "../lura-diagnostic" }
+lura-hir = { version = "0.0.1", path = "../lura-hir" }
+lura-hir-lowering = { version = "0.0.1", path = "../lura-hir-lowering" }
+lura-syntax = { version = "0.0.1", path = "../lura-syntax" }
+lura-vfs = { version = "0.0.1", path = "../lura-vfs" }
+lura-typer = { version = "0.0.1", path = "../lura-typer" }
+lura-ariadne = { version = "0.0.1", path = "../lura-ariadne" }
+lura-eval = { version = "0.0.1", path = "../lura-eval" }
+lura-tt = { version = "0.0.1", path = "../lura-tt" }
+lura-eyre = { version = "0.0.1", path = "../lura-eyre" }
+
+salsa-2022 = { workspace = true }
+
+dashmap.workspace = true
+itertools.workspace = true
+fxhash.workspace = true
+
+ariadne = { version = "0.3.0", features = ["auto-color"] }
+similar = "2.2.1"
+strip-ansi-escapes = "0.2.0"
+env_logger = "0.10.0"
+log.workspace = true

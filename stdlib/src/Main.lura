@@ -1,0 +1,29 @@
+//! Represents a linked list with pure functional constructs, that have two
+//! variants:
+//!
+//! - [`Cons`]: a head of the list
+//! - [`Nil`]: the end of the list
+@stdlib data List (^a) {
+  Cons : a -> List a -> List a,
+  Nil  : List a
+}
+
+@stdlib data Maybe (^a) {
+  Just(a),
+  Nothing
+}
+
+@stdlib @internal data String
+
+type StringList = List String
+
+head : ^a -> Maybe ^a
+head (Cons x _) = Just x
+head Nil        = Nothing
+
+`$     : ^a -> (^a -> ^b) -> ^b
+`$ a f = f a
+
+println : String -> ()
+
+Pao { Pao }
