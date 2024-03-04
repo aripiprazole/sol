@@ -6,17 +6,15 @@ documentation.workspace = true
 version.workspace = true
 
 [dependencies]
-sol-diagnostic = { version = "0.0.1", path = "../sol-diagnostic" }
-sol-hir = { version = "0.0.1", path = "../sol-hir" }
-sol-syntax = { version = "0.0.1", path = "../sol-syntax" }
-sol-vfs = { version = "0.0.1", path = "../sol-vfs" }
-sol-eyre = { version = "0.0.1", path = "../sol-eyre" }
-
+sol-diagnostic.workspace = true
+sol-hir.workspace = true
+sol-syntax.workspace = true
+sol-vfs.workspace = true
+sol-eyre.workspace = true
 salsa-2022.workspace = true
 im.workspace = true
-
-axum = "0.6.20"
-deno_core = "0.229.0"
-resast = "0.4.1"
-resw = "0.5.0"
+axum.workspace = true
+deno_core.workspace = true
+resast.workspace = true
+resw.workspace = true
 eyre.workspace = true

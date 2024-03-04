@@ -1,22 +1,22 @@
 [workspace]
 resolver = "2"
 members = [
-    "sol-syntax",
-    "sol-hir",
-    "sol-hir-lowering",
-    "sol-driver",
-    "sol-diagnostic",
-    "sol-vfs",
-    "sol-ide",
-    "sol-eval",
-    "sol-tt",
-    "sol-eyre",
-    "sol-cli",
-    "sol-typer",
-    "sol-ariadne",
-    "sol-docs-backend",
-    "sol-js",
-    "tree-sitter-sol",
+  "sol-syntax",
+  "sol-hir",
+  "sol-hir-lowering",
+  "sol-driver",
+  "sol-diagnostic",
+  "sol-vfs",
+  "sol-ide",
+  "sol-eval",
+  "sol-tt",
+  "sol-eyre",
+  "sol-cli",
+  "sol-typer",
+  "sol-ariadne",
+  "sol-docs-backend",
+  "sol-js",
+  "tree-sitter-sol",
 ]
 
 [workspace.dependencies]
@@ -38,6 +38,61 @@ paste = "1.0.14"
 tree-sitter = "~0.20.10"
 type-sitter-lib = { git = "https://github.com/Jakobeha/type-sitter.git" }
 type-sitter-gen = { git = "https://github.com/Jakobeha/type-sitter.git" }
+tree-sitter-highlight = "0.20.1"
+
+axum = "0.6.20"
+
+ariadne = { version = "0.3.0", features = ["auto-color"] }
+similar = "2.2.1"
+strip-ansi-escapes = "0.2.0"
+env_logger = "0.10.0"
+
+petgraph = "0.6.3"
+once_cell = "1.18.0"
+
+crossbeam-channel = "0.5.8"
+notify-debouncer-mini = "0.3.0"
+
+colored = "2"
+ropey = "1.5.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0.78"
+tokio = { version = "1.17.0", features = [
+  "macros",
+  "fs",
+  "rt-multi-thread",
+  "io-std",
+] }
+tower-lsp = { version = "0.19.0" }
+async-trait = "0.1.72"
+
+deno_core = "0.229.0"
+resast = "0.4.1"
+resw = "0.5.0"
+
+rust-format = "0.3.4"
+
+toml = "0.7.6"
+
+clap = { version = "4.3.19", features = ["derive"] }
+
+sol-ariadne = { version = "0.0.1", path = "./sol-ariadne" }
+sol-cli = { version = "0.0.1", path = "./sol-cli" }
+sol-diagnostic = { version = "0.0.1", path = "./sol-diagnostic" }
+sol-docs-backend = { version = "0.0.1", path = "./sol-docs-backend" }
+sol-driver = { version = "0.0.1", path = "./sol-driver" }
+sol-eval = { version = "0.0.1", path = "./sol-eval" }
+sol-eyre = { version = "0.0.1", path = "./sol-eyre" }
+sol-hir = { version = "0.0.1", path = "./sol-hir" }
+sol-hir-lowering = { version = "0.0.1", path = "./sol-hir-lowering" }
+sol-ide = { version = "0.0.1", path = "./sol-ide" }
+sol-js = { version = "0.0.1", path = "./sol-js" }
+sol-syntax = { version = "0.0.1", path = "./sol-syntax" }
+sol-tt = { version = "0.0.1", path = "./sol-tt" }
+sol-typer = { version = "0.0.1", path = "./sol-typer" }
+sol-vfs = { version = "0.0.1", path = "./sol-vfs" }
+
+tree-sitter-sol = { version = "0.1.20", path = "./tree-sitter-sol" }
 
 [workspace.package]
 edition = "2021"

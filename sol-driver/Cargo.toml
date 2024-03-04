@@ -6,25 +6,22 @@ documentation.workspace = true
 version.workspace = true
 
 [dependencies]
-sol-diagnostic = { version = "0.0.1", path = "../sol-diagnostic" }
-sol-hir = { version = "0.0.1", path = "../sol-hir" }
-sol-hir-lowering = { version = "0.0.1", path = "../sol-hir-lowering" }
-sol-syntax = { version = "0.0.1", path = "../sol-syntax" }
-sol-vfs = { version = "0.0.1", path = "../sol-vfs" }
-sol-typer = { version = "0.0.1", path = "../sol-typer" }
-sol-ariadne = { version = "0.0.1", path = "../sol-ariadne" }
-sol-eval = { version = "0.0.1", path = "../sol-eval" }
-sol-tt = { version = "0.0.1", path = "../sol-tt" }
-sol-eyre = { version = "0.0.1", path = "../sol-eyre" }
-
-salsa-2022 = { workspace = true }
-
+sol-diagnostic.workspace = true
+sol-hir.workspace = true
+sol-hir-lowering.workspace = true
+sol-syntax.workspace = true
+sol-vfs.workspace = true
+sol-typer.workspace = true
+sol-ariadne.workspace = true
+sol-eval.workspace = true
+sol-tt.workspace = true
+sol-eyre.workspace = true
+salsa-2022.workspace = true
 dashmap.workspace = true
 itertools.workspace = true
 fxhash.workspace = true
-
-ariadne = { version = "0.3.0", features = ["auto-color"] }
-similar = "2.2.1"
-strip-ansi-escapes = "0.2.0"
-env_logger = "0.10.0"
+ariadne.workspace = true
+similar.workspace = true
+strip-ansi-escapes.workspace = true
+env_logger.workspace = true
 log.workspace = true

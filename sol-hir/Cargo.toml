@@ -6,17 +6,14 @@ documentation.workspace = true
 version.workspace = true
 
 [dependencies]
-sol-diagnostic = {version = "0.0.1", path = "../sol-diagnostic"}
-sol-syntax = {version = "0.0.1", path = "../sol-syntax"}
-
+sol-diagnostic.workspace = true
+sol-syntax.workspace = true
 salsa-2022.workspace = true
-
 eyre.workspace = true
 im.workspace = true
 fxhash.workspace = true
 dashmap.workspace = true
-
-if_chain = "1.0.2"
-petgraph = "0.6.3"
-once_cell = "1.18.0"
+if_chain.workspace = true
+petgraph.workspace = true
+once_cell.workspace = true
 thiserror.workspace = true

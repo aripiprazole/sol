@@ -6,16 +6,13 @@ documentation.workspace = true
 version.workspace = true
 
 [dependencies]
-sol-diagnostic = {version = "0.0.1", path = "../sol-diagnostic"}
-sol-vfs = {version = "0.0.1", path = "../sol-vfs"}
-
+sol-diagnostic.workspace = true
+sol-vfs.workspace = true
 salsa-2022.workspace = true
-
 tree-sitter.workspace = true
+tree-sitter-sol.workspace = true
 type-sitter-lib.workspace = true
-
-tree-sitter-sol = {version = "0.1.20", path = "../tree-sitter-sol"}
 
 [build-dependencies]
 type-sitter-gen.workspace = true
-rust-format = "0.3.4"
+rust-format.workspace = true

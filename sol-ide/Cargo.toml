@@ -10,41 +10,30 @@ name = "sol-language-server"
 path = "src/main.rs"
 
 [dependencies]
-sol-diagnostic = { version = "0.0.1", path = "../sol-diagnostic" }
-sol-hir = { version = "0.0.1", path = "../sol-hir" }
-sol-hir-lowering = { version = "0.0.1", path = "../sol-hir-lowering" }
-sol-syntax = { version = "0.0.1", path = "../sol-syntax" }
-sol-vfs = { version = "0.0.1", path = "../sol-vfs" }
-sol-driver = { version = "0.0.1", path = "../sol-driver" }
-
+sol-diagnostic.workspace = true
+sol-hir.workspace = true
+sol-hir-lowering.workspace = true
+sol-syntax.workspace = true
+sol-vfs.workspace = true
+sol-driver.workspace = true
 salsa-2022.workspace = true
-
 tree-sitter.workspace = true
 type-sitter-lib.workspace = true
-tree-sitter-highlight = "0.20.1"
-
-tree-sitter-sol = { version = "0.1.20", path = "../tree-sitter-sol" }
-
+tree-sitter-highlight.workspace = true
+tree-sitter-sol.workspace = true
 dashmap.workspace = true
 eyre.workspace = true
 im.workspace = true
 fxhash.workspace = true
 itertools.workspace = true
 log.workspace = true
-
-crossbeam-channel = "0.5.8"
-notify-debouncer-mini = "0.3.0"
-
-colored = "2"
-env_logger = "0.10.0"
-ropey = "1.5.0"
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0.78"
-tokio = { version = "1.17.0", features = [
-  "macros",
-  "fs",
-  "rt-multi-thread",
-  "io-std",
-] }
-tower-lsp = { version = "0.19.0" }
-async-trait = "0.1.72"
+crossbeam-channel.workspace = true
+notify-debouncer-mini.workspace = true
+async-trait.workspace = true
+colored.workspace = true
+env_logger.workspace = true
+ropey.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+tokio.workspace = true
+tower-lsp.workspace = true

@@ -6,17 +6,14 @@ documentation.workspace = true
 version.workspace = true
 
 [dependencies]
-sol-diagnostic = {version = "0.0.1", path = "../sol-diagnostic"}
-sol-hir = {version = "0.0.1", path = "../sol-hir"}
-sol-syntax = {version = "0.0.1", path = "../sol-syntax"}
-sol-vfs = {version = "0.0.1", path = "../sol-vfs"}
-
-salsa-2022 = {workspace = true}
-
+sol-diagnostic.workspace = true
+sol-hir.workspace = true
+sol-syntax.workspace = true
+sol-vfs.workspace = true
+salsa-2022.workspace = true
 eyre.workspace = true
 im.workspace = true
 fxhash.workspace = true
 dashmap.workspace = true
-
 tree-sitter.workspace = true
 type-sitter-lib.workspace = true
