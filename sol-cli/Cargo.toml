@@ -1,0 +1,43 @@
+[package]
+name = "sol-cli"
+edition.workspace = true
+authors.workspace = true
+documentation.workspace = true
+version.workspace = true
+
+[[bin]]
+name = "sol"
+path = "src/main.rs"
+
+[dependencies]
+sol-diagnostic = { version = "0.0.1", path = "../sol-diagnostic" }
+sol-hir = { version = "0.0.1", path = "../sol-hir" }
+sol-hir-lowering = { version = "0.0.1", path = "../sol-hir-lowering" }
+sol-syntax = { version = "0.0.1", path = "../sol-syntax" }
+sol-vfs = { version = "0.0.1", path = "../sol-vfs" }
+sol-js = { version = "0.0.1", path = "../sol-js" }
+sol-ariadne = { version = "0.0.1", path = "../sol-ariadne" }
+sol-driver = { version = "0.0.1", path = "../sol-driver" }
+sol-eyre = { version = "0.0.1", path = "../sol-eyre" }
+
+salsa-2022.workspace = true
+
+tree-sitter.workspace = true
+type-sitter-lib.workspace = true
+
+tree-sitter-sol = { version = "0.1.20", path = "../tree-sitter-sol" }
+
+dashmap.workspace = true
+im.workspace = true
+fxhash.workspace = true
+itertools.workspace = true
+log.workspace = true
+
+colored = "2"
+env_logger = "0.10.0"
+ropey = "1.5.0"
+serde = { version = "1.0", features = ["derive"] }
+clap = { version = "4.3.19", features = ["derive"] }
+toml = "0.7.6"
+
+ariadne = { version = "0.3.0", features = ["auto-color"] }

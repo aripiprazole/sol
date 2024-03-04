@@ -1,22 +1,22 @@
 [workspace]
 resolver = "2"
 members = [
-  "lura-syntax",
-  "lura-hir",
-  "lura-hir-lowering",
-  "lura-driver",
-  "lura-diagnostic",
-  "lura-vfs",
-  "lura-ide",
-  "lura-eval",
-  "lura-tt",
-  "lura-eyre",
-  "lura-cli",
-  "lura-typer",
-  "lura-ariadne",
-  "lura-docs-backend",
-  "lura-js",
-  "tree-sitter-lura",
+    "sol-syntax",
+    "sol-hir",
+    "sol-hir-lowering",
+    "sol-driver",
+    "sol-diagnostic",
+    "sol-vfs",
+    "sol-ide",
+    "sol-eval",
+    "sol-tt",
+    "sol-eyre",
+    "sol-cli",
+    "sol-typer",
+    "sol-ariadne",
+    "sol-docs-backend",
+    "sol-js",
+    "tree-sitter-sol",
 ]
 
 [workspace.dependencies]
@@ -42,6 +42,6 @@ type-sitter-gen = { git = "https://github.com/Jakobeha/type-sitter.git" }
 [workspace.package]
 edition = "2021"
 authors = ["Gabrielle Guimarães de Oliveira"]
-description = "Resilient compiler for the Lura programming language"
-documentation = "https://github.com/aripiprazole/lura"
+description = "Resilient compiler for the Sol programming language"
+documentation = "https://github.com/aripiprazole/sol"
 version = "0.0.1"

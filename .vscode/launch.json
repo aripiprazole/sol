@@ -7,16 +7,16 @@
     {
       "type": "lldb",
       "request": "launch",
-      "name": "Debug unit tests in library 'lura-syntax'",
+      "name": "Debug unit tests in library 'sol-syntax'",
       "cargo": {
         "args": [
           "test",
           "--no-run",
           "--lib",
-          "--package=lura-syntax"
+          "--package=sol-syntax"
         ],
         "filter": {
-          "name": "lura-syntax",
+          "name": "sol-syntax",
           "kind": "lib"
         }
       },
@@ -26,16 +26,16 @@
     {
       "type": "lldb",
       "request": "launch",
-      "name": "Debug unit tests in library 'lura-diagnostic'",
+      "name": "Debug unit tests in library 'sol-diagnostic'",
       "cargo": {
         "args": [
           "test",
           "--no-run",
           "--lib",
-          "--package=lura-diagnostic"
+          "--package=sol-diagnostic"
         ],
         "filter": {
-          "name": "lura-diagnostic",
+          "name": "sol-diagnostic",
           "kind": "lib"
         }
       },
@@ -45,16 +45,16 @@
     {
       "type": "lldb",
       "request": "launch",
-      "name": "Debug unit tests in library 'lura-vfs'",
+      "name": "Debug unit tests in library 'sol-vfs'",
       "cargo": {
         "args": [
           "test",
           "--no-run",
           "--lib",
-          "--package=lura-vfs"
+          "--package=sol-vfs"
         ],
         "filter": {
-          "name": "lura-vfs",
+          "name": "sol-vfs",
           "kind": "lib"
         }
       },
@@ -64,16 +64,16 @@
     {
       "type": "lldb",
       "request": "launch",
-      "name": "Debug unit tests in library 'lura-hir'",
+      "name": "Debug unit tests in library 'sol-hir'",
       "cargo": {
         "args": [
           "test",
           "--no-run",
           "--lib",
-          "--package=lura-hir"
+          "--package=sol-hir"
         ],
         "filter": {
-          "name": "lura-hir",
+          "name": "sol-hir",
           "kind": "lib"
         }
       },
@@ -83,16 +83,16 @@
     {
       "type": "lldb",
       "request": "launch",
-      "name": "Debug unit tests in library 'lura-driver'",
+      "name": "Debug unit tests in library 'sol-driver'",
       "cargo": {
         "args": [
           "test",
           "--no-run",
           "--lib",
-          "--package=lura-driver"
+          "--package=sol-driver"
         ],
         "filter": {
-          "name": "lura-driver",
+          "name": "sol-driver",
           "kind": "lib"
         }
       },
@@ -111,7 +111,7 @@
         "script": "watch"
       },
       "env": {
-        "SERVER_PATH": "${workspaceRoot}/target/debug/lura-language-server"
+        "SERVER_PATH": "${workspaceRoot}/target/debug/sol-language-server"
       }
     },
   ]

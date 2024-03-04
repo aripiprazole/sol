@@ -1,6 +1,6 @@
 {
-  "name": "lura-language-client",
-  "description": "Lura language server's vscode extension",
+  "name": "sol-language-client",
+  "description": "Sol language server's vscode extension",
   "license": "MIT",
   "version": "0.0.1",
   "engines": {

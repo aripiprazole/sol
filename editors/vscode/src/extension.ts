@@ -18,9 +18,9 @@ let client: LanguageClient;
 
 export async function activate(_ctx: ExtensionContext) {
   const traceOutputChannel = window.createOutputChannel(
-    'lura language server trace',
+    'sol language server trace',
   );
-  const command = process.env.SERVER_PATH || 'lura-language-server';
+  const command = process.env.SERVER_PATH || 'sol-language-server';
 
   const run: Executable = {
     command,
@@ -44,7 +44,7 @@ export async function activate(_ctx: ExtensionContext) {
   // Options to control the language client
   const clientOptions: LanguageClientOptions = {
     // Register the server for plain text documents
-    documentSelector: [{scheme: 'file', language: 'lura'}],
+    documentSelector: [{scheme: 'file', language: 'sol'}],
     synchronize: {
       // Notify the server about file changes to '.clientrc files contained in the workspace
       fileEvents: workspace.createFileSystemWatcher('**/.clientrc'),
@@ -54,8 +54,8 @@ export async function activate(_ctx: ExtensionContext) {
 
   // Create the language client and start the client.
   client = new LanguageClient(
-    'lura-language-server',
-    'lura language server',
+    'sol-language-server',
+    'sol language server',
     serverOptions,
     clientOptions,
   );

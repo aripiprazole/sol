@@ -1064,24 +1064,24 @@ dependencies = [
 ]
 
 [[package]]
-name = "lura-ariadne"
+name = "sol-ariadne"
 version = "0.0.1"
 dependencies = [
  "ariadne",
  "dashmap",
  "fxhash",
  "itertools",
- "lura-diagnostic",
- "lura-eyre",
- "lura-syntax",
- "lura-vfs",
+ "sol-diagnostic",
+ "sol-eyre",
+ "sol-syntax",
+ "sol-vfs",
  "salsa-2022",
  "tree-sitter",
  "type-sitter-lib",
 ]
 
 [[package]]
-name = "lura-cli"
+name = "sol-cli"
 version = "0.0.1"
 dependencies = [
  "ariadne",
@@ -1093,26 +1093,26 @@ dependencies = [
  "im",
  "itertools",
  "log",
- "lura-ariadne",
- "lura-diagnostic",
- "lura-driver",
- "lura-eyre",
- "lura-hir",
- "lura-hir-lowering",
- "lura-js",
- "lura-syntax",
- "lura-vfs",
+ "sol-ariadne",
+ "sol-diagnostic",
+ "sol-driver",
+ "sol-eyre",
+ "sol-hir",
+ "sol-hir-lowering",
+ "sol-js",
+ "sol-syntax",
+ "sol-vfs",
  "ropey",
  "salsa-2022",
  "serde",
  "toml",
  "tree-sitter",
- "tree-sitter-lura",
+ "tree-sitter-sol",
  "type-sitter-lib",
 ]
 
 [[package]]
-name = "lura-diagnostic"
+name = "sol-diagnostic"
 version = "0.0.1"
 dependencies = [
  "eyre",
@@ -1123,20 +1123,20 @@ dependencies = [
 ]
 
 [[package]]
-name = "lura-docs-backend"
+name = "sol-docs-backend"
 version = "0.0.1"
 dependencies = [
  "axum",
  "im",
- "lura-diagnostic",
- "lura-hir",
- "lura-syntax",
- "lura-vfs",
+ "sol-diagnostic",
+ "sol-hir",
+ "sol-syntax",
+ "sol-vfs",
  "salsa-2022",
 ]
 
 [[package]]
-name = "lura-driver"
+name = "sol-driver"
 version = "0.0.1"
 dependencies = [
  "ariadne",
@@ -1145,51 +1145,51 @@ dependencies = [
  "fxhash",
  "itertools",
  "log",
- "lura-ariadne",
- "lura-diagnostic",
- "lura-eval",
- "lura-eyre",
- "lura-hir",
- "lura-hir-lowering",
- "lura-syntax",
- "lura-tt",
- "lura-typer",
- "lura-vfs",
+ "sol-ariadne",
+ "sol-diagnostic",
+ "sol-eval",
+ "sol-eyre",
+ "sol-hir",
+ "sol-hir-lowering",
+ "sol-syntax",
+ "sol-tt",
+ "sol-typer",
+ "sol-vfs",
  "salsa-2022",
  "similar",
  "strip-ansi-escapes",
 ]
 
 [[package]]
-name = "lura-eval"
+name = "sol-eval"
 version = "0.0.1"
 dependencies = [
  "im",
- "lura-diagnostic",
- "lura-hir",
- "lura-syntax",
- "lura-tt",
- "lura-vfs",
+ "sol-diagnostic",
+ "sol-hir",
+ "sol-syntax",
+ "sol-tt",
+ "sol-vfs",
  "salsa-2022",
 ]
 
 [[package]]
-name = "lura-eyre"
+name = "sol-eyre"
 version = "0.0.1"
 dependencies = [
  "eyre",
  "im",
- "lura-diagnostic",
- "lura-hir",
- "lura-syntax",
- "lura-vfs",
+ "sol-diagnostic",
+ "sol-hir",
+ "sol-syntax",
+ "sol-vfs",
  "miette",
  "salsa-2022",
  "thiserror",
 ]
 
 [[package]]
-name = "lura-hir"
+name = "sol-hir"
 version = "0.0.1"
 dependencies = [
  "dashmap",
@@ -1197,8 +1197,8 @@ dependencies = [
  "fxhash",
  "if_chain",
  "im",
- "lura-diagnostic",
- "lura-syntax",
+ "sol-diagnostic",
+ "sol-syntax",
  "once_cell",
  "petgraph",
  "salsa-2022",
@@ -1206,24 +1206,24 @@ dependencies = [
 ]
 
 [[package]]
-name = "lura-hir-lowering"
+name = "sol-hir-lowering"
 version = "0.0.1"
 dependencies = [
  "dashmap",
  "eyre",
  "fxhash",
  "im",
- "lura-diagnostic",
- "lura-hir",
- "lura-syntax",
- "lura-vfs",
+ "sol-diagnostic",
+ "sol-hir",
+ "sol-syntax",
+ "sol-vfs",
  "salsa-2022",
  "tree-sitter",
  "type-sitter-lib",
 ]
 
 [[package]]
-name = "lura-ide"
+name = "sol-ide"
 version = "0.0.1"
 dependencies = [
  "async-trait",
@@ -1236,12 +1236,12 @@ dependencies = [
  "im",
  "itertools",
  "log",
- "lura-diagnostic",
- "lura-driver",
- "lura-hir",
- "lura-hir-lowering",
- "lura-syntax",
- "lura-vfs",
+ "sol-diagnostic",
+ "sol-driver",
+ "sol-hir",
+ "sol-hir-lowering",
+ "sol-syntax",
+ "sol-vfs",
  "notify-debouncer-mini",
  "ropey",
  "salsa-2022",
@@ -1251,56 +1251,56 @@ dependencies = [
  "tower-lsp",
  "tree-sitter",
  "tree-sitter-highlight",
- "tree-sitter-lura",
+ "tree-sitter-sol",
  "type-sitter-lib",
 ]
 
 [[package]]
-name = "lura-js"
+name = "sol-js"
 version = "0.0.1"
 dependencies = [
  "axum",
  "deno_core",
  "eyre",
  "im",
- "lura-diagnostic",
- "lura-eyre",
- "lura-hir",
- "lura-syntax",
- "lura-vfs",
+ "sol-diagnostic",
+ "sol-eyre",
+ "sol-hir",
+ "sol-syntax",
+ "sol-vfs",
  "resast",
  "resw",
  "salsa-2022",
 ]
 
 [[package]]
-name = "lura-syntax"
+name = "sol-syntax"
 version = "0.0.1"
 dependencies = [
- "lura-diagnostic",
- "lura-vfs",
+ "sol-diagnostic",
+ "sol-vfs",
  "rust-format",
  "salsa-2022",
  "tree-sitter",
- "tree-sitter-lura",
+ "tree-sitter-sol",
  "type-sitter-gen",
  "type-sitter-lib",
 ]
 
 [[package]]
-name = "lura-tt"
+name = "sol-tt"
 version = "0.0.1"
 dependencies = [
  "im",
- "lura-diagnostic",
- "lura-hir",
- "lura-syntax",
- "lura-vfs",
+ "sol-diagnostic",
+ "sol-hir",
+ "sol-syntax",
+ "sol-vfs",
  "salsa-2022",
 ]
 
 [[package]]
-name = "lura-typer"
+name = "sol-typer"
 version = "0.0.1"
 dependencies = [
  "dashmap",
@@ -1310,8 +1310,8 @@ dependencies = [
  "im",
  "im-rc",
  "log",
- "lura-diagnostic",
- "lura-hir",
+ "sol-diagnostic",
+ "sol-hir",
  "petgraph",
  "salsa-2022",
  "tree-sitter",
@@ -1319,7 +1319,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "lura-vfs"
+name = "sol-vfs"
 version = "0.0.1"
 dependencies = [
  "eyre",
@@ -2344,7 +2344,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "tree-sitter-lura"
+name = "tree-sitter-sol"
 version = "0.1.20"
 dependencies = [
  "cc",

@@ -1,4 +1,4 @@
-## Lura
+## Sol
 
 Incremental/single-pass based compiler, the API can be either used for Single-Pass Compiling and for building LSP, or
 things that would need incremental pipelines. It's a study project of mine for studying incremental compilers and
@@ -12,7 +12,7 @@ The project is still being developed, and the table of contents is:
 The objective of this project is:
 
 - Dealing with language-servers, and direct support for [Visual Studio Code](https://code.visualstudio.com/)
-- Having a full-featured CLI for building, and packaging libraries for Lura
+- Having a full-featured CLI for building, and packaging libraries for Sol
 - Lowering to [LLVM-IR](https://llvm.org/), and executing JIT
 - Error-resistant compiler, like having a compile-time error, and still can compile, because the error fall onto the
   runtime
@@ -49,4 +49,4 @@ Counting.
 
 ### License
 
-Lura is distributed under the terms of the [MIT license](LICENSE).
+Sol is distributed under the terms of the [MIT license](LICENSE).

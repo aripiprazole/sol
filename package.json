@@ -1,9 +1,9 @@
 {
-  "name": "lura",
+  "name": "sol",
   "version": "0.0.1",
-  "description": "Lura node packages",
+  "description": "Sol node packages",
   "main": "editors/dist/extension.js",
-  "repository": "git@github.com:aripiprazole/lura.git",
+  "repository": "git@github.com:aripiprazole/sol.git",
   "author": "Gabrielle Guimarães de Oliveira <gabrielle1guim@gmail.com>",
   "license": "MIT",
   "private": true,
@@ -13,23 +13,23 @@
   },
   "enabledApiProposals": [],
   "activationEvents": [
-    "onLanguage:lura"
+    "onLanguage:sol"
   ],
   "contributes": {
     "languages": [
       {
-        "id": "lura",
+        "id": "sol",
         "extensions": [
-          ".lura"
+          ".sol"
         ],
         "configuration": "./language-configuration.json"
       }
     ],
     "configuration": {
       "type": "object",
-      "title": "lura-language-server",
+      "title": "sol-language-server",
       "properties": {
-        "lura-language-server.trace.server": {
+        "sol-language-server.trace.server": {
           "type": "string",
           "scope": "window",
           "enum": [

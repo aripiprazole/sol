@@ -1,0 +1,25 @@
+[package]
+name = "sol-typer"
+edition.workspace = true
+authors.workspace = true
+documentation.workspace = true
+version.workspace = true
+
+[dependencies]
+sol-diagnostic = { version = "0.0.1", path = "../sol-diagnostic" }
+sol-hir = { version = "0.0.1", path = "../sol-hir" }
+
+salsa-2022.workspace = true
+
+tree-sitter.workspace = true
+type-sitter-lib.workspace = true
+
+eyre.workspace = true
+im.workspace = true
+im-rc.workspace = true
+fxhash.workspace = true
+dashmap.workspace = true
+
+if_chain = "1.0.2"
+petgraph = "0.6.3"
+log.workspace = true

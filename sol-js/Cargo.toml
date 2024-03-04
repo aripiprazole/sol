@@ -1,0 +1,22 @@
+[package]
+name = "sol-js"
+edition.workspace = true
+authors.workspace = true
+documentation.workspace = true
+version.workspace = true
+
+[dependencies]
+sol-diagnostic = { version = "0.0.1", path = "../sol-diagnostic" }
+sol-hir = { version = "0.0.1", path = "../sol-hir" }
+sol-syntax = { version = "0.0.1", path = "../sol-syntax" }
+sol-vfs = { version = "0.0.1", path = "../sol-vfs" }
+sol-eyre = { version = "0.0.1", path = "../sol-eyre" }
+
+salsa-2022.workspace = true
+im.workspace = true
+
+axum = "0.6.20"
+deno_core = "0.229.0"
+resast = "0.4.1"
+resw = "0.5.0"
+eyre.workspace = true
