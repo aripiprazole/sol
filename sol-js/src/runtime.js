@@ -1,3 +1,0 @@
-((globalThis) => {
-  
-})(globalThis)
