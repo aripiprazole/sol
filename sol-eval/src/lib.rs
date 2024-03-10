@@ -89,9 +89,8 @@ pub fn eval_type(
         TypeRep::Type => todo!(),
         TypeRep::Error(_) => todo!(),
         TypeRep::Path(_, _) => todo!(),
-        TypeRep::QPath(_) => todo!(),
         TypeRep::App(_) => todo!(),
-        TypeRep::Arrow(_) => todo!(),
+        TypeRep::Pi(_) => todo!(),
         TypeRep::Downgrade(_) => todo!(),
     }
 }

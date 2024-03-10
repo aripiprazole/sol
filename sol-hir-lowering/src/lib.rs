@@ -35,7 +35,7 @@ use sol_hir::{
             BindingGroup, Clause, CommandTopLevel, Constructor, ConstructorKind, Inductive,
             Signature, TopLevel, UsingTopLevel,
         },
-        type_rep::{AppTypeRep, ArrowKind, ArrowTypeRep, TypeRep},
+        type_rep::{AppTypeRep, ArrowKind, PiTypeRep, TypeRep},
         DefaultWithDb, HirPath, HirSource, Identifier, Location, OptionExt, Spanned,
     },
     HirDb,
@@ -375,7 +375,7 @@ impl<'db, 'tree> HirLowering<'db, 'tree> {
                     // it's needed to create a local type representing the function.
                     //
                     // The Self type is used here, to avoid confusion in the resolution.
-                    let type_rep = TypeRep::Arrow(ArrowTypeRep::new(
+                    let type_rep = TypeRep::Pi(PiTypeRep::new(
                         db,
                         /* kind       = */ ArrowKind::Fun,
                         /* parameters = */ parameters,

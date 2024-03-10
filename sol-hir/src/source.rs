@@ -2581,7 +2581,7 @@ pub mod type_rep {
     ///
     /// The `ArrowKind` is used to define the kind of arrow, like `->`, `=>` or `.`.
     #[derive(Debug, Clone, Hash, PartialEq, Eq)]
-    pub struct ArrowTypeRep {
+    pub struct PiTypeRep {
         pub kind: ArrowKind,
         pub parameters: Vec<declaration::Parameter>,
         pub value: Box<TypeRep>,
@@ -2589,7 +2589,7 @@ pub mod type_rep {
         pub scope: Arc<Scope>,
     }
 
-    impl ArrowTypeRep {
+    impl PiTypeRep {
         pub fn new(
             _: &dyn crate::HirDb,
             kind: ArrowKind,
@@ -2628,7 +2628,7 @@ pub mod type_rep {
         }
     }
 
-    impl walking::Walker for ArrowTypeRep {
+    impl walking::Walker for PiTypeRep {
         fn accept<T: walking::HirListener>(self, db: &dyn crate::HirDb, listener: &mut T) {
             listener.enter_arrow_type_rep(self.clone());
             self.parameters(db).accept(db, listener);
@@ -2638,7 +2638,7 @@ pub mod type_rep {
         }
     }
 
-    impl salsa::DebugWithDb<<crate::Jar as salsa::jar::Jar<'_>>::DynDb> for ArrowTypeRep {
+    impl salsa::DebugWithDb<<crate::Jar as salsa::jar::Jar<'_>>::DynDb> for PiTypeRep {
         fn fmt(&self, f: &mut Formatter<'_>, _: &dyn crate::HirDb, _: bool) -> std::fmt::Result {
             Debug::fmt(self, f)
         }
@@ -2670,10 +2670,6 @@ pub mod type_rep {
         /// A path to a type, it can be either a type alias, a type parameter, or a type definition.
         Path(TypeReference, Location),
 
-        /// A qualified path, it's used to define a type that is qualified by a trait type, like
-        /// `Foo.Bar.Baz`.
-        QPath(QPath),
-
         /// A type application, it's used to apply a type to another type, like `Foo Bar`.
         App(AppTypeRep),
 
@@ -2681,7 +2677,7 @@ pub mod type_rep {
         /// sigma types, or even forall types.
         ///
         /// TODO: implement dependent types, even tough the name is "pi", the type is not dependent
-        Arrow(ArrowTypeRep),
+        Pi(PiTypeRep),
 
         /// The downgrade type, it's used to downgrade a type representation to a expression. This is
         /// a data strucutre to improve error messages, and to make it easier to implement dependent
@@ -2711,9 +2707,8 @@ pub mod type_rep {
                 TypeRep::Type => write!(f, "Type"),
                 TypeRep::Error(error) => write!(f, "Error({:?})", error.debug_all(db)),
                 TypeRep::Path(path, _) => path.debug_all(db).fmt(f),
-                TypeRep::QPath(qpath) => qpath.debug_all(db).fmt(f),
                 TypeRep::App(app) => app.debug_all(db).fmt(f),
-                TypeRep::Arrow(arrow) => arrow.debug_all(db).fmt(f),
+                TypeRep::Pi(arrow) => arrow.debug_all(db).fmt(f),
                 TypeRep::Downgrade(expr) => expr.debug_all(db).fmt(f),
             }
         }
@@ -2726,9 +2721,8 @@ pub mod type_rep {
                 TypeRep::Hole => listener.visit_hole_type_rep(),
                 TypeRep::SelfType => listener.visit_self_type_rep(),
                 TypeRep::Type => listener.visit_tt_type_rep(),
-                TypeRep::QPath(qpath) => qpath.accept(db, listener),
                 TypeRep::App(app) => app.accept(db, listener),
-                TypeRep::Arrow(arrow) => arrow.accept(db, listener),
+                TypeRep::Pi(arrow) => arrow.accept(db, listener),
                 TypeRep::Error(error) => {
                     listener.enter_error_type_rep(error);
                     error.accept(db, listener);
@@ -2773,10 +2767,9 @@ pub mod type_rep {
                 Self::Hole => Location::call_site(db),
                 Self::SelfType => Location::call_site(db),
                 Self::Type => Location::call_site(db),
-                Self::Arrow(downcast) => downcast.location(db),
+                Self::Pi(downcast) => downcast.location(db),
                 Self::Error(downcast) => downcast.location(db),
                 Self::Path(_, location) => location.clone(),
-                Self::QPath(qpath) => qpath.location(db),
                 Self::App(app) => app.location(db),
                 Self::Downgrade(expr) => (*expr).location(db),
             }

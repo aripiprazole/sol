@@ -240,7 +240,7 @@ impl HirLowering<'_, '_> {
 
         let scope = self.pop_scope();
 
-        TypeRep::Arrow(ArrowTypeRep::new(
+        TypeRep::Pi(PiTypeRep::new(
             self.db,
             /* kind       = */ ArrowKind::Fun,
             /* parameters = */ parameters,
@@ -295,7 +295,7 @@ impl HirLowering<'_, '_> {
 
         let scope = self.pop_scope();
 
-        TypeRep::Arrow(ArrowTypeRep::new(
+        TypeRep::Pi(PiTypeRep::new(
             self.db,
             /* kind       = */ ArrowKind::Sigma,
             /* parameters = */ parameters,
@@ -323,7 +323,7 @@ impl HirLowering<'_, '_> {
 
         let scope = self.pop_scope();
 
-        TypeRep::Arrow(ArrowTypeRep::new(
+        TypeRep::Pi(PiTypeRep::new(
             self.db,
             /* kind       = */ ArrowKind::Forall,
             /* parameters = */ parameters,

@@ -480,7 +480,7 @@ mod impls {
         }
     }
 
-    impl HirFormatter for type_rep::ArrowTypeRep {
+    impl HirFormatter for type_rep::PiTypeRep {
         fn hir_fmt(&self, db: &dyn HirDb, f: &mut Formatter, scope: &Scope) -> std::fmt::Result {
             for parameter in self.parameters(db) {
                 parameter.hir_fmt(db, f, scope)?;
@@ -513,9 +513,8 @@ mod impls {
                 Type => write!(f, "*"),
                 Error(_) => write!(f, "!"),
                 Path(path, _) => path.hir_fmt(db, f, scope),
-                QPath(qpath) => qpath.hir_fmt(db, f, scope),
                 App(app) => app.hir_fmt(db, f, scope),
-                Arrow(arrow) => arrow.hir_fmt(db, f, scope),
+                Pi(arrow) => arrow.hir_fmt(db, f, scope),
                 Downgrade(expr) => expr.hir_fmt(db, f, scope),
             }
         }

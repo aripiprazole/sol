@@ -61,7 +61,7 @@ pub trait HirListener {
     fn visit_hole_type_rep(&mut self) {}
     fn visit_self_type_rep(&mut self) {}
     fn visit_tt_type_rep(&mut self) {}
-    fn enter_arrow_type_rep(&mut self, arrow: type_rep::ArrowTypeRep) {}
+    fn enter_arrow_type_rep(&mut self, arrow: type_rep::PiTypeRep) {}
     fn enter_error_type_rep(&mut self, error: HirError) {}
     fn enter_path_type_rep(&mut self, definition: TypeReference) {}
     fn enter_qpath_type_rep(&mut self, qpath: type_rep::QPath) {}
@@ -104,7 +104,7 @@ pub trait HirListener {
     fn enter_inductive_top_level(&mut self, inductive: top_level::Inductive) {}
 
     // SECTION: type_rep
-    fn exit_arrow_type_rep(&mut self, arrow: type_rep::ArrowTypeRep) {}
+    fn exit_arrow_type_rep(&mut self, arrow: type_rep::PiTypeRep) {}
     fn exit_error_type_rep(&mut self, error: HirError) {}
     fn exit_path_type_rep(&mut self, definition: TypeReference) {}
     fn exit_qpath_type_rep(&mut self, qpath: type_rep::QPath) {}

@@ -42,13 +42,7 @@ fn main() -> sol_eyre::Result<()> {
                     .get_in_db(manifest.db, package)
                     .ok_or_else(|| eyre!("could not locate the package"))?;
 
-                let mut source = Vec::new();
-                if let Err(err) = sol_js::dump_into_string(manifest.db, current_source, &mut source)
-                {
-                    eprintln!("{err}");
-                }
-
-                println!("{}", String::from_utf8(source)?);
+                todo!()
             }
 
             sol_ariadne::AriadneReport::default()

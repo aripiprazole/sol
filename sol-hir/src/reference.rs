@@ -159,12 +159,12 @@ impl<'db, U: Checkable> HirListener for ReferenceWalker<'db, U> {
         self.stack.pop();
     }
 
-    fn enter_arrow_type_rep(&mut self, arrow: type_rep::ArrowTypeRep) {
+    fn enter_arrow_type_rep(&mut self, arrow: type_rep::PiTypeRep) {
         self.enter_scope(self.db, arrow.location(self.db), arrow.scope(self.db));
         self.stack.push(arrow.scope(self.db));
     }
 
-    fn exit_arrow_type_rep(&mut self, _: type_rep::ArrowTypeRep) {
+    fn exit_arrow_type_rep(&mut self, _: type_rep::PiTypeRep) {
         self.stack.pop();
     }
 }
