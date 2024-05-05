@@ -1,35 +1,35 @@
-//! Represents a natural number with a value of 0 or more, it does use
-//! the Peano representation
-inductive Nat {
-  Zero : Nat,
-  Succ : Nat -> Nat;
-}
+(defmacro fun [args body]
+  (fold body
+    (fn [acc arg] `(-> ,arg ,acc))
+    (reverse args)))
 
-//! Represents a nullable value
-inductive Maybe a {
-  Just    : a -> Maybe a,
-  Nothing : Maybe a;
-}
+(defmacro let [bindings expr]
+  (if (empty? bindings)
+    expr
+    `(fun ,bindings ,expr))
 
-`+ : Nat -> Nat -> Nat
-`+ (Succ a) b = Succ (a + b)
-`+ Zero b = b
+; Natural numbers
+(def Nat *
+  (-> (N : *) (N -> N) N))
 
-`|> : a -> (a -> b) -> b
-`|> a f = f a
+(def Succ (-> Nat Nat)
+  (fun [prev N Succ Zero] (Succ (prev N Succ Zero))))
 
-error : String -> a = sorry
+(def Zero Nat
+  (fun [N Succ Zero] Zero))
 
-Maybe.unwrap : Maybe a -> a
-Maybe.unwrap (Just a) = a
-Maybe.unwrap Nothing = error "Cannot unwrap Nothing"
+; Maybe definition
+(def Maybe (-> * *)
+  (fun [T] (-> (A : *) (-> T A) A A)))
 
-println : a -> IO ()
-println a = println (show a) |> IO.println
+(def Just (-> a (Maybe a))
+  (fun [value T Just Nothing] (Just value))
 
-Main {
-  let message = "Hello world"
-  let value = Just "Jose"
-  println (Maybe.unwrap value)
-  println message
-}
+(def Nothing (Maybe a)
+  (fun [T Just Nothing] Nothing))
+
+(def Maybe.unwrap (-> (Maybe a) a
+  (fun [maybe]
+    (maybe a
+      (fun [value] value) ; Just a -> a
+      sorry)))            ; Nothing -> sorry
