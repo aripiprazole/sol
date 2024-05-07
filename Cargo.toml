@@ -9,7 +9,7 @@ members = [
   "sol-vfs",
   "sol-ide",
   "sol-eval",
-  "sol-tt",
+  "sol-thir",
   "sol-eyre",
   "sol-cli",
   "sol-typer",
@@ -86,7 +86,7 @@ sol-hir = { version = "0.0.1", path = "./sol-hir" }
 sol-hir-lowering = { version = "0.0.1", path = "./sol-hir-lowering" }
 sol-ide = { version = "0.0.1", path = "./sol-ide" }
 sol-syntax = { version = "0.0.1", path = "./sol-syntax" }
-sol-tt = { version = "0.0.1", path = "./sol-tt" }
+sol-thir = { version = "0.0.1", path = "./sol-thir" }
 sol-typer = { version = "0.0.1", path = "./sol-typer" }
 sol-vfs = { version = "0.0.1", path = "./sol-vfs" }
 

@@ -6,6 +6,8 @@ use sol_hir::solver::{Definition, Reference};
 use sol_hir::source::expr::{Expr, Meta};
 use sol_hir::source::Location;
 
+pub mod desugar;
+
 #[derive(Debug, Clone, Hash, PartialEq, Eq)]
 pub enum ConstructorKind {
     True,

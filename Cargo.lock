@@ -1561,7 +1561,7 @@ dependencies = [
  "sol-hir",
  "sol-hir-lowering",
  "sol-syntax",
- "sol-tt",
+ "sol-thir",
  "sol-typer",
  "sol-vfs",
  "strip-ansi-escapes",
@@ -1576,7 +1576,7 @@ dependencies = [
  "sol-diagnostic",
  "sol-hir",
  "sol-syntax",
- "sol-tt",
+ "sol-thir",
  "sol-vfs",
 ]
 
@@ -1677,7 +1677,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "sol-tt"
+name = "sol-thir"
 version = "0.0.1"
 dependencies = [
  "im",

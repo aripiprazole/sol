@@ -1,5 +1,5 @@
 [package]
-name = "sol-tt"
+name = "sol-thir"
 edition.workspace = true
 authors.workspace = true
 documentation.workspace = true

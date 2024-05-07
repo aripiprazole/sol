@@ -12,7 +12,7 @@ use sol_hir::source::{
     type_rep::TypeRep,
     HirSource,
 };
-use sol_tt::{Env, Value};
+use sol_thir::{Env, Value};
 
 pub mod domain;
 pub mod logic;

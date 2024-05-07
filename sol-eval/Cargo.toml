@@ -10,6 +10,6 @@ sol-diagnostic.workspace = true
 sol-hir.workspace = true
 sol-syntax.workspace = true
 sol-vfs.workspace = true
-sol-tt.workspace = true
+sol-thir.workspace = true
 salsa-2022.workspace = true
 im.workspace = true

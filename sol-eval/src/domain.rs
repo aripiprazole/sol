@@ -5,7 +5,7 @@ use std::ops::Deref;
 use std::panic::{RefUnwindSafe, UnwindSafe};
 use std::sync::Arc;
 
-use sol_tt::Value;
+use sol_thir::Value;
 
 use crate::stack::Stack;
 
