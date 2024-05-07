@@ -1,33 +1,21 @@
-defmacro fun args body :=
-  fold body
-    (\acc arg. `(,arg -> ,acc))
-    (reverse args).
+// Natural numbers
+Nat : * = (n : *) -> (n -> n) -> n
 
-defmacro let bindings expr :=
-  (if (empty? bindings)
-    expr
-    `((fun ,bindings ,expr) *bindings).
+Succ (prev : Nat) : Nat = \n succ# zero# =>
+  succ# (prev n succ# zero#) zero#
 
-; Natural numbers
-def Nat : * :=
-  (N : *) -> (N -> N) -> N.
+Zero : Nat = \n succ# zero# => zero#
 
-def Succ : (Nat -> Nat) := \prev N Succ Zero.
-  Succ (prev N Succ Zero).
+// Maybe definition
+Maybe (t : *) = (a : *) -> (t -> a) a -> a
 
-def Zero : Nat := \N. Succ Zero. Zero.
+Just (value : a) : Maybe a = \t just# nothing# =>
+  just# value
 
-; Maybe definition
-def Maybe : (* -> *) :=
-  \t => (A : *) -> (T -> A) A -> A.
+Nothing : Maybe a = \t just# nothing# =>
+  nothing#
 
-def Just : (a -> (Maybe a)) :=
-  \value T Just Nothing => Just value.
-
-def Nothing (Maybe a)
-  \T Just Nothing => Nothing.
-
-fun Maybe.unwrap (value : Maybe a) : a :=
-  (maybe a
-    (fun [value] value) ; Just a  => a
-    sorry)).            ; Nothing => sorry
+Maybe.unwrap (maybe : Maybe a) : a =
+  maybe // match maybe with
+    (\value => value) // Just a  => a
+    sorry             // Nothing => sorry
