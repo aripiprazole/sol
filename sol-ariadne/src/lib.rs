@@ -89,6 +89,7 @@ impl AriadneReport {
                         sol_diagnostic::ErrorKind::TypeError => "type error",
                         sol_diagnostic::ErrorKind::ResolutionError => "resolution error",
                         sol_diagnostic::ErrorKind::RuntimeError => "runtime error",
+                        sol_diagnostic::ErrorKind::LoweringError => "lowering error",
                         sol_diagnostic::ErrorKind::InternalError(_) => "internal error",
                     };
                     let message = d.markdown_text();

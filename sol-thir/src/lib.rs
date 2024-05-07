@@ -6,7 +6,7 @@
 #![feature(trait_upcasting)]
 
 use salsa::DbWithJar;
-use sol_diagnostic::{DiagnosticDb, ErrorKind};
+use sol_diagnostic::{Diagnostic, DiagnosticDb, ErrorId, ErrorKind};
 use sol_hir::debruijin::{Index, Level};
 use sol_hir::lowering::HirLowering;
 use sol_hir::package::HasManifest;
@@ -14,6 +14,7 @@ use sol_hir::primitives::PrimitiveProvider;
 use sol_hir::solver::{Definition, Reference};
 use sol_hir::source::expr::{Expr, Meta};
 use sol_hir::source::{HirError, Location};
+use sol_hir::HirDb;
 use sol_syntax::ParseDb;
 
 extern crate salsa_2022 as salsa;
@@ -22,11 +23,11 @@ extern crate salsa_2022 as salsa;
 pub struct Jar();
 
 pub trait ThirDb:
-    PrimitiveProvider + HirLowering + HasManifest + ParseDb + DiagnosticDb + DbWithJar<Jar>
+    PrimitiveProvider + HirDb + HirLowering + HasManifest + ParseDb + DiagnosticDb + DbWithJar<Jar>
 {
 }
 
-impl<DB: HasManifest + HirLowering + PrimitiveProvider> ThirDb for DB where
+impl<DB: HasManifest + HirDb + HirLowering + PrimitiveProvider> ThirDb for DB where
     DB: ?Sized + ParseDb + DiagnosticDb + salsa::DbWithJar<Jar>
 {
 }
@@ -41,6 +42,7 @@ pub struct ThirDiagnostic {
     pub kind: ThirError,
 }
 
+#[derive(Eq, PartialEq, Hash, Debug, Clone)]
 pub enum ThirError {
     HirError(HirError),
     UpgradeNotSupported,
@@ -61,7 +63,7 @@ impl Diagnostic for ThirDiagnostic {
     }
 
     fn error_id(&self) -> ErrorId {
-        self.id
+        todo!()
     }
 }
 
@@ -144,7 +146,11 @@ impl Term {
     }
 
     pub fn sorry(location: Location, error: ThirError) -> Term {
-        Term::Sorry(location, Some(p))
+        Term::Sorry(location, Some(error))
+    }
+
+    pub fn sorry_but_no(location: Location) -> Term {
+        Term::Sorry(location, None)
     }
 
     pub fn no() -> Term {

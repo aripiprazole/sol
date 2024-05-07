@@ -303,6 +303,7 @@ pub enum ErrorKind {
     TypeError,
     ResolutionError,
     RuntimeError,
+    LoweringError,
     InternalError(Box<ErrorKind>),
 }
 
