@@ -17,10 +17,12 @@ use sol_hir::source::{HirError, Location};
 use sol_hir::HirDb;
 use sol_syntax::ParseDb;
 
+pub mod desugar;
+
 extern crate salsa_2022 as salsa;
 
 #[salsa::jar(db = ThirDb)]
-pub struct Jar();
+pub struct Jar(Env, desugar::eval);
 
 pub trait ThirDb:
     PrimitiveProvider + HirDb + HirLowering + HasManifest + ParseDb + DiagnosticDb + DbWithJar<Jar>
@@ -31,8 +33,6 @@ impl<DB: HasManifest + HirDb + HirLowering + PrimitiveProvider> ThirDb for DB wh
     DB: ?Sized + ParseDb + DiagnosticDb + salsa::DbWithJar<Jar>
 {
 }
-
-pub mod desugar;
 
 /// Represents the diagnostic for High-Level Intermediate Representation. It's intended to be used
 /// to report errors to the diagnostic database, by this crate, only.
@@ -71,6 +71,7 @@ impl Diagnostic for ThirDiagnostic {
 pub enum ConstructorKind {
     True,
     False,
+    Definition(Definition),
     Int(isize),
     String(String),
 }
@@ -83,7 +84,11 @@ pub struct Constructor {
 }
 
 pub type Type = Term;
-pub type Env = Vec<Value>;
+
+#[salsa::tracked]
+pub struct Env {
+    pub values: Vec<Value>,
+}
 
 /// Value that can have a type associated with it.
 #[derive(Debug, Clone, Hash, PartialEq, Eq)]
@@ -103,8 +108,18 @@ pub struct Closure {
 /// Implicitness of a term.
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
 pub enum Implicitness {
-    Impl,
-    Expl,
+    Implicit,
+    Explicit,
+}
+
+impl From<bool> for Implicitness {
+    fn from(value: bool) -> Self {
+        if value {
+            Implicitness::Implicit
+        } else {
+            Implicitness::Explicit
+        }
+    }
 }
 
 /// Dependent function type, it's a type-level function
@@ -134,7 +149,7 @@ pub enum Term {
     Flexible(Meta, Vec<Value>),
     Rigid(Level, Vec<Value>),
     Pi(Pi),
-    Lam(Closure),
+    Lam(Definition, Implicitness, Closure),
     Type,
     Location(Location, Box<Term>),
     Sorry(Location, Option<ThirError>),

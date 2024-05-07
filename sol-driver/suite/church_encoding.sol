@@ -10,10 +10,10 @@ Zero : Nat = |n succ# zero#|
 // Maybe definition
 Maybe (t : *) = (a : *) -> (t -> a) a -> a
 
-Just (value : a) : Maybe a = |t just# nothing#|
+Just (value : a) : Maybe a = Just @ |t just# nothing#|
   just# value
 
-Nothing : Maybe a = |t just# nothing#|
+Nothing : Maybe a = Nothing @ |t just# nothing#|
   nothing#
 
 Maybe.unwrap (maybe : Maybe a) : a =
