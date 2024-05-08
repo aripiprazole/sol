@@ -5,13 +5,9 @@ module.exports = grammar({
 
   conflicts: ($) => [
     [$.cons_pattern, $.primary],
-    [$.app_expr, $._expr],
     [$.if_stmt, $.if_expr],
-    [$.type_app_expr, $.app_expr],
     [$._expr, $.type_app_expr, $.app_expr],
-    [$._type_expr, $.primary],
     [$._pattern, $.primary],
-    [$.forall_parameter, $.free_variable],
   ],
 
   precedences: ($) => [
@@ -426,7 +422,9 @@ module.exports = grammar({
 
     _arm_body: ($) => choice($.block, $._expr),
 
-    free_variable: ($) => seq('^', $.identifier),
+    free_variable: ($) => seq("'", $.identifier),
+
+    universe_expr: () => 'U',
 
     // Primaries
     primary: ($) =>
@@ -439,6 +437,7 @@ module.exports = grammar({
         $.if_expr,
         $.match_expr,
         $.return_expr,
+        $.universe_expr,
       ),
 
     literal: ($) =>

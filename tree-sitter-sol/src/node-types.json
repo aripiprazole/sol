@@ -2033,6 +2033,10 @@
         {
           "type": "tuple_expr",
           "named": true
+        },
+        {
+          "type": "universe_expr",
+          "named": true
         }
       ]
     }
@@ -2728,6 +2732,10 @@
     "named": false
   },
   {
+    "type": "'",
+    "named": false
+  },
+  {
     "type": "(",
     "named": false
   },
@@ -2938,6 +2946,10 @@
   {
     "type": "u8",
     "named": false
+  },
+  {
+    "type": "universe_expr",
+    "named": true
   },
   {
     "type": "using",
