@@ -2716,7 +2716,7 @@
     },
     "attribute_id": {
       "type": "PATTERN",
-      "value": "[a-zA-Z][a-zA-Z\\d_$]*"
+      "value": "[a-zA-Z][a-zA-Z\\d_$#]*"
     },
     "hash_bang": {
       "type": "PATTERN",
@@ -2886,11 +2886,11 @@
     [
       {
         "type": "SYMBOL",
-        "name": "_type_expr"
+        "name": "primary"
       },
       {
         "type": "SYMBOL",
-        "name": "primary"
+        "name": "_type_expr"
       }
     ],
     [
@@ -2933,6 +2933,16 @@
       {
         "type": "SYMBOL",
         "name": "ann_expr"
+      }
+    ],
+    [
+      {
+        "type": "SYMBOL",
+        "name": "tuple_expr"
+      },
+      {
+        "type": "SYMBOL",
+        "name": "_pi_parameter_set"
       }
     ],
     [

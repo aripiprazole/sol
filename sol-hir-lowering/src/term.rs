@@ -514,7 +514,7 @@ impl HirLowering<'_, '_> {
     /// It does translate the syntax primary expression
     /// using the level supplied.
     pub fn primary(&mut self, tree: sol_syntax::Primary, level: HirLevel) -> Expr {
-        use sol_syntax::anon_unions::ArrayExpr_FreeVariable_IfExpr_Literal_MatchExpr_Path_ReturnExpr_TupleExpr::*;
+        use sol_syntax::anon_unions::ArrayExpr_FreeVariable_IfExpr_Literal_MatchExpr_Path_ReturnExpr_TupleExpr_UniverseExpr::*;
 
         let location = self.range(tree.range());
 
@@ -575,6 +575,7 @@ impl HirLowering<'_, '_> {
                 // Creates a new [`Expr`] with the [`Definition`] as the callee.
                 Expr::Path(this.scope.insert_free_variable(this.db, path))
             }
+            UniverseExpr(_) => TypeRep::Type.downgrade(this.db),
         })
     }
 }

@@ -14,7 +14,7 @@ use sol_hir::{
     primitives::PrimitiveProvider,
     solver::{Definition, Reference},
     source::{
-        expr::{CallExpr, Expr, Meta},
+        expr::{Expr, Meta},
         literal::Literal,
         pattern::Pattern,
         HirElement, HirError, Location,
@@ -26,7 +26,7 @@ use sol_syntax::ParseDb;
 extern crate salsa_2022 as salsa;
 
 #[salsa::jar(db = ThirDb)]
-pub struct Jar(Env, desugar::eval);
+pub struct Jar(Env, eval);
 
 pub trait ThirDb:
     PrimitiveProvider + HirDb + HirLowering + HasManifest + ParseDb + DiagnosticDb + DbWithJar<Jar>

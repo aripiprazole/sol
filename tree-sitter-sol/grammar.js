@@ -31,10 +31,11 @@ module.exports = grammar({
     ],
     [$.sigma_expr, $.array_expr],
     [$.primary, $._expr],
-    [$._type_expr, $.primary],
+    [$.primary, $._type_expr],
     [$._type_expr, $.type_app_expr, $._expr, $.app_expr],
     [$._arm_body, $.sigma_expr, $.binary_expr],
     [$._arm_body, $.ann_expr],
+    [$.tuple_expr, $._pi_parameter_set],
     [$._pi_parameter_set, $.ann_expr],
     [$._pi_parameter_set, $.pi_expr],
     [$._pi_parameter_set, $.sigma_expr],
@@ -228,7 +229,7 @@ module.exports = grammar({
     _pattern: ($) =>
       choice($.group_pattern, $.cons_pattern, $.rest_pattern, $.literal),
 
-    rest_pattern: ($) => '..',
+    rest_pattern: () => '..',
 
     cons_pattern: ($) =>
       prec.left(
@@ -481,9 +482,9 @@ module.exports = grammar({
     binary: ($) => seq(/Ob/i, $._binary),
 
     // LEXER
-    _line_break: ($) => /(\n|\r\n|;)+/,
+    _line_break: () => /(\n|\r\n|;)+/,
 
-    _symbol: ($) =>
+    _symbol: () =>
       choice(
         '$',
         '?',
@@ -504,24 +505,24 @@ module.exports = grammar({
         '>',
       ),
 
-    _octal: ($) => /[0-7]+/i,
-    _hex: ($) => /[0-8a-fA-F]+/i,
-    _binary: ($) => /[0-1]+/i,
-    _decimal: ($) => /[0-9]+/i,
-    _float: ($) => /\d+(\.[\d_]+)?/,
+    _octal: () => /[0-7]+/i,
+    _hex: () => /[0-8a-fA-F]+/i,
+    _binary: () => /[0-1]+/i,
+    _decimal: () => /[0-9]+/i,
+    _float: () => /\d+(\.[\d_]+)?/,
 
-    char: ($) => /'[^'\\]'/,
-    string: ($) => /"([^"\\\n\r]|\\[^\n\r])*"/,
+    char: () => /'[^'\\]'/,
+    string: () => /"([^"\\\n\r]|\\[^\n\r])*"/,
 
-    infix_op: ($) => prec.left(repeat1($._symbol)),
+    infix_op: () => prec.left(repeat1($._symbol)),
 
-    attribute_id: ($) => /[a-zA-Z][a-zA-Z\d_$]*/,
+    attribute_id: () => /[a-zA-Z][a-zA-Z\d_$#]*/,
 
-    hash_bang: ($) => /#!.*/,
+    hash_bang: () => /#!.*/,
 
-    doc_string: ($) => prec(2, token(seq('//!', /.*/))),
-    line_comment: ($) => prec(1, token(seq('//', /.*/))),
+    doc_string: () => prec(2, token(seq('//!', /.*/))),
+    line_comment: () => prec(1, token(seq('//', /.*/))),
 
-    simple_identifier: ($) => /[a-zA-Z_'][a-zA-Z'\d_$]*/,
+    simple_identifier: () => /[a-zA-Z_'][a-zA-Z'\d_$]*/,
   },
 });
