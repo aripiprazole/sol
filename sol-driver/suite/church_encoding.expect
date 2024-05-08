@@ -1,0 +1,160 @@
+Error: found 1 errors
+   ╭─[unresolved:1:1]
+   │
+ 1 │ 
+   │ │ 
+   │ ╰─ resolution error: Empty expression representation is not allowed to be used in any contexts
+───╯
+Error: found 64 errors
+    ╭─[repl:1:1]
+    │
+  2 │ Nat : * = (n : *) -> (n -> n) -> n
+    │      │┬──  ┬────      ┬    ┬     ┬  
+    │      ╰────────────────────────────── parse error: (missing "return")
+    │       │    │          │    │     │  
+    │       ╰───────────────────────────── resolution error: unresolved `function` `* =`
+    │            │          │    │     │  
+    │            ╰──────────────────────── parse error: unexpected token(s): n : *
+    │                       │    │     │  
+    │                       ╰───────────── resolution error: unresolved `type` `n`
+    │                            │     │  
+    │                            ╰──────── resolution error: unresolved `type` `n`
+    │                                  │  
+    │                                  ╰── resolution error: unresolved `type` `n`
+    │ 
+  4 │ Succ (prev : Nat) : Nat = |n succ# zero#|
+    │                         ┬  ┬     ┬     ┬─  
+    │                         ╰────────────────── resolution error: unresolved `function` `=`
+    │                            │     │     │   
+    │                            ╰─────────────── resolution error: unresolved `constructor` `n`
+    │                                  │     │   
+    │                                  ╰───────── parse error: unexpected token(s): #
+    │                                        │   
+    │                                        ╰─── parse error: unexpected token(s): # |
+  5 │   succ# (prev n succ# zero#) zero#
+    │       ┬  ┬───       ┬     ┬      ┬  
+    │       ╰───────────────────────────── parse error: unexpected token(s): #
+    │          │          │     │      │  
+    │          ╰────────────────────────── resolution error: unresolved `constructor` `prev`
+    │                     │     │      │  
+    │                     ╰─────────────── parse error: unexpected token(s): #
+    │                           │      │  
+    │                           ╰───────── parse error: unexpected token(s): #
+    │                                  │  
+    │                                  ╰── parse error: unexpected token(s): #
+    │ 
+  7 │ Zero : Nat = |n succ# zero#|
+    │            ┬  ┬     ┬     ┬─  
+    │            ╰────────────────── resolution error: unresolved `function` `=`
+    │               │     │     │   
+    │               ╰─────────────── resolution error: unresolved `constructor` `n`
+    │                     │     │   
+    │                     ╰───────── parse error: unexpected token(s): #
+    │                           │   
+    │                           ╰─── parse error: unexpected token(s): # |
+  8 │   zero#
+    │       ┬  
+    │       ╰── parse error: unexpected token(s): #
+    │ 
+ 11 │ Maybe (t : *) = (a : *) -> (t -> a) a -> a
+    │          ┬──  ┬    ┬──  ┬─  ┬ ┬─      ┬─  
+    │          ╰──────────────────────────────── parse error: unexpected token(s): : *
+    │               │    │    │   │ │       │   
+    │               ╰─────────────────────────── parse error: unexpected token(s): =
+    │                    │    │   │ │       │   
+    │                    ╰────────────────────── parse error: unexpected token(s): : *
+    │                         │   │ │       │   
+    │                         ╰───────────────── parse error: unexpected token(s): - >
+    │                             │ │       │   
+    │                             ╰───────────── resolution error: unresolved `constructor` `t`
+    │                               │       │   
+    │                               ╰─────────── parse error: unexpected token(s): - >
+    │                                       │   
+    │                                       ╰─── parse error: unexpected token(s): - >
+    │ 
+ 13 │ Just (value : a) : Maybe a = Just @ |t just# nothing#|
+    │       ┬──── ┬      ┬──── ┬ ┬ ┬─── ┬  ┬ ┬───┬ ┬──────┬  
+    │       ╰──────────────────────────────────────────────── resolution error: unresolved `constructor` `value`
+    │             │      │     │ │ │    │  │ │   │ │      │  
+    │             ╰────────────────────────────────────────── parse error: unexpected token(s): :
+    │                    │     │ │ │    │  │ │   │ │      │  
+    │                    ╰─────────────────────────────────── resolution error: unresolved `type` `Maybe`
+    │                          │ │ │    │  │ │   │ │      │  
+    │                          ╰───────────────────────────── resolution error: unresolved `type` `a`
+    │                            │ │    │  │ │   │ │      │  
+    │                            ╰─────────────────────────── resolution error: unresolved `function` `=`
+    │                              │    │  │ │   │ │      │  
+    │                              ╰───────────────────────── resolution error: unresolved `type` `Just`
+    │                                   │  │ │   │ │      │  
+    │                                   ╰──────────────────── parse error: unexpected token(s): @
+    │                                      │ │   │ │      │  
+    │                                      ╰───────────────── resolution error: unresolved `type` `t`
+    │                                        │   │ │      │  
+    │                                        ╰─────────────── resolution error: unresolved `type` `just`
+    │                                            │ │      │  
+    │                                            ╰─────────── parse error: unexpected token(s): #
+    │                                              │      │  
+    │                                              ╰───────── resolution error: unresolved `type` `nothing`
+    │                                                     │  
+    │                                                     ╰── parse error: unexpected token(s): #
+ 14 │   just# value
+    │   ┬───┬ ┬────  
+    │   ╰──────────── resolution error: unresolved `type` `just`
+    │       │ │      
+    │       ╰──────── parse error: unexpected token(s): #
+    │         │      
+    │         ╰────── resolution error: unresolved `type` `value`
+    │ 
+ 16 │ Nothing : Maybe a = Nothing @ |t just# nothing#|
+    │           ┬──── ┬ ┬ ┬────── ┬ ┬┬ ┬───┬ ┬──────┬┬  
+    │           ╰─────────────────────────────────────── resolution error: unresolved `type` `Maybe`
+    │                 │ │ │       │ ││ │   │ │      ││  
+    │                 ╰───────────────────────────────── resolution error: unresolved `type` `a`
+    │                   │ │       │ ││ │   │ │      ││  
+    │                   ╰─────────────────────────────── resolution error: unresolved `function` `=`
+    │                     │       │ ││ │   │ │      ││  
+    │                     ╰───────────────────────────── resolution error: unresolved `type` `Nothing`
+    │                             │ ││ │   │ │      ││  
+    │                             ╰───────────────────── parse error: unexpected token(s): @
+    │                               ││ │   │ │      ││  
+    │                               ╰─────────────────── resolution error: unresolved `function` `|`
+    │                                │ │   │ │      ││  
+    │                                ╰────────────────── resolution error: unresolved `type` `t`
+    │                                  │   │ │      ││  
+    │                                  ╰──────────────── resolution error: unresolved `type` `just`
+    │                                      │ │      ││  
+    │                                      ╰──────────── parse error: unexpected token(s): #
+    │                                        │      ││  
+    │                                        ╰────────── resolution error: unresolved `type` `nothing`
+    │                                               ││  
+    │                                               ╰─── parse error: unexpected token(s): #
+    │                                                │  
+    │                                                ╰── resolution error: unresolved `function` `|`
+ 17 │   nothing#
+    │   ┬──────┬  
+    │   ╰───────── resolution error: unresolved `type` `nothing`
+    │          │  
+    │          ╰── parse error: unexpected token(s): #
+    │ 
+ 19 │ Maybe.unwrap (maybe : Maybe a) : a =
+    │                       ┬──── ┬    ┬ ┬  
+    │                       ╰─────────────── resolution error: unresolved `type` `Maybe`
+    │                             │    │ │  
+    │                             ╰───────── resolution error: unresolved `type` `a`
+    │                                  │ │  
+    │                                  ╰──── resolution error: unresolved `type` `a`
+    │                                    │  
+    │                                    ╰── resolution error: unresolved `function` `=`
+ 20 │   maybe // match maybe with
+    │   ┬────                     │ 
+    │   ╰─────────────────────────── resolution error: unresolved `type` `maybe`
+    │                             │ 
+    │                             ╰─ parse error: (missing simple_identifier)
+ 21 │     (|value| value) // Just a  => a
+    │ │     ┬────  ┬────  
+    │ ╰─────────────────── parse error: (missing simple_identifier)
+    │       │      │      
+    │       ╰───────────── resolution error: unresolved `type` `value`
+    │              │      
+    │              ╰────── resolution error: unresolved `type` `value`
+────╯
