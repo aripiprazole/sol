@@ -371,7 +371,7 @@ module.exports = grammar({
       prec.left(
         seq(
           '|',
-          optional(field('parameter', $._parameter_set)),
+          repeat1(field('parameter', $._pattern)),
           '|',
           field('value', $._expr),
         ),

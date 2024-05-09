@@ -1814,20 +1814,15 @@
             "value": "|"
           },
           {
-            "type": "CHOICE",
-            "members": [
-              {
-                "type": "FIELD",
-                "name": "parameter",
-                "content": {
-                  "type": "SYMBOL",
-                  "name": "_parameter_set"
-                }
-              },
-              {
-                "type": "BLANK"
+            "type": "REPEAT1",
+            "content": {
+              "type": "FIELD",
+              "name": "parameter",
+              "content": {
+                "type": "SYMBOL",
+                "name": "_pattern"
               }
-            ]
+            }
           },
           {
             "type": "STRING",

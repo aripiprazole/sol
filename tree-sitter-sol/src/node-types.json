@@ -1344,18 +1344,22 @@
     "fields": {
       "parameter": {
         "multiple": true,
-        "required": false,
+        "required": true,
         "types": [
           {
-            "type": ",",
-            "named": false
-          },
-          {
-            "type": "forall_parameter",
+            "type": "cons_pattern",
             "named": true
           },
           {
-            "type": "parameter",
+            "type": "group_pattern",
+            "named": true
+          },
+          {
+            "type": "literal",
+            "named": true
+          },
+          {
+            "type": "rest_pattern",
             "named": true
           }
         ]
