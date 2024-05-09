@@ -1339,6 +1339,19 @@
         ]
       }
     },
+    "_primary_or_binary": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "primary"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "binary_expr"
+        }
+      ]
+    },
     "binary_expr": {
       "type": "PREC_LEFT",
       "value": 0,
@@ -1366,7 +1379,7 @@
             "name": "rhs",
             "content": {
               "type": "SYMBOL",
-              "name": "_expr"
+              "name": "_primary_or_binary"
             }
           }
         ]
@@ -2794,6 +2807,33 @@
     [
       "_pattern",
       "primary"
+    ],
+    [
+      "_expr",
+      "_primary_or_binary"
+    ],
+    [
+      "_type_expr",
+      "_primary_or_binary"
+    ],
+    [
+      "_primary_or_binary",
+      "app_expr"
+    ],
+    [
+      "_primary_or_binary",
+      "type_app_expr",
+      "app_expr"
+    ],
+    [
+      "_primary_or_binary",
+      "_expr",
+      "app_expr"
+    ],
+    [
+      "_primary_or_binary",
+      "_type_expr",
+      "type_app_expr"
     ]
   ],
   "precedences": [

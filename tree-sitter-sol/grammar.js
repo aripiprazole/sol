@@ -8,6 +8,12 @@ module.exports = grammar({
     [$.if_stmt, $.if_expr],
     [$._expr, $.type_app_expr, $.app_expr],
     [$._pattern, $.primary],
+    [$._expr, $._primary_or_binary],
+    [$._type_expr, $._primary_or_binary],
+    [$._primary_or_binary, $.app_expr],
+    [$._primary_or_binary, $.type_app_expr, $.app_expr],
+    [$._primary_or_binary, $._expr, $.app_expr],
+    [$._primary_or_binary, $._type_expr, $.type_app_expr],
   ],
 
   precedences: ($) => [
@@ -276,12 +282,14 @@ module.exports = grammar({
         ),
       ),
 
+    _primary_or_binary: ($) => choice($.primary, $.binary_expr),
+
     binary_expr: ($) =>
       prec.left(
         seq(
           field('lhs', $._expr),
           field('op', $.infix_op),
-          field('rhs', $._expr),
+          field('rhs', $._primary_or_binary),
         ),
       ),
 
@@ -514,7 +522,7 @@ module.exports = grammar({
     char: () => /'[^'\\]'/,
     string: () => /"([^"\\\n\r]|\\[^\n\r])*"/,
 
-    infix_op: () => prec.left(repeat1($._symbol)),
+    infix_op: ($) => prec.left(repeat1($._symbol)),
 
     attribute_id: () => /[a-zA-Z][a-zA-Z\d_$#]*/,
 

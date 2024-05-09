@@ -409,39 +409,11 @@
         "required": true,
         "types": [
           {
-            "type": "ann_expr",
-            "named": true
-          },
-          {
-            "type": "app_expr",
-            "named": true
-          },
-          {
             "type": "binary_expr",
             "named": true
           },
           {
-            "type": "forall_expr",
-            "named": true
-          },
-          {
-            "type": "lam_expr",
-            "named": true
-          },
-          {
-            "type": "match_expr",
-            "named": true
-          },
-          {
-            "type": "pi_expr",
-            "named": true
-          },
-          {
             "type": "primary",
-            "named": true
-          },
-          {
-            "type": "sigma_expr",
             "named": true
           }
         ]
