@@ -15,7 +15,6 @@ use sol_hir::{
         HirElement,
     },
 };
-use sol_syntax::anon_unions::Comma_ConsPattern_GroupPattern_Literal_Parameter_RestPattern;
 
 use super::*;
 
@@ -99,7 +98,14 @@ impl HirLowering<'_, '_> {
     /// into a high-level binary expression.
     pub fn binary_expr(&mut self, tree: sol_syntax::BinaryExpr, level: HirLevel) -> Expr {
         let lhs = tree.lhs().solve(self, |this, node| this.expr(node, level));
-        let rhs = tree.rhs().solve(self, |this, node| this.expr(node, level));
+        let rhs = tree.rhs().solve(self, |this, node| {
+            use sol_syntax::anon_unions::BinaryExpr_Primary::*;
+
+            match node {
+                BinaryExpr(binary_expr) => this.binary_expr(binary_expr, level),
+                Primary(primary) => this.primary(primary, level),
+            }
+        });
         let op = tree.op().solve(self, |this, node| {
             let location = this.range(node.range());
             let identifier = node
@@ -262,7 +268,7 @@ impl HirLowering<'_, '_> {
             .flatten()
             .filter_map(|parameter| parameter.regular())
             .map(|parameter| {
-                use Comma_ConsPattern_GroupPattern_Literal_Parameter_RestPattern::*;
+                use sol_syntax::anon_unions::Comma_ConsPattern_GroupPattern_Literal_Parameter_RestPattern::*;
 
                 match parameter {
                     Parameter(parameter) => self.parameter(true, true, parameter),

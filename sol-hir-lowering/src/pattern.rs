@@ -77,7 +77,15 @@ impl HirLowering<'_, '_> {
 
         // If the patterns are empty, it's a binding pattern, otherwise, it's a constructor
         // pattern.
-        if patterns.is_empty() {
+        if patterns.is_empty()
+            && name
+                .to_string(self.db)
+                .unwrap()
+                .chars()
+                .next()
+                .unwrap()
+                .is_lowercase()
+        {
             // Defines the node on the scope
             let name = self
                 .scope

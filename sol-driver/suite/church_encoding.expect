@@ -1,0 +1,111 @@
+Error: found 44 errors
+    ╭─[repl:1:1]
+    │
+  3 │ Nat = (n : U) -> (n -> n) -> n
+    │                   ┬    ┬     ┬  
+    │                   ╰───────────── resolution error: unresolved `type` `n`
+    │                        │     │  
+    │                        ╰──────── resolution error: unresolved `type` `n`
+    │                              │  
+    │                              ╰── resolution error: unresolved `type` `n`
+    │ 
+  6 │ Succ = |prev n succ$ zero$| succ$ (prev n succ$ zero$) zero$
+    │         ┬─── ┬ ┬──── ┬────  ┬────  ┬─── ┬ ┬──── ┬────  ┬────  
+    │         ╰───────────────────────────────────────────────────── resolution error: unresolved `type` `prev`
+    │              │ │     │      │      │    │ │     │      │      
+    │              ╰──────────────────────────────────────────────── resolution error: unresolved `type` `n`
+    │                │     │      │      │    │ │     │      │      
+    │                ╰────────────────────────────────────────────── resolution error: unresolved `type` `succ$`
+    │                      │      │      │    │ │     │      │      
+    │                      ╰──────────────────────────────────────── resolution error: unresolved `type` `zero$`
+    │                             │      │    │ │     │      │      
+    │                             ╰───────────────────────────────── resolution error: unresolved `function` `succ$`
+    │                                    │    │ │     │      │      
+    │                                    ╰────────────────────────── resolution error: unresolved `function` `prev`
+    │                                         │ │     │      │      
+    │                                         ╰───────────────────── resolution error: unresolved `function` `n`
+    │                                           │     │      │      
+    │                                           ╰─────────────────── resolution error: unresolved `function` `succ$`
+    │                                                 │      │      
+    │                                                 ╰───────────── resolution error: unresolved `function` `zero$`
+    │                                                        │      
+    │                                                        ╰────── resolution error: unresolved `function` `zero$`
+    │ 
+  9 │ Zero = |n succ$ zero$| zero$
+    │         ┬ ┬──── ┬────  ┬────  
+    │         ╰───────────────────── resolution error: unresolved `type` `n`
+    │           │     │      │      
+    │           ╰─────────────────── resolution error: unresolved `type` `succ$`
+    │                 │      │      
+    │                 ╰───────────── resolution error: unresolved `type` `zero$`
+    │                        │      
+    │                        ╰────── resolution error: unresolved `function` `zero$`
+    │ 
+ 13 │ Maybe = |t| (a : U) -> (t -> a) -> a -> a
+    │          ┬              ┬    ┬     ┬    ┬  
+    │          ╰───────────────────────────────── resolution error: unresolved `type` `t`
+    │                         │    │     │    │  
+    │                         ╰────────────────── resolution error: unresolved `type` `t`
+    │                              │     │    │  
+    │                              ╰───────────── resolution error: unresolved `type` `a`
+    │                                    │    │  
+    │                                    ╰─────── resolution error: unresolved `type` `a`
+    │                                         │  
+    │                                         ╰── resolution error: unresolved `type` `a`
+    │ 
+ 15 │ Just : 'a -> Maybe 'a
+    │        ┬─    ┬──── ┬─  
+    │        ╰─────────────── resolution error: unresolved `type` `'a`
+    │              │     │   
+    │              ╰───────── resolution error: unresolved `type` `Maybe`
+    │                    │   
+    │                    ╰─── resolution error: unresolved `type` `'a`
+ 16 │ Just = |value t just$ nothing$| just$ value
+    │         ┬──── ┬ ┬──── ┬───────  ┬──── ┬────  
+    │         ╰──────────────────────────────────── resolution error: unresolved `type` `value`
+    │               │ │     │         │     │      
+    │               ╰────────────────────────────── resolution error: unresolved `type` `t`
+    │                 │     │         │     │      
+    │                 ╰──────────────────────────── resolution error: unresolved `type` `just$`
+    │                       │         │     │      
+    │                       ╰────────────────────── resolution error: unresolved `type` `nothing$`
+    │                                 │     │      
+    │                                 ╰──────────── resolution error: unresolved `function` `just$`
+    │                                       │      
+    │                                       ╰────── resolution error: unresolved `function` `value`
+    │ 
+ 18 │ Nothing : Maybe 'a
+    │           ┬──── ┬─  
+    │           ╰───────── resolution error: unresolved `type` `Maybe`
+    │                 │   
+    │                 ╰─── resolution error: unresolved `type` `'a`
+ 19 │ Nothing = |t just$ nothing$| nothing$
+    │            ┬ ┬──── ┬───────  ┬───────  
+    │            ╰─────────────────────────── resolution error: unresolved `type` `t`
+    │              │     │         │         
+    │              ╰───────────────────────── resolution error: unresolved `type` `just$`
+    │                    │         │         
+    │                    ╰─────────────────── resolution error: unresolved `type` `nothing$`
+    │                              │         
+    │                              ╰───────── resolution error: unresolved `function` `nothing$`
+    │ 
+ 21 │ Maybe.unwrap : Maybe -> 'a
+    │                ┬────    ┬─  
+    │                ╰──────────── resolution error: unresolved `type` `Maybe`
+    │                         │   
+    │                         ╰─── resolution error: unresolved `type` `'a`
+ 22 │ Maybe.unwrap = |maybe|
+    │                 ┬────  
+    │                 ╰────── resolution error: unresolved `type` `maybe`
+ 23 │   maybe $
+    │   ┬──── ┬  
+    │   ╰──────── resolution error: unresolved `function` `maybe`
+    │         │  
+    │         ╰── resolution error: unresolved `function` `$`
+ 24 │     (|value| value) $
+    │     ┬────────────────  
+    │     ╰────────────────── parse error: unexpected token(s): (|value| value) $
+ 25 │     sorry
+    │     ┬────  
+    │     ╰────── resolution error: unresolved `function` `sorry`
+────╯

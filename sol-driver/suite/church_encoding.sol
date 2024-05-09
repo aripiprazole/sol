@@ -1,22 +1,25 @@
 // Natural numbers
-Nat : U = (n : U) -> (n -> n) -> n
+Nat : U
+Nat = (n : U) -> (n -> n) -> n
 
-Succ (prev : Nat) : Nat = |n succ$ zero$|
-  succ$ (prev n succ$ zero$) zero$
+Succ : Nat -> Nat
+Succ = |prev n succ$ zero$| succ$ (prev n succ$ zero$) zero$
 
-Zero : Nat = |n succ$ zero$|
-  zero$
+Zero : Nat
+Zero = |n succ$ zero$| zero$
 
 // Maybe definition
-Maybe (t : U) = (a : U) -> (t -> a) a -> a
+Maybe : U -> U
+Maybe = |t| (a : U) -> (t -> a) -> a -> a
 
-Just (value : a) : Maybe a = |t just$ nothing$|
-  just$ value
+Just : 'a -> Maybe 'a
+Just = |value t just$ nothing$| just$ value
 
-Nothing : Maybe a = |t just$ nothing$|
-  nothing$
+Nothing : Maybe 'a
+Nothing = |t just$ nothing$| nothing$
 
-Maybe.unwrap (maybe : Maybe a) : a =
+Maybe.unwrap : Maybe -> 'a
+Maybe.unwrap = |maybe|
   maybe $
     (|value| value) $
     sorry

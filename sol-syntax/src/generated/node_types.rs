@@ -388,7 +388,7 @@ impl<'tree> type_sitter_lib::TypedNode<'tree> for Binary<'tree> {
         Self(node)
     }
 }
-#[doc = "Typed node `binary_expr`\n\nThis node has these fields:\n- `lhs`: `{ann_expr | app_expr | binary_expr | forall_expr | lam_expr | match_expr | pi_expr | primary | sigma_expr}` ([anon_unions::AnnExpr_AppExpr_BinaryExpr_ForallExpr_LamExpr_MatchExpr_PiExpr_Primary_SigmaExpr])\n- `op`: `infix_op` ([InfixOp])\n- `rhs`: `{ann_expr | app_expr | binary_expr | forall_expr | lam_expr | match_expr | pi_expr | primary | sigma_expr}` ([anon_unions::AnnExpr_AppExpr_BinaryExpr_ForallExpr_LamExpr_MatchExpr_PiExpr_Primary_SigmaExpr])\n"]
+#[doc = "Typed node `binary_expr`\n\nThis node has these fields:\n- `lhs`: `{ann_expr | app_expr | binary_expr | forall_expr | lam_expr | match_expr | pi_expr | primary | sigma_expr}` ([anon_unions::AnnExpr_AppExpr_BinaryExpr_ForallExpr_LamExpr_MatchExpr_PiExpr_Primary_SigmaExpr])\n- `op`: `infix_op` ([InfixOp])\n- `rhs`: `{binary_expr | primary}` ([anon_unions::BinaryExpr_Primary])\n"]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 #[allow(non_camel_case_types)]
 pub struct BinaryExpr<'tree>(tree_sitter::Node<'tree>);
@@ -407,10 +407,13 @@ impl<'tree> BinaryExpr<'tree> {
         self . 0 . child_by_field_name ("op") . map (< InfixOp < 'tree > as TryFrom < _ >> :: try_from) . expect ("tree-sitter node missing its required child, there should at least be a MISSING node in its place")
     }
 
-    #[doc = "Get the field `rhs` which has kind `{ann_expr | app_expr | binary_expr | forall_expr | lam_expr | match_expr | pi_expr | primary | sigma_expr}` ([anon_unions::AnnExpr_AppExpr_BinaryExpr_ForallExpr_LamExpr_MatchExpr_PiExpr_Primary_SigmaExpr])"]
+    #[doc = "Get the field `rhs` which has kind `{binary_expr | primary}` ([anon_unions::BinaryExpr_Primary])"]
     #[allow(dead_code)]
-    #[inline]    pub fn rhs (& self) -> type_sitter_lib :: NodeResult < 'tree , anon_unions :: AnnExpr_AppExpr_BinaryExpr_ForallExpr_LamExpr_MatchExpr_PiExpr_Primary_SigmaExpr < 'tree > >{
-        self . 0 . child_by_field_name ("rhs") . map (< anon_unions :: AnnExpr_AppExpr_BinaryExpr_ForallExpr_LamExpr_MatchExpr_PiExpr_Primary_SigmaExpr < 'tree > as TryFrom < _ >> :: try_from) . expect ("tree-sitter node missing its required child, there should at least be a MISSING node in its place")
+    #[inline]
+    pub fn rhs(
+        &self,
+    ) -> type_sitter_lib::NodeResult<'tree, anon_unions::BinaryExpr_Primary<'tree>> {
+        self . 0 . child_by_field_name ("rhs") . map (< anon_unions :: BinaryExpr_Primary < 'tree > as TryFrom < _ >> :: try_from) . expect ("tree-sitter node missing its required child, there should at least be a MISSING node in its place")
     }
 }
 #[automatically_derived]
@@ -7984,6 +7987,85 @@ pub mod anon_unions {
                 Self::Primary(x) => x.into_node(),
                 Self::SigmaExpr(x) => x.into_node(),
                 Self::Path(x) => x.into_node(),
+            }
+        }
+    }
+    #[doc = "one of `{binary_expr | primary}`:\n- [BinaryExpr]\n- [Primary]"]
+    #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+    #[allow(non_camel_case_types)]
+    pub enum BinaryExpr_Primary<'tree> {
+        BinaryExpr(BinaryExpr<'tree>),
+        Primary(Primary<'tree>),
+    }
+    #[automatically_derived]
+    impl<'tree> BinaryExpr_Primary<'tree> {
+        #[doc = "Returns the node if it is of kind `binary_expr` ([BinaryExpr]), otherwise returns None"]
+        #[inline]
+        #[allow(unused, non_snake_case)]
+        pub fn binary_expr(self) -> Option<BinaryExpr<'tree>> {
+            match self {
+                Self::BinaryExpr(x) => Some(x),
+                _ => None,
+            }
+        }
+
+        #[doc = "Returns the node if it is of kind `primary` ([Primary]), otherwise returns None"]
+        #[inline]
+        #[allow(unused, non_snake_case)]
+        pub fn primary(self) -> Option<Primary<'tree>> {
+            match self {
+                Self::Primary(x) => Some(x),
+                _ => None,
+            }
+        }
+    }
+    #[automatically_derived]
+    impl<'tree> TryFrom<tree_sitter::Node<'tree>> for BinaryExpr_Primary<'tree> {
+        type Error = type_sitter_lib::IncorrectKind<'tree>;
+
+        #[inline]
+        fn try_from(node: tree_sitter::Node<'tree>) -> Result<Self, Self::Error> {
+            match node.kind() {
+                "binary_expr" => Ok(unsafe {
+                    Self :: BinaryExpr (< BinaryExpr < 'tree > as type_sitter_lib :: TypedNode < 'tree >> :: from_node_unchecked (node))
+                }),
+                "primary" => {
+                    Ok(unsafe {
+                        Self :: Primary (< Primary < 'tree > as type_sitter_lib :: TypedNode < 'tree >> :: from_node_unchecked (node))
+                    })
+                }
+                _ => Err(type_sitter_lib::IncorrectKind {
+                    node,
+                    kind: <Self as type_sitter_lib::TypedNode<'tree>>::KIND,
+                }),
+            }
+        }
+    }
+    #[automatically_derived]
+    impl<'tree> type_sitter_lib::TypedNode<'tree> for BinaryExpr_Primary<'tree> {
+        const KIND: &'static str = "{binary_expr | primary}";
+
+        #[inline]
+        fn node(&self) -> &tree_sitter::Node<'tree> {
+            match self {
+                Self::BinaryExpr(x) => x.node(),
+                Self::Primary(x) => x.node(),
+            }
+        }
+
+        #[inline]
+        fn node_mut(&mut self) -> &mut tree_sitter::Node<'tree> {
+            match self {
+                Self::BinaryExpr(x) => x.node_mut(),
+                Self::Primary(x) => x.node_mut(),
+            }
+        }
+
+        #[inline]
+        fn into_node(self) -> tree_sitter::Node<'tree> {
+            match self {
+                Self::BinaryExpr(x) => x.into_node(),
+                Self::Primary(x) => x.into_node(),
             }
         }
     }
