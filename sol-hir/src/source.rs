@@ -1870,7 +1870,7 @@ pub mod expr {
     /// principle of abstraction in a functional language.
     #[derive(Debug, Clone, Hash, PartialEq, Eq)]
     pub struct AbsExpr {
-        pub parameters: Vec<declaration::Parameter>,
+        pub parameters: Vec<pattern::Pattern>,
         pub value: Box<expr::Expr>,
         pub location: Location,
         pub scope: Arc<Scope>,
@@ -1889,7 +1889,7 @@ pub mod expr {
     impl AbsExpr {
         pub fn new(
             _: &dyn crate::HirDb,
-            parameters: Vec<declaration::Parameter>,
+            parameters: Vec<pattern::Pattern>,
             value: expr::Expr,
             location: Location,
             scope: Arc<Scope>,
@@ -1902,7 +1902,7 @@ pub mod expr {
             }
         }
 
-        pub fn parameters(&self, _db: &dyn crate::HirDb) -> Vec<declaration::Parameter> {
+        pub fn parameters(&self, _db: &dyn crate::HirDb) -> Vec<pattern::Pattern> {
             self.parameters.clone()
         }
 

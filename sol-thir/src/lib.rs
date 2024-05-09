@@ -224,9 +224,9 @@ pub fn eval(db: &dyn crate::ThirDb, env: Env, expr: Expr) -> Term {
             .parameters
             .into_iter()
             .fold(Err(*abs.value), |acc, param| {
-                let definition = get_definition(db, param.binding(db));
                 let location = param.location(db);
-                let term = Term::Lam(definition, param.is_implicit(db).into(), Closure {
+                let definition = get_definition(db, param);
+                let term = Term::Lam(definition, Implicitness::Explicit, Closure {
                     env,
                     expr: match acc {
                         Ok(value) => quote(db, value),
