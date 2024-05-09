@@ -2094,13 +2094,14 @@ impl<'tree> type_sitter_lib::TypedNode<'tree> for InfixOp<'tree> {
         Self(node)
     }
 }
-#[doc = "Typed node `lam_expr`\n\nThis node has these fields:\n- `parameter`: `{, | forall_parameter | parameter}*` ([anon_unions::Comma_ForallParameter_Parameter])\n- `value`: `{ann_expr | app_expr | binary_expr | forall_expr | lam_expr | match_expr | pi_expr | primary | sigma_expr}` ([anon_unions::AnnExpr_AppExpr_BinaryExpr_ForallExpr_LamExpr_MatchExpr_PiExpr_Primary_SigmaExpr])\n"]
+#[doc = "Typed node `lam_expr`\n\nThis node has these fields:\n- `parameter`: `{cons_pattern | group_pattern | literal | rest_pattern}+` ([anon_unions::ConsPattern_GroupPattern_Literal_RestPattern])\n- `value`: `{ann_expr | app_expr | binary_expr | forall_expr | lam_expr | match_expr | pi_expr | primary | sigma_expr}` ([anon_unions::AnnExpr_AppExpr_BinaryExpr_ForallExpr_LamExpr_MatchExpr_PiExpr_Primary_SigmaExpr])\n"]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 #[allow(non_camel_case_types)]
 pub struct LamExpr<'tree>(tree_sitter::Node<'tree>);
 #[automatically_derived]
 impl<'tree> LamExpr<'tree> {
-    #[doc = "Get the field `parameter` which has kind `{, | forall_parameter | parameter}*` ([anon_unions::Comma_ForallParameter_Parameter])"]
+    #[doc = "Get the field `parameter` which has kind `{cons_pattern | group_pattern | literal | rest_pattern}+` ([anon_unions::ConsPattern_GroupPattern_Literal_RestPattern])"]
+    #[doc = "This is guaranteed to return at least one child"]
     #[allow(dead_code)]
     #[inline]
     pub fn parameters<'a>(
@@ -2109,10 +2110,18 @@ impl<'tree> LamExpr<'tree> {
     ) -> impl Iterator<
         Item = type_sitter_lib::NodeResult<
             'tree,
-            type_sitter_lib::ExtraOr<'tree, anon_unions::Comma_ForallParameter_Parameter<'tree>>,
+            type_sitter_lib::ExtraOr<
+                'tree,
+                anon_unions::ConsPattern_GroupPattern_Literal_RestPattern<'tree>,
+            >,
         >,
     > + 'a {
-        self . 0 . children_by_field_name ("parameter" , c) . map (| n | < type_sitter_lib :: ExtraOr < 'tree , anon_unions :: Comma_ForallParameter_Parameter < 'tree > > as TryFrom < _ >> :: try_from (n))
+        self.0.children_by_field_name("parameter", c).map(|n| {
+            <type_sitter_lib::ExtraOr<
+                'tree,
+                anon_unions::ConsPattern_GroupPattern_Literal_RestPattern<'tree>,
+            > as TryFrom<_>>::try_from(n)
+        })
     }
 
     #[doc = "Get the field `value` which has kind `{ann_expr | app_expr | binary_expr | forall_expr | lam_expr | match_expr | pi_expr | primary | sigma_expr}` ([anon_unions::AnnExpr_AppExpr_BinaryExpr_ForallExpr_LamExpr_MatchExpr_PiExpr_Primary_SigmaExpr])"]
@@ -8623,104 +8632,6 @@ pub mod anon_unions {
             }
         }
     }
-    #[doc = "one of `{, | forall_parameter | parameter}`:\n- [symbols::Comma]\n- [ForallParameter]\n- [Parameter]"]
-    #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-    #[allow(non_camel_case_types)]
-    pub enum Comma_ForallParameter_Parameter<'tree> {
-        Comma(symbols::Comma<'tree>),
-        ForallParameter(ForallParameter<'tree>),
-        Parameter(Parameter<'tree>),
-    }
-    #[automatically_derived]
-    impl<'tree> Comma_ForallParameter_Parameter<'tree> {
-        #[doc = "Returns the node if it is of kind `,` ([symbols::Comma]), otherwise returns None"]
-        #[inline]
-        #[allow(unused, non_snake_case)]
-        pub fn comma(self) -> Option<symbols::Comma<'tree>> {
-            match self {
-                Self::Comma(x) => Some(x),
-                _ => None,
-            }
-        }
-
-        #[doc = "Returns the node if it is of kind `forall_parameter` ([ForallParameter]), otherwise returns None"]
-        #[inline]
-        #[allow(unused, non_snake_case)]
-        pub fn forall_parameter(self) -> Option<ForallParameter<'tree>> {
-            match self {
-                Self::ForallParameter(x) => Some(x),
-                _ => None,
-            }
-        }
-
-        #[doc = "Returns the node if it is of kind `parameter` ([Parameter]), otherwise returns None"]
-        #[inline]
-        #[allow(unused, non_snake_case)]
-        pub fn parameter(self) -> Option<Parameter<'tree>> {
-            match self {
-                Self::Parameter(x) => Some(x),
-                _ => None,
-            }
-        }
-    }
-    #[automatically_derived]
-    impl<'tree> TryFrom<tree_sitter::Node<'tree>> for Comma_ForallParameter_Parameter<'tree> {
-        type Error = type_sitter_lib::IncorrectKind<'tree>;
-
-        #[inline]
-        fn try_from(node: tree_sitter::Node<'tree>) -> Result<Self, Self::Error> {
-            match node.kind() {
-                "," => Ok(unsafe {
-                    Self::Comma(<symbols::Comma<'tree> as type_sitter_lib::TypedNode<
-                        'tree,
-                    >>::from_node_unchecked(node))
-                }),
-                "forall_parameter" => {
-                    Ok(unsafe {
-                        Self :: ForallParameter (< ForallParameter < 'tree > as type_sitter_lib :: TypedNode < 'tree >> :: from_node_unchecked (node))
-                    })
-                }
-                "parameter" => Ok(unsafe {
-                    Self :: Parameter (< Parameter < 'tree > as type_sitter_lib :: TypedNode < 'tree >> :: from_node_unchecked (node))
-                }),
-                _ => Err(type_sitter_lib::IncorrectKind {
-                    node,
-                    kind: <Self as type_sitter_lib::TypedNode<'tree>>::KIND,
-                }),
-            }
-        }
-    }
-    #[automatically_derived]
-    impl<'tree> type_sitter_lib::TypedNode<'tree> for Comma_ForallParameter_Parameter<'tree> {
-        const KIND: &'static str = "{, | forall_parameter | parameter}";
-
-        #[inline]
-        fn node(&self) -> &tree_sitter::Node<'tree> {
-            match self {
-                Self::Comma(x) => x.node(),
-                Self::ForallParameter(x) => x.node(),
-                Self::Parameter(x) => x.node(),
-            }
-        }
-
-        #[inline]
-        fn node_mut(&mut self) -> &mut tree_sitter::Node<'tree> {
-            match self {
-                Self::Comma(x) => x.node_mut(),
-                Self::ForallParameter(x) => x.node_mut(),
-                Self::Parameter(x) => x.node_mut(),
-            }
-        }
-
-        #[inline]
-        fn into_node(self) -> tree_sitter::Node<'tree> {
-            match self {
-                Self::Comma(x) => x.into_node(),
-                Self::ForallParameter(x) => x.into_node(),
-                Self::Parameter(x) => x.into_node(),
-            }
-        }
-    }
     #[doc = "one of `{char | f32 | f64 | i128 | i16 | i64 | i8 | nat | string | u1 | u128 | u16 | u32 | u64 | u8}`:\n- [Char]\n- [F32]\n- [F64]\n- [I128]\n- [I16]\n- [I64]\n- [I8]\n- [Nat]\n- [String]\n- [U1]\n- [U128]\n- [U16]\n- [U32]\n- [U64]\n- [U8]"]
     #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
     #[allow(non_camel_case_types)]
@@ -9337,6 +9248,104 @@ pub mod anon_unions {
     impl < 'tree > TryFrom < tree_sitter :: Node < 'tree >> for AnnExpr_BinaryExpr_ForallExpr_LamExpr_MatchExpr_PiExpr_PiNamedParameterSet_Primary_SigmaExpr_TypeAppExpr < 'tree > { type Error = type_sitter_lib :: IncorrectKind < 'tree > ; # [inline] fn try_from (node : tree_sitter :: Node < 'tree >) -> Result < Self , Self :: Error > { match node . kind () { "ann_expr" => Ok (unsafe { Self :: AnnExpr (< AnnExpr < 'tree > as type_sitter_lib :: TypedNode < 'tree >> :: from_node_unchecked (node)) }) , "binary_expr" => Ok (unsafe { Self :: BinaryExpr (< BinaryExpr < 'tree > as type_sitter_lib :: TypedNode < 'tree >> :: from_node_unchecked (node)) }) , "forall_expr" => Ok (unsafe { Self :: ForallExpr (< ForallExpr < 'tree > as type_sitter_lib :: TypedNode < 'tree >> :: from_node_unchecked (node)) }) , "lam_expr" => Ok (unsafe { Self :: LamExpr (< LamExpr < 'tree > as type_sitter_lib :: TypedNode < 'tree >> :: from_node_unchecked (node)) }) , "match_expr" => Ok (unsafe { Self :: MatchExpr (< MatchExpr < 'tree > as type_sitter_lib :: TypedNode < 'tree >> :: from_node_unchecked (node)) }) , "pi_expr" => Ok (unsafe { Self :: PiExpr (< PiExpr < 'tree > as type_sitter_lib :: TypedNode < 'tree >> :: from_node_unchecked (node)) }) , "pi_named_parameter_set" => Ok (unsafe { Self :: PiNamedParameterSet (< PiNamedParameterSet < 'tree > as type_sitter_lib :: TypedNode < 'tree >> :: from_node_unchecked (node)) }) , "primary" => Ok (unsafe { Self :: Primary (< Primary < 'tree > as type_sitter_lib :: TypedNode < 'tree >> :: from_node_unchecked (node)) }) , "sigma_expr" => Ok (unsafe { Self :: SigmaExpr (< SigmaExpr < 'tree > as type_sitter_lib :: TypedNode < 'tree >> :: from_node_unchecked (node)) }) , "type_app_expr" => Ok (unsafe { Self :: TypeAppExpr (< TypeAppExpr < 'tree > as type_sitter_lib :: TypedNode < 'tree >> :: from_node_unchecked (node)) }) , _ => Err (type_sitter_lib :: IncorrectKind { node , kind : < Self as type_sitter_lib :: TypedNode < 'tree >> :: KIND , }) } } }
     #[automatically_derived]
     impl < 'tree > type_sitter_lib :: TypedNode < 'tree > for AnnExpr_BinaryExpr_ForallExpr_LamExpr_MatchExpr_PiExpr_PiNamedParameterSet_Primary_SigmaExpr_TypeAppExpr < 'tree > { const KIND : & 'static str = "{ann_expr | binary_expr | forall_expr | lam_expr | match_expr | pi_expr | pi_named_parameter_set | primary | sigma_expr | type_app_expr}" ; # [inline] fn node (& self) -> & tree_sitter :: Node < 'tree > { match self { Self :: AnnExpr (x) => x . node () , Self :: BinaryExpr (x) => x . node () , Self :: ForallExpr (x) => x . node () , Self :: LamExpr (x) => x . node () , Self :: MatchExpr (x) => x . node () , Self :: PiExpr (x) => x . node () , Self :: PiNamedParameterSet (x) => x . node () , Self :: Primary (x) => x . node () , Self :: SigmaExpr (x) => x . node () , Self :: TypeAppExpr (x) => x . node () , } } # [inline] fn node_mut (& mut self) -> & mut tree_sitter :: Node < 'tree > { match self { Self :: AnnExpr (x) => x . node_mut () , Self :: BinaryExpr (x) => x . node_mut () , Self :: ForallExpr (x) => x . node_mut () , Self :: LamExpr (x) => x . node_mut () , Self :: MatchExpr (x) => x . node_mut () , Self :: PiExpr (x) => x . node_mut () , Self :: PiNamedParameterSet (x) => x . node_mut () , Self :: Primary (x) => x . node_mut () , Self :: SigmaExpr (x) => x . node_mut () , Self :: TypeAppExpr (x) => x . node_mut () , } } # [inline] fn into_node (self) -> tree_sitter :: Node < 'tree > { match self { Self :: AnnExpr (x) => x . into_node () , Self :: BinaryExpr (x) => x . into_node () , Self :: ForallExpr (x) => x . into_node () , Self :: LamExpr (x) => x . into_node () , Self :: MatchExpr (x) => x . into_node () , Self :: PiExpr (x) => x . into_node () , Self :: PiNamedParameterSet (x) => x . into_node () , Self :: Primary (x) => x . into_node () , Self :: SigmaExpr (x) => x . into_node () , Self :: TypeAppExpr (x) => x . into_node () , } } }
+    #[doc = "one of `{, | forall_parameter | parameter}`:\n- [symbols::Comma]\n- [ForallParameter]\n- [Parameter]"]
+    #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+    #[allow(non_camel_case_types)]
+    pub enum Comma_ForallParameter_Parameter<'tree> {
+        Comma(symbols::Comma<'tree>),
+        ForallParameter(ForallParameter<'tree>),
+        Parameter(Parameter<'tree>),
+    }
+    #[automatically_derived]
+    impl<'tree> Comma_ForallParameter_Parameter<'tree> {
+        #[doc = "Returns the node if it is of kind `,` ([symbols::Comma]), otherwise returns None"]
+        #[inline]
+        #[allow(unused, non_snake_case)]
+        pub fn comma(self) -> Option<symbols::Comma<'tree>> {
+            match self {
+                Self::Comma(x) => Some(x),
+                _ => None,
+            }
+        }
+
+        #[doc = "Returns the node if it is of kind `forall_parameter` ([ForallParameter]), otherwise returns None"]
+        #[inline]
+        #[allow(unused, non_snake_case)]
+        pub fn forall_parameter(self) -> Option<ForallParameter<'tree>> {
+            match self {
+                Self::ForallParameter(x) => Some(x),
+                _ => None,
+            }
+        }
+
+        #[doc = "Returns the node if it is of kind `parameter` ([Parameter]), otherwise returns None"]
+        #[inline]
+        #[allow(unused, non_snake_case)]
+        pub fn parameter(self) -> Option<Parameter<'tree>> {
+            match self {
+                Self::Parameter(x) => Some(x),
+                _ => None,
+            }
+        }
+    }
+    #[automatically_derived]
+    impl<'tree> TryFrom<tree_sitter::Node<'tree>> for Comma_ForallParameter_Parameter<'tree> {
+        type Error = type_sitter_lib::IncorrectKind<'tree>;
+
+        #[inline]
+        fn try_from(node: tree_sitter::Node<'tree>) -> Result<Self, Self::Error> {
+            match node.kind() {
+                "," => Ok(unsafe {
+                    Self::Comma(<symbols::Comma<'tree> as type_sitter_lib::TypedNode<
+                        'tree,
+                    >>::from_node_unchecked(node))
+                }),
+                "forall_parameter" => {
+                    Ok(unsafe {
+                        Self :: ForallParameter (< ForallParameter < 'tree > as type_sitter_lib :: TypedNode < 'tree >> :: from_node_unchecked (node))
+                    })
+                }
+                "parameter" => Ok(unsafe {
+                    Self :: Parameter (< Parameter < 'tree > as type_sitter_lib :: TypedNode < 'tree >> :: from_node_unchecked (node))
+                }),
+                _ => Err(type_sitter_lib::IncorrectKind {
+                    node,
+                    kind: <Self as type_sitter_lib::TypedNode<'tree>>::KIND,
+                }),
+            }
+        }
+    }
+    #[automatically_derived]
+    impl<'tree> type_sitter_lib::TypedNode<'tree> for Comma_ForallParameter_Parameter<'tree> {
+        const KIND: &'static str = "{, | forall_parameter | parameter}";
+
+        #[inline]
+        fn node(&self) -> &tree_sitter::Node<'tree> {
+            match self {
+                Self::Comma(x) => x.node(),
+                Self::ForallParameter(x) => x.node(),
+                Self::Parameter(x) => x.node(),
+            }
+        }
+
+        #[inline]
+        fn node_mut(&mut self) -> &mut tree_sitter::Node<'tree> {
+            match self {
+                Self::Comma(x) => x.node_mut(),
+                Self::ForallParameter(x) => x.node_mut(),
+                Self::Parameter(x) => x.node_mut(),
+            }
+        }
+
+        #[inline]
+        fn into_node(self) -> tree_sitter::Node<'tree> {
+            match self {
+                Self::Comma(x) => x.into_node(),
+                Self::ForallParameter(x) => x.into_node(),
+                Self::Parameter(x) => x.into_node(),
+            }
+        }
+    }
     #[doc = "one of `{array_expr | free_variable | if_expr | literal | match_expr | path | return_expr | tuple_expr | universe_expr}`:\n- [ArrayExpr]\n- [FreeVariable]\n- [IfExpr]\n- [Literal]\n- [MatchExpr]\n- [Path]\n- [ReturnExpr]\n- [TupleExpr]\n- [UniverseExpr]"]
     #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
     #[allow(non_camel_case_types)]

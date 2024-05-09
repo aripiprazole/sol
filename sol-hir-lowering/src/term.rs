@@ -143,8 +143,7 @@ impl HirLowering<'_, '_> {
             .parameters(&mut tree.walk())
             .flatten()
             .filter_map(|node| node.regular())
-            .filter_map(|node| node.parameter())
-            .map(|parameter| self.parameter(false, false, parameter))
+            .map(|node| self.pattern(node))
             .collect::<Vec<_>>();
 
         let value = tree
