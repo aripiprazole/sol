@@ -1686,6 +1686,7 @@ dependencies = [
  "sol-hir",
  "sol-syntax",
  "sol-vfs",
+ "thiserror",
 ]
 
 [[package]]

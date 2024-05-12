@@ -4,7 +4,7 @@ pub type Expr = Box<Term>;
 
 #[derive(Debug, Clone, Hash, PartialEq, Eq)]
 pub enum Term {
-    Var(Index, Option<Reference>),
+    Var(debruijin::Index, Option<Reference>),
     Lam(Definition, shared::Implicitness, Expr),
     App(Expr, Expr),
     Pi(Option<Definition>, shared::Implicitness, Expr, Expr),

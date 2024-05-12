@@ -33,10 +33,10 @@ pub struct Pi {
 #[derive(Debug, Clone, Hash, PartialEq, Eq)]
 pub enum ValueKind {
     U,
-    Var(Index, Option<Reference>),
+    Var(debruijin::Index, Option<Reference>),
     Constructor(shared::Constructor),
-    Flexible(Meta, Vec<Value>),
-    Rigid(Level, Vec<Value>),
+    Flexible(shared::Meta, Vec<Value>),
+    Rigid(debruijin::Level, Vec<Value>),
     Pi(Pi),
     Lam(Definition, shared::Implicitness, Closure),
     Location(Location, Box<ValueKind>),
@@ -45,9 +45,5 @@ pub enum ValueKind {
 impl ValueKind {
     pub fn located(location: Location, value: ValueKind) -> ValueKind {
         ValueKind::Location(location, Box::new(value))
-    }
-
-    pub fn no() -> ValueKind {
-        ValueKind::Sorry(Location::CallSite, None)
     }
 }

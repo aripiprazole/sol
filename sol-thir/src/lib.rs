@@ -13,12 +13,7 @@ use sol_hir::{
     package::HasManifest,
     primitives::PrimitiveProvider,
     solver::{Definition, Reference},
-    source::{
-        expr::{Expr, Meta},
-        literal::Literal,
-        pattern::Pattern,
-        HirElement, HirError, Location,
-    },
+    source::{expr::Expr, literal::Literal, HirElement, HirError, Location},
     HirDb,
 };
 use sol_syntax::ParseDb;
@@ -30,12 +25,13 @@ use crate::{
 
 extern crate salsa_2022 as salsa;
 
+pub mod debruijin;
 pub mod shared;
 pub mod source;
 pub mod value;
 
 #[salsa::jar(db = ThirDb)]
-pub struct Jar(shared::Env);
+pub struct Jar(shared::Env, debruijin::Indices);
 
 pub trait ThirDb:
     PrimitiveProvider
@@ -50,7 +46,7 @@ pub trait ThirDb:
 {
 }
 
-impl ThirDb for DB where
+impl<DB> ThirDb for DB where
     DB: ?Sized
         + ParseDb
         + DiagnosticDb
