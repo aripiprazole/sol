@@ -11,9 +11,9 @@ pub enum Term {
     Pi(Option<Definition>, shared::Implicitness, Expr, Expr),
     Constructor(shared::Constructor),
     Ann(Expr, Expr),
-    Meta(shared::MetaVar),
     Location(Location, Expr),
     Sorry(Location, Option<ThirError>),
+    InsertedMeta(shared::MetaVar),
 }
 
 impl Term {
