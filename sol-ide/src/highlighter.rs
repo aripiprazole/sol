@@ -104,6 +104,6 @@ mod tests {
 
     #[test]
     fn works() {
-        println!("{:?}", semantic_highlight("Main {}"));
+        println!("{:?}", semantic_highlight("Main = 0"));
     }
 }
