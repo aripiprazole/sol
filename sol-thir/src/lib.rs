@@ -7,7 +7,7 @@
 
 use debruijin::Level;
 use salsa::DbWithJar;
-use shared::Env;
+use shared::{Context, Env};
 use sol_diagnostic::{Diagnostic, DiagnosticDb, ErrorId, ErrorKind};
 use sol_hir::{
     lowering::HirLowering,
@@ -32,7 +32,7 @@ pub mod source;
 pub mod value;
 
 #[salsa::jar(db = ThirDb)]
-pub struct Jar(shared::Env, debruijin::Indices);
+pub struct Jar(shared::Env, shared::Context, debruijin::Indices);
 
 pub trait ThirDb:
     PrimitiveProvider
@@ -71,10 +71,10 @@ pub trait ThirLowering {
 /// Represents the typing functions for Typed High-Level Intermediate Representation.
 pub trait ThirTyping {
     /// The infer function to infer the type of the term.
-    fn thir_infer(&self, db: &dyn ThirDb, env: Env, expr: Expr) -> (Term, Type);
+    fn thir_infer(&self, db: &dyn ThirDb, ctx: Context, expr: Expr) -> (Term, Type);
 
     /// The check function to check the type of the term.
-    fn thir_check(&self, db: &dyn ThirDb, env: Env, expr: Expr, type_repr: Type) -> Term;
+    fn thir_check(&self, db: &dyn ThirDb, ctx: Context, expr: Expr, type_repr: Type) -> Term;
 }
 
 /// Represents the diagnostic for High-Level Intermediate Representation. It's intended to be used

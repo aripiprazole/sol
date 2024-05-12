@@ -24,7 +24,7 @@ use sol_hir::{
 };
 use sol_syntax::ParseDb;
 use sol_thir::{
-    shared::ConstructorKind,
+    shared::{ConstructorKind, Context},
     source::Term,
     value::{Type, Value},
 };
@@ -51,12 +51,12 @@ fn thir_quote(db: &dyn ThirLoweringDb, lvl: Level, value: Value) -> Term {
 
 /// The infer function to infer the type of the term.
 #[salsa::tracked]
-fn thir_infer(db: &dyn ThirLoweringDb, env: Env, expr: Expr) -> (Term, Type) {
-    todo!()
+fn thir_infer(db: &dyn ThirLoweringDb, ctx: Context, expr: Expr) -> (Term, Type) {
+    ctx.location(db).update(expr.location(db));
 }
 
 /// The check function to check the type of the term.
 #[salsa::tracked]
-fn thir_check(db: &dyn ThirLoweringDb, env: Env, expr: Expr, type_repr: Type) -> Term {
+fn thir_check(db: &dyn ThirLoweringDb, ctx: Context, expr: Expr, type_repr: Type) -> Term {
     todo!()
 }

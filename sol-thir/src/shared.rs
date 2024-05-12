@@ -1,3 +1,5 @@
+use std::sync::{Arc, Mutex};
+
 use super::*;
 
 /// Constant, or primitive value that has no subterms
@@ -5,6 +7,34 @@ use super::*;
 pub struct Constructor {
     pub kind: ConstructorKind,
     pub location: Location,
+}
+
+#[salsa::tracked]
+pub struct Context {
+    pub location: CurrentLocation,
+}
+
+#[derive(Debug, Clone, Hash, Eq)]
+pub struct CurrentLocation(Arc<Mutex<Location>>);
+
+impl CurrentLocation {
+    pub fn new(location: Location) -> Self {
+        Self(Arc::new(Mutex::new(location)))
+    }
+
+    pub fn get(&self) -> Location {
+        self.0.lock().unwrap().clone()
+    }
+
+    pub fn update(&self, location: Location) {
+        *self.0.lock().unwrap() = location;
+    }
+}
+
+impl PartialEq for CurrentLocation {
+    fn eq(&self, other: &Self) -> bool {
+        Arc::ptr_eq(&self.0, &other.0)
+    }
 }
 
 #[salsa::tracked]
