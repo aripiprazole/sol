@@ -237,15 +237,17 @@ impl Scope {
                         None => None,
                     })
             }
-            DefinitionKind::Type => {
-                self.types
-                    .get(&name)
-                    .copied()
-                    .or_else(|| match self.parent.as_ref() {
-                        Some(root) => root.search(db, path, DefinitionKind::Type),
-                        None => None,
-                    })
-            }
+            DefinitionKind::Type => self
+                .types
+                .get(&name)
+                .copied()
+                // Searches in the current scope variables and functions
+                .or_else(|| self.search(db, path, DefinitionKind::Variable))
+                .or_else(|| self.search(db, path, DefinitionKind::Function))
+                .or_else(|| match self.parent.as_ref() {
+                    Some(root) => root.search(db, path, DefinitionKind::Type),
+                    None => None,
+                }),
             DefinitionKind::Variable => {
                 self.variables
                     .get(&name)

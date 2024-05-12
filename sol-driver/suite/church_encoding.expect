@@ -1,42 +1,18 @@
-Error: found 17 errors
+Error: found 7 errors
     ╭─[repl:1:1]
     │
-  3 │ Nat = (n : U) -> (n -> n) -> n
-    │                   ┬    ┬     ┬  
-    │                   ╰───────────── resolution error: unresolved `type` `n`
-    │                        │     │  
-    │                        ╰──────── resolution error: unresolved `type` `n`
-    │                              │  
-    │                              ╰── resolution error: unresolved `type` `n`
-    │ 
- 13 │ Maybe = |t| (a : U) -> (t -> a) -> a -> a
-    │                         ┬    ┬     ┬    ┬  
-    │                         ╰────────────────── resolution error: unresolved `type` `t`
-    │                              │     │    │  
-    │                              ╰───────────── resolution error: unresolved `type` `a`
-    │                                    │    │  
-    │                                    ╰─────── resolution error: unresolved `type` `a`
-    │                                         │  
-    │                                         ╰── resolution error: unresolved `type` `a`
-    │ 
  15 │ Just : 'a -> Maybe 'a
-    │        ┬─    ┬──── ┬─  
+    │        ┬─          ┬─  
     │        ╰─────────────── resolution error: unresolved `type` `'a`
-    │              │     │   
-    │              ╰───────── resolution error: unresolved `type` `Maybe`
     │                    │   
     │                    ╰─── resolution error: unresolved `type` `'a`
     │ 
  18 │ Nothing : Maybe 'a
-    │           ┬──── ┬─  
-    │           ╰───────── resolution error: unresolved `type` `Maybe`
-    │                 │   
+    │                 ┬─  
     │                 ╰─── resolution error: unresolved `type` `'a`
     │ 
  21 │ Maybe.unwrap : Maybe -> 'a
-    │                ┬────    ┬─  
-    │                ╰──────────── resolution error: unresolved `type` `Maybe`
-    │                         │   
+    │                         ┬─  
     │                         ╰─── resolution error: unresolved `type` `'a`
     │ 
  23 │   maybe $
