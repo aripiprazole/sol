@@ -4,15 +4,16 @@
 #![feature(fn_traits)]
 #![feature(unboxed_closures)]
 #![feature(trait_upcasting)]
+#![feature(box_patterns)]
 
 use salsa::DbWithJar;
 use sol_hir::{
     solver::{Definition, Reference},
-    source::{expr::Expr, HirElement, Location},
+    source::{expr::Expr, type_rep::TypeRep, HirElement, Location},
 };
 use sol_thir::{
     debruijin::Level,
-    shared::{Context, Env},
+    shared::{Context, Env, Implicitness},
     source::Term,
     value::{Closure, Pi, Type, Value},
     ThirDb,
@@ -120,15 +121,43 @@ fn thir_quote_impl(
 /// The infer function to infer the type of the term.
 #[salsa::tracked]
 pub fn thir_infer(db: &dyn ThirLoweringDb, ctx: Context, expr: Expr) -> (Term, Type) {
+    use Expr::*;
+
     ctx.location(db).update(expr.location(db));
 
-    todo!()
+    match expr {
+        Empty => todo!(),
+        Error(_) => todo!(),
+        Path(_) => todo!(),
+        Literal(_) => todo!(),
+        Call(_) => todo!(),
+        Ann(_) => todo!(),
+        Abs(_) => todo!(),
+        Match(_) => todo!(),
+        Upgrade(box TypeRep::App(_)) => todo!(),
+        Upgrade(box TypeRep::Hole) => todo!(),
+        Upgrade(box TypeRep::SelfType) => todo!(),
+        Upgrade(box TypeRep::Unit) => todo!(),
+        Upgrade(box TypeRep::Type) => todo!(),
+        Upgrade(box TypeRep::Pi(_)) => todo!(),
+        Upgrade(box TypeRep::Path(_, _)) => todo!(),
+        Upgrade(box TypeRep::Error(_)) => todo!(),
+        Upgrade(box TypeRep::Downgrade(box expr)) => db.thir_infer(ctx, expr),
+    }
 }
 
 /// The check function to check the type of the term.
 #[salsa::tracked]
+#[rustfmt::skip]
 pub fn thir_check(db: &dyn ThirLoweringDb, ctx: Context, expr: Expr, type_repr: Type) -> Term {
-    todo!()
+    ctx.location(db).update(expr.location(db));
+
+    match (expr, type_repr) {
+        (Expr::Abs(lam), Type::Pi(pi)) => todo!(),
+        (value, Type::Pi(Pi { name, implicitness: Implicitness::Implicit, type_rep, closure})) => todo!(),
+        (Expr::Upgrade(box TypeRep::Hole), _) => todo!("fresh meta"),
+        (value, expected) => todo!("default behavior of checking")
+    }
 }
 
 /// Create a reference to a definition if it's a reference or use stub value to location
