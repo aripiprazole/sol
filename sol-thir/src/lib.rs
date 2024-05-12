@@ -35,10 +35,12 @@ pub mod value;
 #[salsa::jar(db = ThirDb)]
 pub struct Jar(
     shared::Env,
+    shared::Env_push,
     shared::Context,
     debruijin::Indices,
     debruijin::Level,
     debruijin::Level_as_idx,
+    debruijin::Level_increase,
 );
 
 pub trait ThirDb:
@@ -70,18 +72,18 @@ impl<DB> ThirDb for DB where
 
 /// Represents the lowering functions for Low-Level Intermediate Representation.
 pub trait ThirLowering {
-    fn thir_eval(&self, db: &dyn ThirDb, env: Env, term: Term) -> Value;
+    fn thir_eval(&self, env: Env, expr: Expr) -> Value;
 
-    fn thir_quote(&self, db: &dyn ThirDb, lvl: Level, value: Value) -> Term;
+    fn thir_quote(&self, lvl: Level, value: Value) -> Term;
 }
 
 /// Represents the typing functions for Typed High-Level Intermediate Representation.
 pub trait ThirTyping {
     /// The infer function to infer the type of the term.
-    fn thir_infer(&self, db: &dyn ThirDb, ctx: Context, expr: Expr) -> (Term, Type);
+    fn thir_infer(&self, ctx: Context, expr: Expr) -> (Term, Type);
 
     /// The check function to check the type of the term.
-    fn thir_check(&self, db: &dyn ThirDb, ctx: Context, expr: Expr, type_repr: Type) -> Term;
+    fn thir_check(&self, ctx: Context, expr: Expr, type_repr: Type) -> Term;
 }
 
 /// Represents the diagnostic for High-Level Intermediate Representation. It's intended to be used

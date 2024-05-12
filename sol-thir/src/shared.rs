@@ -1,4 +1,5 @@
 use std::{
+    collections::VecDeque,
     hash::Hash,
     sync::{Arc, Mutex},
 };
@@ -61,7 +62,17 @@ impl Eq for CurrentLocation {}
 
 #[salsa::tracked]
 pub struct Env {
-    pub values: Vec<value::Value>,
+    pub values: VecDeque<value::Value>,
+}
+
+#[salsa::tracked]
+impl Env {
+    #[salsa::tracked]
+    pub fn push(self, db: &dyn ThirDb, value: value::Value) -> Env {
+        let mut values = self.values(db);
+        values.push_front(value);
+        Env::new(db, values)
+    }
 }
 
 pub type Meta = usize;

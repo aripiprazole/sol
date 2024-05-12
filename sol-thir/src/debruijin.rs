@@ -34,6 +34,12 @@ impl Level {
         }
         Ok(Index(0))
     }
+
+    #[salsa::tracked]
+    pub fn increase(self, db: &dyn crate::ThirDb) -> Level {
+        let value = self.value(db);
+        Level::new(db, value + 1)
+    }
 }
 
 /// Defines a debruijin index. That can be converted by two levels.
