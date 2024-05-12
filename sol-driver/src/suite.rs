@@ -13,32 +13,68 @@ use crate::RootDb;
 
 #[macro_export]
 macro_rules! make_test {
-    ($name:ident, $run:expr) => {
+    ($category: expr, $name:ident, $run:expr) => {
         #[test]
         fn $name() {
-            let source_code =
-                std::fs::read_to_string(concat!("suite/", stringify!($name), ".sol")).unwrap();
-            let expect = std::fs::read_to_string(concat!("suite/", stringify!($name), ".expect"))
-                .unwrap_or_default();
-            $crate::suite::run_test_suite(stringify!($name), &source_code, &expect, $run);
+            let source_code = std::fs::read_to_string(concat!(
+                "suite/",
+                stringify!($category),
+                "/",
+                stringify!($name),
+                ".sol"
+            ))
+            .expect("can't find the source code");
+            let expect = std::fs::read_to_string(concat!(
+                "suite/",
+                stringify!($category),
+                "/",
+                stringify!($name),
+                ".expect"
+            ))
+            .unwrap_or_default();
+            $crate::suite::run_test_suite(
+                stringify!($category),
+                stringify!($name),
+                &source_code,
+                &expect,
+                $run,
+            );
         }
     };
-    ($name:ident, $file:expr, $run:expr) => {
+    ($category: expr, $name:ident, $file:expr, $run:expr) => {
         #[test]
         fn $name() {
-            let source_code = std::fs::read_to_string(concat!("suite/", $file, ".sol")).unwrap();
-            let expect =
-                std::fs::read_to_string(concat!("suite/", $file, ".expect")).unwrap_or_default();
-            $crate::suite::run_test_suite($file, &source_code, &expect, $run);
+            let source_code = std::fs::read_to_string(concat!(
+                "suite/",
+                stringify!($category),
+                "/",
+                $file,
+                ".sol"
+            ))
+            .unwrap();
+            let expect = std::fs::read_to_string(concat!(
+                "suite/",
+                stringify!($category),
+                "/",
+                $file,
+                ".expect"
+            ))
+            .unwrap_or_default();
+            $crate::suite::run_test_suite(
+                stringify!($category),
+                $file,
+                &source_code,
+                &expect,
+                $run,
+            );
         }
     };
 }
 
 #[macro_export]
 macro_rules! make_test_suite {
-  (tests ($e:expr) {$($name:ident $file:expr)*} run $run:expr) => {
-    const _: &str = $e;
-    $($crate::make_test!($name, $file, $run);)*
+  (tests $e:ident {$($name:ident)*} run $run:expr) => {
+    $($crate::make_test!($e, $name, $run);)*
   };
 }
 
@@ -47,6 +83,7 @@ type Expect<'a> = &'a mut dyn Write;
 
 /// Runs a test suite, with the given `name` and `f`.
 pub fn run_test_suite(
+    category: &str,
     file: &str,
     source_code: &str,
     expect: &str,
@@ -66,7 +103,7 @@ pub fn run_test_suite(
 
     let output = strip_ansi_escapes::strip_str(String::from_utf8_lossy(&output));
     if expect.is_empty() {
-        std::fs::write(format!("suite/{file}.expect"), output).unwrap();
+        std::fs::write(format!("suite/{category}/{file}.expect"), output).unwrap();
         return;
     }
     if output != expect {

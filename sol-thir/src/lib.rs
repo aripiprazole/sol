@@ -27,12 +27,19 @@ use crate::{
 extern crate salsa_2022 as salsa;
 
 pub mod debruijin;
+pub mod sexpr;
 pub mod shared;
 pub mod source;
 pub mod value;
 
 #[salsa::jar(db = ThirDb)]
-pub struct Jar(shared::Env, shared::Context, debruijin::Indices);
+pub struct Jar(
+    shared::Env,
+    shared::Context,
+    debruijin::Indices,
+    debruijin::Level,
+    debruijin::Level_as_idx,
+);
 
 pub trait ThirDb:
     PrimitiveProvider

@@ -12,7 +12,7 @@ use sol_hir::source::{
     type_rep::TypeRep,
     HirSource,
 };
-use sol_thir::{Env, Value};
+use sol_thir::{shared::Env, value::Value};
 
 pub mod domain;
 pub mod logic;
@@ -66,7 +66,6 @@ pub fn eval_expr(_db: &dyn sol_hir::HirDb, stack: stack::Stack, _env: Env, expr:
     match expr {
         Expr::Empty | Expr::Error(_) => stack.unwind("empty expressions can't be evaluated"),
         Expr::Path(_) => todo!(),
-        Expr::Meta(_) => todo!(),
         Expr::Literal(_) => todo!(),
         Expr::Call(_) => todo!(),
         Expr::Ann(_) => todo!(),

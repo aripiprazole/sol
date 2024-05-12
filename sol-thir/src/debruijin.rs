@@ -6,10 +6,12 @@ use super::*;
 /// Defines a debruijin level. It does represent the level of the context/environment
 ///
 /// It can be transformed into a debruijin index by using the [`Level::as_idx`] method.
-#[derive(Default, Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct Level(pub usize);
+#[salsa::tracked]
+pub struct Level {
+    pub value: usize,
+}
 
-#[derive(thiserror::Error, Debug, Clone)]
+#[derive(thiserror::Error, Debug, Clone, PartialEq, Eq)]
 pub enum Level2IdxError {
     /// The level is greater than the index.
     #[error("expected l > x")]
@@ -19,31 +21,18 @@ pub enum Level2IdxError {
     LevelEqualToZero,
 }
 
+#[salsa::tracked]
 impl Level {
     /// Transforms a level into a debruijin index.
-    pub fn as_idx(&self, Level(l): Level) -> Result<Index, Level2IdxError> {
-        let Level(x) = *self;
-        if l > x {
+    #[salsa::tracked]
+    pub fn as_idx(self, db: &dyn crate::ThirDb, l: Level) -> Result<Index, Level2IdxError> {
+        if l.value(db) > self.value(db) {
             return Err(Level2IdxError::LevelGreaterThanIndex);
         }
-        if l == 0 {
+        if l.value(db) == 0 {
             return Err(Level2IdxError::LevelEqualToZero);
         }
         Ok(Index(0))
-    }
-}
-
-impl std::ops::Add<usize> for Level {
-    type Output = Self;
-
-    fn add(self, rhs: usize) -> Self::Output {
-        Self(self.0 + rhs)
-    }
-}
-
-impl std::ops::AddAssign<usize> for Level {
-    fn add_assign(&mut self, rhs: usize) {
-        self.0 += rhs
     }
 }
 

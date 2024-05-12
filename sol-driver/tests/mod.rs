@@ -9,8 +9,8 @@ use utils::create_package;
 pub mod utils;
 
 make_test_suite! {
-  tests ("church_encoding") {
-    church_encoding "church_encoding"
+  tests church_encoding {
+    church_encoding
   }
   run |db, source, output| {
     let file = SourceFile::new(&db, "repl".into(), "Repl".into(), source);

@@ -1,4 +1,7 @@
-use std::sync::{Arc, Mutex};
+use std::{
+    hash::Hash,
+    sync::{Arc, Mutex},
+};
 
 use super::*;
 
@@ -14,7 +17,6 @@ pub struct Context {
     pub location: CurrentLocation,
 }
 
-#[derive(Debug, Clone, Hash, Eq)]
 pub struct CurrentLocation(Arc<Mutex<Location>>);
 
 impl CurrentLocation {
@@ -31,11 +33,31 @@ impl CurrentLocation {
     }
 }
 
+impl Clone for CurrentLocation {
+    fn clone(&self) -> Self {
+        Self(self.0.clone())
+    }
+}
+
+impl std::fmt::Debug for CurrentLocation {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        self.0.lock().unwrap().fmt(f)
+    }
+}
+
+impl Hash for CurrentLocation {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.0.lock().unwrap().hash(state)
+    }
+}
+
 impl PartialEq for CurrentLocation {
     fn eq(&self, other: &Self) -> bool {
         Arc::ptr_eq(&self.0, &other.0)
     }
 }
+
+impl Eq for CurrentLocation {}
 
 #[salsa::tracked]
 pub struct Env {
