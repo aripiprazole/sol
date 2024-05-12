@@ -9,7 +9,9 @@ use sol_hir::{
     lowering::HirLowering,
     package::{HasManifest, Package},
     primitives::{PrimitiveBag, PrimitiveProvider},
+    source::expr::Expr,
 };
+use sol_thir::{source::Term, value::Type, ThirLowering, ThirTyping};
 
 /// Defines watcher strategies for [`RootDb`].
 pub mod watcher;
@@ -35,7 +37,9 @@ extern crate salsa_2022 as salsa;
     sol_syntax::Jar,
     sol_diagnostic::Jar,
     sol_typer::Jar,
-    sol_hir_lowering::Jar
+    sol_hir_lowering::Jar,
+    sol_thir::Jar,
+    sol_thir_lowering::Jar
 )]
 #[derive(Default)]
 pub struct RootDb {
@@ -56,6 +60,28 @@ impl HirLowering for RootDb {
 
     fn hir_lower(&self, pkg: Package, src: sol_syntax::Source) -> sol_hir::source::HirSource {
         sol_hir_lowering::hir_lower(self, pkg, src)
+    }
+}
+
+/// Bridges the [`RootDb`] with the [`sol_thir::ThirLowering`] trait.
+impl ThirLowering for RootDb {
+    fn thir_eval(&self, env: sol_thir::shared::Env, term: Term) -> sol_thir::value::Value {
+        sol_thir_lowering::thir_eval(self, env, term)
+    }
+
+    fn thir_quote(&self, lvl: sol_thir::debruijin::Level, value: sol_thir::value::Value) -> Term {
+        sol_thir_lowering::thir_quote(self, lvl, value)
+    }
+}
+
+/// Bridges the [`RootDb`] with the [`sol_thir::ThirTyping`] trait.
+impl ThirTyping for RootDb {
+    fn thir_infer(&self, ctx: sol_thir::shared::Context, expr: Expr) -> (Term, Type) {
+        sol_thir_lowering::thir_infer(self, ctx, expr)
+    }
+
+    fn thir_check(&self, ctx: sol_thir::shared::Context, expr: Expr, type_repr: Type) -> Term {
+        sol_thir_lowering::thir_check(self, ctx, expr, type_repr)
     }
 }
 

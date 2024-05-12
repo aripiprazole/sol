@@ -49,7 +49,7 @@ fn eval_app(callee: Value, argument: Value) -> Value {
 }
 
 #[salsa::tracked]
-fn thir_eval(db: &dyn ThirLoweringDb, env: Env, term: Term) -> Value {
+pub fn thir_eval(db: &dyn ThirLoweringDb, env: Env, term: Term) -> Value {
     match term {
         Term::U => Value::U,
         Term::Var(idx, _) => env.get(db, idx),
@@ -68,7 +68,7 @@ fn thir_eval(db: &dyn ThirLoweringDb, env: Env, term: Term) -> Value {
 
 /// The quoting function to convert the value back to the term.
 #[salsa::tracked]
-fn thir_quote(db: &dyn ThirLoweringDb, lvl: Level, value: Value) -> Term {
+pub fn thir_quote(db: &dyn ThirLoweringDb, lvl: Level, value: Value) -> Term {
     let (location, value) = value.force(db);
 
     location
@@ -128,7 +128,7 @@ fn thir_quote_impl(
 
 /// The infer function to infer the type of the term.
 #[salsa::tracked]
-fn thir_infer(db: &dyn ThirLoweringDb, ctx: Context, expr: Expr) -> (Term, Type) {
+pub fn thir_infer(db: &dyn ThirLoweringDb, ctx: Context, expr: Expr) -> (Term, Type) {
     ctx.location(db).update(expr.location(db));
 
     todo!()
@@ -136,7 +136,7 @@ fn thir_infer(db: &dyn ThirLoweringDb, ctx: Context, expr: Expr) -> (Term, Type)
 
 /// The check function to check the type of the term.
 #[salsa::tracked]
-fn thir_check(db: &dyn ThirLoweringDb, ctx: Context, expr: Expr, type_repr: Type) -> Term {
+pub fn thir_check(db: &dyn ThirLoweringDb, ctx: Context, expr: Expr, type_repr: Type) -> Term {
     todo!()
 }
 
