@@ -1689,6 +1689,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "sol-thir-lowering"
+version = "0.0.1"
+dependencies = [
+ "im",
+ "salsa-2022",
+ "sol-diagnostic",
+ "sol-hir",
+ "sol-syntax",
+ "sol-vfs",
+]
+
+[[package]]
 name = "sol-typer"
 version = "0.0.1"
 dependencies = [

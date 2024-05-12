@@ -6,9 +6,9 @@
 #![feature(trait_upcasting)]
 
 use salsa::DbWithJar;
+use shared::Env;
 use sol_diagnostic::{Diagnostic, DiagnosticDb, ErrorId, ErrorKind};
 use sol_hir::{
-    debruijin::{Index, Level},
     lowering::HirLowering,
     package::HasManifest,
     primitives::PrimitiveProvider,
@@ -23,19 +23,64 @@ use sol_hir::{
 };
 use sol_syntax::ParseDb;
 
+use crate::{
+    source::Term,
+    value::{Type, Value},
+};
+
 extern crate salsa_2022 as salsa;
 
+pub mod shared;
+pub mod source;
+pub mod value;
+
 #[salsa::jar(db = ThirDb)]
-pub struct Jar(Env, eval);
+pub struct Jar(shared::Env);
 
 pub trait ThirDb:
-    PrimitiveProvider + HirDb + HirLowering + HasManifest + ParseDb + DiagnosticDb + DbWithJar<Jar>
+    PrimitiveProvider
+    + HirDb
+    + ThirLowering
+    + ThirTyping
+    + HirLowering
+    + HasManifest
+    + ParseDb
+    + DiagnosticDb
+    + DbWithJar<Jar>
 {
 }
 
-impl<DB: HasManifest + HirDb + HirLowering + PrimitiveProvider> ThirDb for DB where
-    DB: ?Sized + ParseDb + DiagnosticDb + salsa::DbWithJar<Jar>
+impl ThirDb for DB where
+    DB: ?Sized
+        + ParseDb
+        + DiagnosticDb
+        + HasManifest
+        + HirDb
+        + ThirLowering
+        + ThirTyping
+        + HirLowering
+        + PrimitiveProvider
+        + salsa::DbWithJar<Jar>
 {
+}
+
+/// Represents the lowering functions for Low-Level Intermediate Representation.
+pub trait ThirLowering {
+    fn thir_lower(&self, db: &dyn ThirDb, expr: Expr) -> Term;
+
+    fn thir_eval(&self, db: &dyn ThirDb, env: Env, term: Term) -> Value;
+}
+
+/// Represents the typing functions for Typed High-Level Intermediate Representation.
+pub trait ThirTyping {
+    /// The quoting function to convert the value back to the term.
+    fn thir_quote(&self, db: &dyn ThirDb, value: Value) -> Term;
+
+    /// The infer function to infer the type of the term.
+    fn thir_infer(&self, db: &dyn ThirDb, env: Env, term: Term) -> (Term, Type);
+
+    /// The check function to check the type of the term.
+    fn thir_check(&self, db: &dyn ThirDb, env: Env, term: Term, type_repr: Type) -> Term;
 }
 
 /// Represents the diagnostic for High-Level Intermediate Representation. It's intended to be used
@@ -69,185 +114,4 @@ impl Diagnostic for ThirDiagnostic {
     fn error_id(&self) -> ErrorId {
         todo!()
     }
-}
-
-#[derive(Debug, Clone, Hash, PartialEq, Eq)]
-pub enum ConstructorKind {
-    True,
-    False,
-    Definition(Definition),
-    Int(isize),
-    String(String),
-}
-
-/// Constant, or primitive value that has no subterms
-#[derive(Debug, Clone, Hash, PartialEq, Eq)]
-pub struct Constructor {
-    pub kind: ConstructorKind,
-    pub location: Location,
-}
-
-pub type Type = Term;
-
-#[salsa::tracked]
-pub struct Env {
-    pub values: Vec<Value>,
-}
-
-/// Value that can have a type associated with it.
-#[derive(Debug, Clone, Hash, PartialEq, Eq)]
-pub enum Value {
-    Type(Term),
-    Runtime(Term, Type),
-}
-
-/// It does represent a type level function stores the environment and can
-/// take environments to evaluate the quoted expression.
-#[derive(Debug, Clone, Hash, PartialEq, Eq)]
-pub struct Closure {
-    pub env: Env,
-    pub expr: Expr,
-}
-
-/// Implicitness of a term.
-#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
-pub enum Implicitness {
-    Implicit,
-    Explicit,
-}
-
-impl From<bool> for Implicitness {
-    fn from(value: bool) -> Self {
-        if value {
-            Implicitness::Implicit
-        } else {
-            Implicitness::Explicit
-        }
-    }
-}
-
-/// Dependent function type, it's a type-level function
-/// that depends on a value.
-///
-/// It allows we to construct every dependent-type features.
-#[derive(Debug, Clone, Hash, PartialEq, Eq)]
-pub struct Pi {
-    pub name: Definition,
-    pub implicitness: Implicitness,
-    pub type_rep: Box<Type>,
-    pub closure: Closure,
-}
-
-#[derive(Debug, Clone, Hash, PartialEq, Eq)]
-pub enum Object {
-    Tuple(Vec<Value>),
-    Record(im::HashMap<Definition, Value>),
-}
-
-/// Basic normalized expression, it has the term's NFE.
-#[derive(Debug, Clone, Hash, PartialEq, Eq)]
-pub enum Term {
-    Var(Index, Option<Reference>),
-    Object(Object),
-    Constructor(Constructor),
-    Flexible(Meta, Vec<Value>),
-    Rigid(Level, Vec<Value>),
-    Pi(Pi),
-    Lam(Definition, Implicitness, Closure),
-    Type,
-    Location(Location, Box<Term>),
-    Sorry(Location, Option<ThirError>),
-}
-
-impl Term {
-    pub fn located(location: Location, value: Term) -> Term {
-        Term::Location(location, Box::new(value))
-    }
-
-    pub fn sorry(location: Location, error: ThirError) -> Term {
-        Term::Sorry(location, Some(error))
-    }
-
-    pub fn sorry_but_no(location: Location) -> Term {
-        Term::Sorry(location, None)
-    }
-
-    pub fn no() -> Term {
-        Term::Sorry(Location::CallSite, None)
-    }
-}
-
-pub fn literal_to_constructor_kind(literal: Literal) -> ConstructorKind {
-    match literal {
-        Literal::Empty => todo!(),
-        Literal::Int8(_) => todo!(),
-        Literal::UInt8(_) => todo!(),
-        Literal::Int16(_) => todo!(),
-        Literal::UInt16(_) => todo!(),
-        Literal::Int32(_) => todo!(),
-        Literal::UInt32(_) => todo!(),
-        Literal::Int64(_) => todo!(),
-        Literal::UInt64(_) => todo!(),
-        Literal::String(_) => todo!(),
-        Literal::Boolean(_) => todo!(),
-        Literal::Char(_) => todo!(),
-    }
-}
-
-pub fn get_definition(db: &dyn crate::ThirDb, pattern: Pattern) -> Definition {
-    match pattern {
-        Pattern::Hole => todo!(),
-        Pattern::Literal(_) => todo!(),
-        Pattern::Wildcard(_) => todo!(),
-        Pattern::Rest(_) => todo!(),
-        Pattern::Error(_) => todo!(),
-        Pattern::Constructor(_) => todo!(),
-        Pattern::Binding(binding) => binding.name,
-    }
-}
-
-#[salsa::tracked]
-pub fn eval(db: &dyn crate::ThirDb, env: Env, expr: Expr) -> Term {
-    Term::located(expr.location(db), match expr {
-        Expr::Meta(Meta(location, value)) => Term::sorry_but_no(value),
-        Expr::Literal(ref literal) => Term::Constructor(Constructor {
-            location: literal.location.clone().unwrap_or(expr.location(db)),
-            kind: literal_to_constructor_kind(literal.value.clone()),
-        }),
-        Expr::Path(path) => Term::Constructor(Constructor {
-            location: path.location(db),
-            kind: ConstructorKind::Definition(path.definition(db)),
-        }),
-        Expr::Call(call) => todo!(),
-        Expr::Ann(ann) => todo!(),
-        Expr::Abs(abs) => abs
-            .parameters
-            .into_iter()
-            .fold(Err(*abs.value), |acc, param| {
-                let location = param.location(db);
-                let definition = get_definition(db, param);
-                let term = Term::Lam(definition, Implicitness::Explicit, Closure {
-                    env,
-                    expr: match acc {
-                        Ok(value) => quote(db, value),
-                        Err(expr) => expr,
-                    },
-                });
-
-                Ok(Term::located(location, term))
-            })
-            .expect("no first parameter"),
-        Expr::Match(expr) => Term::sorry(expr.location(db), ThirError::MatchNotSupported),
-        Expr::Upgrade(upgrade) => Term::sorry(upgrade.location(db), ThirError::UpgradeNotSupported),
-        Expr::Error(error) => Term::sorry(error.location(db), ThirError::HirError(error)),
-        Expr::Empty => Term::no(),
-    })
-}
-
-pub fn quote(db: &dyn crate::ThirDb, term: Term) -> Expr {
-    todo!()
-}
-
-pub fn infer(db: &dyn crate::ThirDb, env: Env, expr: Expr) -> (Expr, Type) {
-    todo!()
 }

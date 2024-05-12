@@ -1,0 +1,14 @@
+[package]
+name = "sol-thir-lowering"
+edition.workspace = true
+authors.workspace = true
+documentation.workspace = true
+version.workspace = true
+
+[dependencies]
+sol-diagnostic.workspace = true
+sol-hir.workspace = true
+sol-syntax.workspace = true
+sol-vfs.workspace = true
+salsa-2022.workspace = true
+im.workspace = true

@@ -53,7 +53,6 @@ pub struct Jar(
     primitives::new_type_rep,
     primitives::primitive_type_rep,
     primitives::primitive_type_definition,
-    debruijin::Indices,
 );
 
 /// The database that stores all the information about the source code. It is
@@ -73,7 +72,6 @@ impl<DB: HasManifest + HirLowering + PrimitiveProvider> HirDb for DB where
 }
 
 pub mod completions;
-pub mod debruijin;
 pub mod debug;
 pub mod errors;
 pub mod fmt;

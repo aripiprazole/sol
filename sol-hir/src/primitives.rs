@@ -3,7 +3,6 @@ use std::sync::Arc;
 use dashmap::DashMap;
 use fxhash::FxBuildHasher;
 
-use crate::debruijin::Level;
 use crate::{
     solver::{Definition, DefinitionId, DefinitionKind},
     source::{
@@ -81,7 +80,7 @@ pub fn new_type_rep(db: &dyn crate::HirDb, path: HirPath, repr: TypeRep) {
         .entry(text.clone().unwrap())
         .or_insert_with(move || {
             let id = DefinitionId::new(db, Location::CallSite, text.clone());
-            Definition::new(db, id, DefinitionKind::Type, path, Level::default())
+            Definition::new(db, id, DefinitionKind::Type, path)
         });
 
     // Define the type if it is not defined

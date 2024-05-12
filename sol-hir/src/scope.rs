@@ -3,7 +3,6 @@ use std::{fmt::Debug, sync::Arc};
 use fxhash::FxBuildHasher;
 
 use crate::{
-    debruijin::Level,
     solver::{Definition, DefinitionId, DefinitionKind, Reference},
     source::{HirPath, HirSource, Location},
     HirDb,
@@ -63,7 +62,6 @@ pub struct Import {
 /// It's also used to store parameters, variables, functions, types and more.
 #[derive(Default, Clone, PartialEq, Eq, Hash)]
 pub struct Scope {
-    pub lvl: Level,
     pub kind: ScopeKind,
     pub parent: Option<Arc<Scope>>,
     pub free_variables: im::OrdSet<Definition>,
@@ -86,7 +84,6 @@ impl Scope {
     pub fn new(kind: ScopeKind) -> Self {
         Self {
             kind,
-            lvl: Level::default(),
             parent: None,
             references: im::HashMap::default(),
             constructors: im::HashMap::default(),
@@ -118,12 +115,7 @@ impl Scope {
 
     /// Adds a reference to the given `definition` in the current scope.
     pub fn using(&mut self, db: &dyn crate::HirDb, it: Definition, loc: Location) -> Reference {
-        // Create a new reference to [it] and insert it in the current scope
-        // let idx = self.lvl.as_idx(it.defined_at(db)).unwrap_or_else(|error| {
-        //   panic!("failed to create a reference to {:?}: {}", it.to_string(db), error)
-        // });
-        let idx = it.defined_at(db).as_idx(self.lvl).unwrap_or_default();
-        let reference = Reference::new(db, it, loc, idx);
+        let reference = Reference::new(db, it, loc);
         self.references.entry(it).or_default().insert(reference);
 
         // Return the reference
@@ -137,11 +129,6 @@ impl Scope {
     pub fn fork(&self, kind: ScopeKind) -> Self {
         Self {
             kind,
-            lvl: if kind.should_increase_scope_level() {
-                self.lvl + 1
-            } else {
-                self.lvl
-            },
             parent: Some(Arc::new(self.clone())),
             references: im::HashMap::default(),
             constructors: im::HashMap::default(),
@@ -165,16 +152,12 @@ impl Scope {
         kind: DefinitionKind,
     ) -> Definition {
         let id = DefinitionId::new(db, location, None);
-        let definition = Definition::new(db, id, kind, name, self.lvl);
+        let definition = Definition::new(db, id, kind, name);
         let Some(name) = definition.name(db).to_string(db) else {
             // TODO: report error
             return definition;
         };
 
-        // Increase the scope level, as debruijin indexes only
-        // works in linear environments: let x = 10; let y = x; let z = y;
-        // when let defines a new scope.
-        self.lvl += 1;
         self.create(db, name, definition)
     }
 
