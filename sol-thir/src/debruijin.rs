@@ -46,7 +46,7 @@ impl Level {
 ///
 /// It's used to represent a variable in the syntax tree.
 #[derive(Default, Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct Index(usize);
+pub struct Index(pub usize);
 
 impl From<usize> for Index {
     fn from(value: usize) -> Self {

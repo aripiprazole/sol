@@ -34,9 +34,36 @@ pub trait ThirLoweringDb: ThirDb + DbWithJar<Jar> {}
 
 impl<T> ThirLoweringDb for T where T: ThirDb + DbWithJar<Jar> {}
 
+fn eval_app(callee: Value, argument: Value) -> Value {
+    match callee {
+        Value::Flexible(meta, mut spine) => {
+            spine.push(argument);
+            Value::Flexible(meta, spine)
+        }
+        Value::Rigid(lvl, mut spine) => {
+            spine.push(argument);
+            Value::Rigid(lvl, spine)
+        }
+        _ => panic!("vapp: can't apply non-function value"),
+    }
+}
+
 #[salsa::tracked]
 fn thir_eval(db: &dyn ThirLoweringDb, env: Env, term: Term) -> Value {
-    todo!()
+    match term {
+        Term::U => Value::U,
+        Term::Var(idx, _) => env.get(db, idx),
+        Term::Lam(_, _, _) => todo!(),
+        Term::App(callee, argument) => {
+            eval_app(db.thir_eval(env, *callee), db.thir_eval(env, *argument))
+        }
+        Term::Pi(_, _, _, _) => todo!(),
+        Term::Constructor(_) => todo!(),
+        Term::Ann(_, _) => todo!(),
+        Term::Meta(_) => todo!(),
+        Term::Location(_, _) => todo!(),
+        Term::Sorry(_, _) => panic!("sorry :("),
+    }
 }
 
 /// The quoting function to convert the value back to the term.
@@ -67,19 +94,19 @@ fn thir_quote_impl(
         U => Term::U,
         Constructor(constructor) => Term::Constructor(constructor),
         Flexible(meta, spine) => spine.into_iter().rev().fold(Term::Meta(meta), |acc, next| {
-            Term::App(acc.into(), thir_quote(db, lvl, next).into())
+            Term::App(acc.into(), db.thir_quote(lvl, next).into())
         }),
         Rigid(x, spine) => spine
             .into_iter()
             .rev()
             .fold(Term::Var(lvl.as_idx(db, x).unwrap(), None), |acc, next| {
-                Term::App(acc.into(), thir_quote(db, lvl, next).into())
+                Term::App(acc.into(), db.thir_quote(lvl, next).into())
             }),
         Pi(pi) => {
             // Pi (quote lvl pi.type_rep) (quote (lvl + 1) (pi.closure $$ (Var lvl pi.name)))
             let name = create_reference_of(db, pi.name, location.clone());
-            let domain = thir_quote(db, lvl, *pi.type_rep.clone());
-            let codomain = thir_quote(db, lvl.increase(db), Value::new_var(lvl, name));
+            let domain = db.thir_quote(lvl, *pi.type_rep.clone());
+            let codomain = db.thir_quote(lvl.increase(db), Value::new_var(lvl, name));
 
             Term::Pi(
                 pi.name.into(),
@@ -91,11 +118,11 @@ fn thir_quote_impl(
         Lam(name, implicitness, closure) => {
             // Lam (quote (lvl + 1) (closure $$ (Var lvl name)))
             let argument = Value::new_var(lvl, create_reference_of(db, name, location.clone()));
-            let closure = thir_quote(db, lvl.increase(db), closure.apply(db, argument));
+            let closure = db.thir_quote(lvl.increase(db), closure.apply(db, argument));
 
             Term::Lam(name, implicitness, closure.into())
         }
-        Location(location, term) => Term::Location(location, thir_quote(db, lvl, *term).into()),
+        Location(location, term) => Term::Location(location, db.thir_quote(lvl, *term).into()),
     }
 }
 

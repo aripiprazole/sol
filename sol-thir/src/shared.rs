@@ -4,6 +4,7 @@ use std::{
     sync::{Arc, Mutex},
 };
 
+use self::debruijin::Index;
 use super::*;
 
 /// Constant, or primitive value that has no subterms
@@ -72,6 +73,12 @@ impl Env {
         let mut values = self.values(db);
         values.push_front(value);
         Env::new(db, values)
+    }
+
+    #[salsa::tracked]
+    pub fn get(self, db: &dyn ThirDb, idx: Index) -> Value {
+        let Index(idx) = idx;
+        self.values(db).get(idx).unwrap().clone()
     }
 
     #[salsa::tracked]

@@ -35,6 +35,7 @@ pub mod value;
 #[salsa::jar(db = ThirDb)]
 pub struct Jar(
     shared::Env,
+    shared::Env_get,
     shared::Env_push,
     shared::Env_len,
     shared::Context,
