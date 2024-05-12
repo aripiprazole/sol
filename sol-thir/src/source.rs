@@ -15,3 +15,9 @@ pub enum Term {
     Location(Location, Expr),
     Sorry(Location, Option<ThirError>),
 }
+
+impl Term {
+    pub fn normalise(self, db: &dyn ThirDb, env: shared::Env) -> Term {
+        db.thir_quote(Level::new(db, env.len(db)), db.thir_eval(env, self))
+    }
+}

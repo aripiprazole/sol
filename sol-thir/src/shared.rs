@@ -73,6 +73,11 @@ impl Env {
         values.push_front(value);
         Env::new(db, values)
     }
+
+    #[salsa::tracked]
+    pub fn len(self, db: &dyn ThirDb) -> usize {
+        self.values(db).len()
+    }
 }
 
 pub type Meta = usize;

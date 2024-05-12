@@ -33,7 +33,7 @@ impl Value {
 #[derive(Debug, Clone, Hash, PartialEq, Eq)]
 pub struct Closure {
     pub env: shared::Env,
-    pub expr: Expr,
+    pub expr: Term,
 }
 
 impl Closure {

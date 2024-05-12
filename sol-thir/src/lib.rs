@@ -36,6 +36,7 @@ pub mod value;
 pub struct Jar(
     shared::Env,
     shared::Env_push,
+    shared::Env_len,
     shared::Context,
     debruijin::Indices,
     debruijin::Level,
@@ -72,7 +73,7 @@ impl<DB> ThirDb for DB where
 
 /// Represents the lowering functions for Low-Level Intermediate Representation.
 pub trait ThirLowering {
-    fn thir_eval(&self, env: Env, expr: Expr) -> Value;
+    fn thir_eval(&self, env: Env, term: Term) -> Value;
 
     fn thir_quote(&self, lvl: Level, value: Value) -> Term;
 }
