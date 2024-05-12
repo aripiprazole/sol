@@ -7,7 +7,7 @@ pub type Type = Value;
 pub enum Value {
     U,
     Constructor(shared::Constructor),
-    Flexible(shared::Meta, Vec<Value>),
+    Flexible(shared::MetaVar, Vec<Value>),
     Rigid(debruijin::Level, Vec<Value>),
     Pi(Pi),
     Lam(Definition, shared::Implicitness, Closure),
@@ -20,7 +20,35 @@ impl Value {
     }
 
     pub fn force(self, db: &dyn ThirDb) -> (Option<Location>, Value) {
-        todo!()
+        // TODO: use db
+        let _ = db;
+
+        match self {
+            Value::Flexible(ref m, ref spine) => (None, match m.get() {
+                Some(value) => value.apply_with_spine(spine.clone()),
+                None => self,
+            }),
+            Value::Location(ref location, _) => (Some(location.clone()), self.force(db).1),
+            _ => (None, self),
+        }
+    }
+
+    pub fn apply_with_spine(self, spine: Vec<Value>) -> Value {
+        spine.into_iter().rev().fold(self, Value::apply_to_spine)
+    }
+
+    pub fn apply_to_spine(self, argument: Value) -> Value {
+        match self {
+            Value::Flexible(meta, mut spine) => {
+                spine.push(argument);
+                Value::Flexible(meta, spine)
+            }
+            Value::Rigid(lvl, mut spine) => {
+                spine.push(argument);
+                Value::Rigid(lvl, spine)
+            }
+            _ => panic!("vapp: can't apply non-function value"),
+        }
     }
 
     pub fn located(location: Location, value: Value) -> Value {
@@ -52,7 +80,7 @@ impl Closure {
 /// It allows we to construct every dependent-type features.
 #[derive(Debug, Clone, Hash, PartialEq, Eq)]
 pub struct Pi {
-    pub name: Definition,
+    pub name: Option<Definition>,
     pub implicitness: shared::Implicitness,
     pub type_rep: Box<Type>,
     pub closure: Closure,

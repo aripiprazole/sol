@@ -19,48 +19,6 @@ pub struct Context {
     pub location: CurrentLocation,
 }
 
-pub struct CurrentLocation(Arc<Mutex<Location>>);
-
-impl CurrentLocation {
-    pub fn new(location: Location) -> Self {
-        Self(Arc::new(Mutex::new(location)))
-    }
-
-    pub fn get(&self) -> Location {
-        self.0.lock().unwrap().clone()
-    }
-
-    pub fn update(&self, location: Location) {
-        *self.0.lock().unwrap() = location;
-    }
-}
-
-impl Clone for CurrentLocation {
-    fn clone(&self) -> Self {
-        Self(self.0.clone())
-    }
-}
-
-impl std::fmt::Debug for CurrentLocation {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        self.0.lock().unwrap().fmt(f)
-    }
-}
-
-impl Hash for CurrentLocation {
-    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
-        self.0.lock().unwrap().hash(state)
-    }
-}
-
-impl PartialEq for CurrentLocation {
-    fn eq(&self, other: &Self) -> bool {
-        Arc::ptr_eq(&self.0, &other.0)
-    }
-}
-
-impl Eq for CurrentLocation {}
-
 #[salsa::tracked]
 pub struct Env {
     pub values: VecDeque<value::Value>,
@@ -86,8 +44,6 @@ impl Env {
         self.values(db).len()
     }
 }
-
-pub type Meta = usize;
 
 /// Implicitness of a term.
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
@@ -133,4 +89,58 @@ impl From<Literal> for ConstructorKind {
             Literal::Char(_) => todo!(),
         }
     }
+}
+
+macro_rules! mutable_reference {
+    (struct $name:ident = $type:ty) => {
+        pub struct $name(Arc<Mutex<$type>>);
+
+        impl $name {
+            pub fn new(location: $type) -> Self {
+                Self(Arc::new(Mutex::new(location)))
+            }
+
+            pub fn get(&self) -> $type {
+                self.0.lock().unwrap().clone()
+            }
+
+            pub fn update(&self, location: $type) {
+                *self.0.lock().unwrap() = location;
+            }
+        }
+
+        impl Clone for $name {
+            fn clone(&self) -> Self {
+                Self(self.0.clone())
+            }
+        }
+
+        impl std::fmt::Debug for $name {
+            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                self.0.lock().unwrap().fmt(f)
+            }
+        }
+
+        impl Hash for $name {
+            fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+                self.0.lock().unwrap().hash(state)
+            }
+        }
+
+        impl PartialEq for $name {
+            fn eq(&self, other: &Self) -> bool {
+                Arc::ptr_eq(&self.0, &other.0)
+            }
+        }
+
+        impl Eq for $name {}
+    };
+}
+
+mutable_reference! {
+  struct CurrentLocation = Location
+}
+
+mutable_reference! {
+  struct MetaVar = Option<Value>
 }

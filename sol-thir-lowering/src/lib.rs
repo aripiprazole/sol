@@ -7,19 +7,14 @@
 
 use salsa::DbWithJar;
 use sol_hir::{
-    primitives::PrimitiveProvider,
     solver::{Definition, Reference},
-    source::{
-        expr::Expr, literal::Literal, pattern::Pattern, type_rep::TypeRep, HirElement, HirError,
-        Location,
-    },
-    HirDb,
+    source::{expr::Expr, HirElement, Location},
 };
 use sol_thir::{
     debruijin::Level,
-    shared::{ConstructorKind, Context, Env},
+    shared::{Context, Env},
     source::Term,
-    value::{Type, Value},
+    value::{Closure, Pi, Type, Value},
     ThirDb,
 };
 
@@ -34,34 +29,34 @@ pub trait ThirLoweringDb: ThirDb + DbWithJar<Jar> {}
 
 impl<T> ThirLoweringDb for T where T: ThirDb + DbWithJar<Jar> {}
 
-fn eval_app(callee: Value, argument: Value) -> Value {
-    match callee {
-        Value::Flexible(meta, mut spine) => {
-            spine.push(argument);
-            Value::Flexible(meta, spine)
-        }
-        Value::Rigid(lvl, mut spine) => {
-            spine.push(argument);
-            Value::Rigid(lvl, spine)
-        }
-        _ => panic!("vapp: can't apply non-function value"),
-    }
-}
-
 #[salsa::tracked]
 pub fn thir_eval(db: &dyn ThirLoweringDb, env: Env, term: Term) -> Value {
     match term {
         Term::U => Value::U,
         Term::Var(idx, _) => env.get(db, idx),
-        Term::Lam(_, _, _) => todo!(),
-        Term::App(callee, argument) => {
-            eval_app(db.thir_eval(env, *callee), db.thir_eval(env, *argument))
+        Term::Lam(name, implicitness, value) => {
+            Value::Lam(name, implicitness, Closure { env, expr: *value })
         }
-        Term::Pi(_, _, _, _) => todo!(),
-        Term::Constructor(_) => todo!(),
-        Term::Ann(_, _) => todo!(),
-        Term::Meta(_) => todo!(),
-        Term::Location(_, _) => todo!(),
+        Term::App(callee, argument) => db
+            .thir_eval(env, *callee)
+            .apply_to_spine(db.thir_eval(env, *argument)),
+        Term::Pi(name, implicitness, domain, codomain) => {
+            let domain = db.thir_eval(env, *domain);
+
+            Value::Pi(Pi {
+                name,
+                implicitness,
+                type_rep: Box::new(domain),
+                closure: Closure {
+                    env,
+                    expr: *codomain,
+                },
+            })
+        }
+        Term::Constructor(constructor) => Value::Constructor(constructor),
+        Term::Ann(value, _) => db.thir_eval(env, *value),
+        Term::Meta(meta) => meta.get().unwrap_or_else(|| Value::Flexible(meta, vec![])),
+        Term::Location(location, term) => Value::located(location, db.thir_eval(env, *term)),
         Term::Sorry(_, _) => panic!("sorry :("),
     }
 }
@@ -108,16 +103,12 @@ fn thir_quote_impl(
             let domain = db.thir_quote(lvl, *pi.type_rep.clone());
             let codomain = db.thir_quote(lvl.increase(db), Value::new_var(lvl, name));
 
-            Term::Pi(
-                pi.name.into(),
-                pi.implicitness,
-                domain.into(),
-                codomain.into(),
-            )
+            Term::Pi(pi.name, pi.implicitness, domain.into(), codomain.into())
         }
         Lam(name, implicitness, closure) => {
             // Lam (quote (lvl + 1) (closure $$ (Var lvl name)))
-            let argument = Value::new_var(lvl, create_reference_of(db, name, location.clone()));
+            let argument =
+                Value::new_var(lvl, create_reference_of(db, name.into(), location.clone()));
             let closure = db.thir_quote(lvl.increase(db), closure.apply(db, argument));
 
             Term::Lam(name, implicitness, closure.into())
@@ -144,8 +135,10 @@ pub fn thir_check(db: &dyn ThirLoweringDb, ctx: Context, expr: Expr, type_repr: 
 /// if it's a call site.
 fn create_reference_of(
     db: &dyn ThirLoweringDb,
-    definition: Definition,
+    maybe_definition: Option<Definition>,
     maybe_location: Option<Location>,
 ) -> Option<Reference> {
-    maybe_location.map(|location| Reference::new(db, definition, location))
+    maybe_definition
+        .zip(maybe_location)
+        .map(|(definition, location)| Reference::new(db, definition, location))
 }
