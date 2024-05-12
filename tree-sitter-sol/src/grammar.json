@@ -1764,7 +1764,7 @@
         "members": [
           {
             "type": "STRING",
-            "value": "^"
+            "value": "'"
           },
           {
             "type": "FIELD",
@@ -2127,7 +2127,7 @@
       "members": [
         {
           "type": "STRING",
-          "value": "'"
+          "value": "^"
         },
         {
           "type": "SYMBOL",

@@ -361,7 +361,7 @@ module.exports = grammar({
       ),
 
     forall_parameter: ($) =>
-      prec.left(seq('^', field('identifier', $.identifier))),
+      prec.left(seq("'", field('identifier', $.identifier))),
 
     _type_parameter: ($) => choice($._pattern, $.parameter),
 
@@ -431,7 +431,7 @@ module.exports = grammar({
 
     _arm_body: ($) => choice($.block, $._expr),
 
-    free_variable: ($) => seq("'", $.identifier),
+    free_variable: ($) => seq('^', $.identifier),
 
     universe_expr: () => 'U',
 

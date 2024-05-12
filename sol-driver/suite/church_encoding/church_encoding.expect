@@ -1,27 +1,9 @@
-Error: found 7 errors
+Error: found 2 errors
     ╭─[repl:1:1]
     │
- 15 │ Just : 'a -> Maybe 'a
-    │        ┬─          ┬─  
-    │        ╰─────────────── resolution error: unresolved `type` `'a`
-    │                    │   
-    │                    ╰─── resolution error: unresolved `type` `'a`
-    │ 
- 18 │ Nothing : Maybe 'a
-    │                 ┬─  
-    │                 ╰─── resolution error: unresolved `type` `'a`
-    │ 
- 21 │ Maybe.unwrap : Maybe -> 'a
-    │                         ┬─  
-    │                         ╰─── resolution error: unresolved `type` `'a`
-    │ 
- 23 │   maybe $
-    │         ┬  
-    │         ╰── resolution error: unresolved `function` `$`
- 24 │     (|value| value) $
-    │     ┬────────────────  
-    │     ╰────────────────── parse error: unexpected token(s): (|value| value) $
- 25 │     sorry
-    │     ┬────  
-    │     ╰────── resolution error: unresolved `function` `sorry`
+ 26 │   maybe $ (|value| value) $ sorry
+    │         ┬────────────────   ┬────  
+    │         ╰────────────────────────── parse error: unexpected token(s): $ (|value| value)
+    │                             │      
+    │                             ╰────── resolution error: unresolved `function` `sorry`
 ────╯
