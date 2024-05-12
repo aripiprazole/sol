@@ -8,6 +8,7 @@ pub enum Term {
     Lam(Definition, shared::Implicitness, Expr),
     App(Expr, Expr),
     Pi(Option<Definition>, shared::Implicitness, Expr, Expr),
+    Constructor(shared::ConstructorKind),
     Ann(Expr, Expr),
     Meta(usize),
     Location(Location, Expr),

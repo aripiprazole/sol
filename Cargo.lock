@@ -1562,6 +1562,7 @@ dependencies = [
  "sol-hir-lowering",
  "sol-syntax",
  "sol-thir",
+ "sol-thir-lowering",
  "sol-typer",
  "sol-vfs",
  "strip-ansi-escapes",
@@ -1698,6 +1699,7 @@ dependencies = [
  "sol-diagnostic",
  "sol-hir",
  "sol-syntax",
+ "sol-thir",
  "sol-vfs",
 ]
 

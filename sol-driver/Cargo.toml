@@ -15,6 +15,7 @@ sol-typer.workspace = true
 sol-ariadne.workspace = true
 sol-eval.workspace = true
 sol-thir.workspace = true
+sol-thir-lowering.workspace = true
 sol-eyre.workspace = true
 salsa-2022.workspace = true
 dashmap.workspace = true

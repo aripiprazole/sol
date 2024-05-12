@@ -5,6 +5,7 @@
 #![feature(unboxed_closures)]
 #![feature(trait_upcasting)]
 
+use debruijin::Level;
 use salsa::DbWithJar;
 use shared::Env;
 use sol_diagnostic::{Diagnostic, DiagnosticDb, ErrorId, ErrorKind};
@@ -13,7 +14,7 @@ use sol_hir::{
     package::HasManifest,
     primitives::PrimitiveProvider,
     solver::{Definition, Reference},
-    source::{expr::Expr, literal::Literal, HirElement, HirError, Location},
+    source::{expr::Expr, literal::Literal, HirError, Location},
     HirDb,
 };
 use sol_syntax::ParseDb;
@@ -62,21 +63,18 @@ impl<DB> ThirDb for DB where
 
 /// Represents the lowering functions for Low-Level Intermediate Representation.
 pub trait ThirLowering {
-    fn thir_lower(&self, db: &dyn ThirDb, expr: Expr) -> Term;
-
     fn thir_eval(&self, db: &dyn ThirDb, env: Env, term: Term) -> Value;
+
+    fn thir_quote(&self, db: &dyn ThirDb, lvl: Level, value: Value) -> Term;
 }
 
 /// Represents the typing functions for Typed High-Level Intermediate Representation.
 pub trait ThirTyping {
-    /// The quoting function to convert the value back to the term.
-    fn thir_quote(&self, db: &dyn ThirDb, value: Value) -> Term;
-
     /// The infer function to infer the type of the term.
-    fn thir_infer(&self, db: &dyn ThirDb, env: Env, term: Term) -> (Term, Type);
+    fn thir_infer(&self, db: &dyn ThirDb, env: Env, expr: Expr) -> (Term, Type);
 
     /// The check function to check the type of the term.
-    fn thir_check(&self, db: &dyn ThirDb, env: Env, term: Term, type_repr: Type) -> Term;
+    fn thir_check(&self, db: &dyn ThirDb, env: Env, expr: Expr, type_repr: Type) -> Term;
 }
 
 /// Represents the diagnostic for High-Level Intermediate Representation. It's intended to be used

@@ -17,11 +17,17 @@ use sol_hir::{
         expr::{Expr, Meta},
         literal::Literal,
         pattern::Pattern,
+        type_rep::TypeRep,
         HirElement, HirError, Location,
     },
     HirDb,
 };
 use sol_syntax::ParseDb;
+use sol_thir::{
+    shared::ConstructorKind,
+    source::Term,
+    value::{Type, Value},
+};
 
 #[salsa::jar(db = ThirLoweringDb)]
 pub struct Jar(thir_lower, thir_eval, thir_quote, thir_infer, thir_quote);
@@ -32,30 +38,25 @@ pub trait ThirLoweringDb: ThirDb + DbWithJar<Jar> {}
 
 impl<T> ThirLoweringDb for T where T: HirDb + DbWithJar<Jar> {}
 
+#[salsa::tracked]
+fn thir_eval(db: &dyn ThirLoweringDb, env: Env, term: Term) -> Value {
+    todo!()
+}
+
 /// The quoting function to convert the value back to the term.
 #[salsa::tracked]
-fn thir_quote(&self, db: &dyn ThirLoweringDb, value: Value) -> Term {
+fn thir_quote(db: &dyn ThirLoweringDb, lvl: Level, value: Value) -> Term {
     todo!()
 }
 
 /// The infer function to infer the type of the term.
 #[salsa::tracked]
-fn thir_infer(&self, db: &dyn ThirLoweringDb, env: Env, term: Term) -> (Term, Type) {
+fn thir_infer(db: &dyn ThirLoweringDb, env: Env, expr: Expr) -> (Term, Type) {
     todo!()
 }
 
 /// The check function to check the type of the term.
 #[salsa::tracked]
-fn thir_check(&self, db: &dyn ThirLoweringDb, env: Env, term: Term, type_repr: Type) -> Term {
-    todo!()
-}
-
-#[salsa::tracked]
-fn thir_lower(&self, db: &dyn ThirLoweringDb, expr: Expr) -> Term {
-    todo!()
-}
-
-#[salsa::tracked]
-fn thir_eval(&self, db: &dyn ThirLoweringDb, env: Env, term: Term) -> Value {
+fn thir_check(db: &dyn ThirLoweringDb, env: Env, expr: Expr, type_repr: Type) -> Term {
     todo!()
 }

@@ -33,6 +33,7 @@ impl From<bool> for Implicitness {
 
 #[derive(Debug, Clone, Hash, PartialEq, Eq)]
 pub enum ConstructorKind {
+    Unit,
     True,
     False,
     Definition(Definition),
