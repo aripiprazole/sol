@@ -91,13 +91,19 @@ pub trait ThirTyping {
 
 /// Represents the diagnostic for High-Level Intermediate Representation. It's intended to be used
 /// to report errors to the diagnostic database, by this crate, only.
-#[derive(Debug)]
+#[derive(Debug, thiserror::Error, serde::Serialize, miette::Diagnostic)]
+#[error("elaboration error")]
+#[diagnostic(code(solc::thir::error), url(docsrs))]
 pub struct ThirDiagnostic {
     pub location: Location,
     pub kind: ThirError,
 }
 
-#[derive(Eq, PartialEq, Hash, Debug, Clone)]
+#[derive(
+    Eq, PartialEq, Hash, Debug, Clone, serde::Serialize, thiserror::Error, miette::Diagnostic,
+)]
+#[error("elaboration error")]
+#[diagnostic(code(solc::thir::error), url(docsrs))]
 pub enum ThirError {
     HirError(HirError),
     UpgradeNotSupported,

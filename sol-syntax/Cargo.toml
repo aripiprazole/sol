@@ -12,6 +12,7 @@ salsa-2022.workspace = true
 tree-sitter.workspace = true
 tree-sitter-sol.workspace = true
 type-sitter-lib.workspace = true
+serde.workspace = true
 
 [build-dependencies]
 type-sitter-gen.workspace = true

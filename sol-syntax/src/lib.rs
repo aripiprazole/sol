@@ -65,6 +65,12 @@ pub struct Source {
     pub syntax_node: ParseTree,
 }
 
+impl serde::Serialize for Source {
+    fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        serializer.serialize_str("SOURCE")
+    }
+}
+
 /// Defines the [`parse`] query.
 ///
 /// Parses a Sol program into a syntax tree. This query is memoized, so it will only be executed

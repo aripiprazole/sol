@@ -11,3 +11,4 @@ tree-sitter.workspace = true
 type-sitter-lib.workspace = true
 eyre.workspace = true
 paste.workspace = true
+serde.workspace = true

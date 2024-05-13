@@ -163,24 +163,24 @@ pub fn thir_check(db: &dyn ThirLoweringDb, ctx: Context, expr: Expr, type_repr: 
         todo!()
     }
 
-    fn insert_implicit_binder(db: &dyn ThirLoweringDb, value: Expr, pi: Pi) -> Term {
+    fn implicit_fun_eta(db: &dyn ThirLoweringDb, value: Expr, pi: Pi) -> Term {
         todo!()
     }
 
-    fn fresh_meta() -> Term {
+    fn type_hole() -> Term {
         Term::InsertedMeta(MetaVar::new(None))
     }
 
-    fn expr_type(db: &dyn ThirLoweringDb, ctx: Context, expr: Expr, type_repr: Type) -> Term {
+    fn term_equality(db: &dyn ThirLoweringDb, ctx: Context, expr: Expr, type_repr: Type) -> Term {
         todo!()
     }
 
     #[rustfmt::skip]
     match (expr, type_repr) {
         (Expr::Abs(lam), Type::Pi(pi)) => abs_pi(db, ctx, lam, pi),
-        (value, Type::Pi(pi @ Pi { implicitness: Implicitness::Implicit, .. })) => insert_implicit_binder(db, value, pi),
-        (Expr::Upgrade(box TypeRep::Hole), _) => fresh_meta(),
-        (value, expected) => expr_type(db, ctx, value, expected)
+        (value, Type::Pi(pi @ Pi { implicitness: Implicitness::Implicit, .. })) => implicit_fun_eta(db, value, pi),
+        (Expr::Upgrade(box TypeRep::Hole), _) => type_hole(),
+        (value, expected) => term_equality(db, ctx, value, expected)
     }
 }
 

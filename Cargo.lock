@@ -1525,6 +1525,7 @@ dependencies = [
  "eyre",
  "paste",
  "salsa-2022",
+ "serde",
  "tree-sitter",
  "type-sitter-lib",
 ]
@@ -1608,6 +1609,7 @@ dependencies = [
  "once_cell",
  "petgraph",
  "salsa-2022",
+ "serde",
  "sol-diagnostic",
  "sol-syntax",
  "thiserror",
@@ -1669,6 +1671,7 @@ version = "0.0.1"
 dependencies = [
  "rust-format",
  "salsa-2022",
+ "serde",
  "sol-diagnostic",
  "sol-vfs",
  "tree-sitter",
@@ -1682,7 +1685,9 @@ name = "sol-thir"
 version = "0.0.1"
 dependencies = [
  "im",
+ "miette",
  "salsa-2022",
+ "serde",
  "sol-diagnostic",
  "sol-hir",
  "sol-syntax",

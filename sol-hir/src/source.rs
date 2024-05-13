@@ -107,9 +107,29 @@ pub struct HirTextRange {
     pub text: Arc<String>,
 }
 
+impl serde::Serialize for HirTextRange {
+    fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        #[derive(serde::Serialize)]
+        struct HirTextRangeDelegate {
+            pub start: Offset,
+            pub end: Offset,
+            pub file_name: String,
+            pub text: String,
+        }
+
+        HirTextRangeDelegate {
+            start: self.start,
+            end: self.end,
+            file_name: self.file_name.clone(),
+            text: (*self.text).clone(),
+        }
+        .serialize(serializer)
+    }
+}
+
 /// A location in a source file. It can be either a text range or a lazy location to be evaluated
 /// in the `call_site`.
-#[derive(Default, Clone, Hash, PartialEq, Eq)]
+#[derive(Default, Clone, Hash, PartialEq, Eq, serde::Serialize)]
 pub enum Location {
     /// A text range in a source file.
     TextRange(HirTextRange),
@@ -236,6 +256,12 @@ pub struct HirError {
     /// The location of the error.
     pub location: Location,
     pub kind: HirErrorKind,
+}
+
+impl serde::Serialize for HirError {
+    fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        serializer.serialize_str("HirError")
+    }
 }
 
 /// The kind of the error. It can be anything that can be reported to the diagnostic database.

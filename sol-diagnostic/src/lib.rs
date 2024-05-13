@@ -308,7 +308,9 @@ pub enum ErrorKind {
 }
 
 /// Represents an offset in the source program relative to some anchor.
-#[derive(Default, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(
+    Default, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, serde::Serialize, serde::Deserialize,
+)]
 pub struct Offset(pub usize);
 
 /// Represents a location in the source program.
