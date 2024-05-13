@@ -11,6 +11,7 @@ pub mod utils;
 make_test_suite! {
   tests church_encoding {
     church_encoding
+    leibniz_equality
   }
   run |db, source, output| {
     let file = SourceFile::new(&db, "repl".into(), "Repl".into(), source);

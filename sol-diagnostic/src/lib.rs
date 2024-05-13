@@ -44,6 +44,26 @@ pub mod reports {
         pub internal_location: core::panic::Location<'static>,
     }
 
+    impl serde::Serialize for Report {
+        fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+            #[derive(serde::Serialize)]
+            struct ReportDelegate {
+                error_id: ErrorId,
+                error_kind: ErrorKind,
+                text: Vec<ErrorText>,
+                location: Option<Box<dyn TextRange>>,
+            }
+
+            ReportDelegate {
+                error_id: self.diagnostic.error_id(),
+                error_kind: self.diagnostic.error_kind(),
+                text: self.diagnostic.text(),
+                location: self.diagnostic.location(),
+            }
+            .serialize(serializer)
+        }
+    }
+
     impl Report {
         /// Creates a new diagnostic report. This is the only way to create
         /// a diagnostic report.
@@ -103,7 +123,7 @@ pub mod reports {
 ///
 /// This is useful to highlight the source code that is
 /// being reported.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, serde::Serialize)]
 pub struct ErrorId(pub &'static str);
 
 /// Represents a range of text in the source program.
@@ -115,6 +135,26 @@ pub trait TextRange {
     fn start(&self) -> Offset;
     fn end(&self) -> Offset;
     fn source(&self) -> &str;
+}
+
+impl serde::Serialize for dyn TextRange {
+    fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        #[derive(serde::Serialize)]
+        struct TextRangeDelegate {
+            file_name: String,
+            start: Offset,
+            end: Offset,
+            source: String,
+        }
+
+        TextRangeDelegate {
+            file_name: self.file_name().to_string(),
+            start: self.start(),
+            end: self.end(),
+            source: self.source().to_string(),
+        }
+        .serialize(serializer)
+    }
 }
 
 impl Hash for dyn TextRange {
@@ -250,6 +290,16 @@ pub enum ErrorText {
     Break,
 }
 
+impl serde::Serialize for ErrorText {
+    fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        match self {
+            ErrorText::Text(it) => it.serialize(serializer),
+            ErrorText::Code(it) => it.to_string().serialize(serializer),
+            ErrorText::Break => "\n".serialize(serializer),
+        }
+    }
+}
+
 impl Debug for ErrorText {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
@@ -297,7 +347,7 @@ impl From<&str> for ErrorText {
 
 /// The kind of error that is being reported. This is useful
 /// to group errors of the same kind together.
-#[derive(Clone, PartialEq, Eq, Hash, Debug)]
+#[derive(Clone, PartialEq, Eq, Hash, Debug, serde::Serialize, serde::Deserialize)]
 pub enum ErrorKind {
     ParseError,
     TypeError,
