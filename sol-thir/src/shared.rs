@@ -23,13 +23,17 @@ impl Constructor {
 #[salsa::tracked]
 pub struct Context {
     pub lvl: Level,
-    pub location: CurrentLocation,
 }
 
 #[salsa::tracked]
 impl Context {
     #[salsa::tracked]
     pub fn create_new_value(self, db: &dyn ThirDb, name: Definition, value: Value) -> Context {
+        todo!()
+    }
+
+    #[salsa::tracked]
+    pub fn insert_new_binder(self, db: &dyn ThirDb, name: Definition, value: Value) -> Context {
         todo!()
     }
 }
@@ -150,10 +154,6 @@ macro_rules! mutable_reference {
 
         impl Eq for $name {}
     };
-}
-
-mutable_reference! {
-  struct CurrentLocation = Location
 }
 
 mutable_reference! {

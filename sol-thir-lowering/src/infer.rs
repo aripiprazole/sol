@@ -7,8 +7,6 @@ use super::*;
 pub fn thir_infer(db: &dyn ThirLoweringDb, ctx: Context, expr: Expr) -> InferResult {
     use Expr::*;
 
-    ctx.location(db).update(expr.location(db));
-
     InferResult::from(match expr {
         Empty | Error(_) | Match(_) => todo!(),
         Path(_) => todo!(),

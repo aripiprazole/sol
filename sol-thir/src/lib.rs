@@ -41,6 +41,7 @@ pub struct Jar(
     shared::Env_len,
     shared::Context,
     shared::Context_create_new_value,
+    shared::Context_insert_new_binder,
     debruijin::Indices,
     debruijin::Level,
     debruijin::Level_as_idx,
