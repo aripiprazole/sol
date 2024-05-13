@@ -16,7 +16,16 @@ pub struct Constructor {
 
 #[salsa::tracked]
 pub struct Context {
+    pub lvl: Level,
     pub location: CurrentLocation,
+}
+
+#[salsa::tracked]
+impl Context {
+    #[salsa::tracked]
+    pub fn create_new_value(self, db: &dyn ThirDb, name: Definition, value: Value) -> Context {
+        todo!()
+    }
 }
 
 #[salsa::tracked]

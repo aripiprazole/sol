@@ -82,6 +82,6 @@ impl Closure {
 pub struct Pi {
     pub name: Option<Definition>,
     pub implicitness: shared::Implicitness,
-    pub type_rep: Box<Type>,
+    pub type_repr: Box<Type>,
     pub closure: Closure,
 }

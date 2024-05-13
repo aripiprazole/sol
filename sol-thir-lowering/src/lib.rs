@@ -9,11 +9,12 @@
 
 use salsa::DbWithJar;
 use sol_hir::{
-    solver::{Definition, Reference},
+    solver::{Definition, DefinitionId, DefinitionKind::Variable, Reference},
     source::{
         expr::{AbsExpr, Expr},
+        pattern::Pattern,
         type_rep::TypeRep,
-        HirElement, Location,
+        HirElement, HirPath, Location,
     },
 };
 use sol_thir::{
@@ -26,13 +27,14 @@ use sol_thir::{
 
 extern crate salsa_2022 as salsa;
 
+mod check;
 mod elaboration;
 
 #[salsa::jar(db = ThirLoweringDb)]
 pub struct Jar(
     thir_eval,
     thir_infer,
-    thir_check,
+    check::thir_check,
     thir_quote,
     elaboration::unify_catch,
 );
@@ -60,7 +62,7 @@ pub fn thir_eval(db: &dyn ThirLoweringDb, env: Env, term: Term) -> Value {
             Value::Pi(Pi {
                 name,
                 implicitness,
-                type_rep: Box::new(domain),
+                type_repr: Box::new(domain),
                 closure: Closure {
                     env,
                     expr: *codomain,
@@ -106,7 +108,7 @@ pub fn thir_quote(db: &dyn ThirLoweringDb, lvl: Level, value: Value) -> Term {
             Pi(pi) => {
                 // Pi (quote lvl pi.type_rep) (quote (lvl + 1) (pi.closure $$ (Var lvl pi.name)))
                 let name = create_reference_of(db, pi.name, location.clone());
-                let domain = db.thir_quote(lvl, *pi.type_rep.clone());
+                let domain = db.thir_quote(lvl, *pi.type_repr.clone());
                 let codomain = db.thir_quote(lvl.increase(db), Value::new_var(lvl, name));
 
                 Term::Pi(pi.name, pi.implicitness, domain.into(), codomain.into())
@@ -162,36 +164,21 @@ pub fn thir_infer(db: &dyn ThirLoweringDb, ctx: Context, expr: Expr) -> (Term, T
     }
 }
 
-/// The check function to check the type of the term.
-#[salsa::tracked]
-pub fn thir_check(db: &dyn ThirLoweringDb, ctx: Context, expr: Expr, type_repr: Type) -> Term {
-    ctx.location(db).update(expr.location(db));
+pub fn extract_parameter_definition(db: &dyn ThirLoweringDb, pattern: Pattern) -> Definition {
+    let location = pattern.location(db);
+    let hole = HirPath::create(db, "_");
+    let fallback = Definition::new(
+        db,
+        /* id = */ DefinitionId::new(db, location, hole.to_string(db)),
+        /* kind = */ Variable,
+        /* name = */ hole,
+    );
 
-    fn abs_pi(db: &dyn ThirLoweringDb, ctx: Context, abs: AbsExpr, pi: Pi) -> Term {
-        todo!()
-    }
-
-    fn implicit_fun_eta(db: &dyn ThirLoweringDb, value: Expr, pi: Pi) -> Term {
-        todo!()
-    }
-
-    fn type_hole() -> Term {
-        Term::InsertedMeta(MetaVar::new(None))
-    }
-
-    fn term_equality(db: &dyn ThirLoweringDb, ctx: Context, expr: Expr, expected: Type) -> Term {
-        let (term, type_repr) = db.thir_infer(ctx, expr);
-        let (term, inferred_type) = elaboration::insert(ctx, term, type_repr);
-        elaboration::unify_catch(db, ctx, expected, inferred_type);
-        term
-    }
-
-    #[rustfmt::skip]
-    match (expr, type_repr) {
-        (Expr::Abs(lam), Type::Pi(pi)) => abs_pi(db, ctx, lam, pi),
-        (value, Type::Pi(pi @ Pi { implicitness: Implicitness::Implicit, .. })) => implicit_fun_eta(db, value, pi),
-        (Expr::Upgrade(box TypeRep::Hole), _) => type_hole(),
-        (value, expected) => term_equality(db, ctx, value, expected)
+    match pattern {
+        Pattern::Hole | Pattern::Error(_) | Pattern::Wildcard(_) => fallback,
+        Pattern::Literal(_) | Pattern::Constructor(_) => todo!("handle: unsuporrted pattern"),
+        Pattern::Rest(_) => todo!("rest must be used inside a pattern"),
+        Pattern::Binding(binding) => binding.name(db),
     }
 }
 
