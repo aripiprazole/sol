@@ -11,7 +11,7 @@ use sol_hir::{
     primitives::{PrimitiveBag, PrimitiveProvider},
     source::expr::Expr,
 };
-use sol_thir::{source::Term, value::Type, ThirLowering, ThirTyping};
+use sol_thir::{source::Term, value::Type, InferResult, ThirLowering, ThirTyping};
 
 /// Defines watcher strategies for [`RootDb`].
 pub mod watcher;
@@ -76,12 +76,12 @@ impl ThirLowering for RootDb {
 
 /// Bridges the [`RootDb`] with the [`sol_thir::ThirTyping`] trait.
 impl ThirTyping for RootDb {
-    fn thir_infer(&self, ctx: sol_thir::shared::Context, expr: Expr) -> (Term, Type) {
-        sol_thir_lowering::thir_infer(self, ctx, expr)
+    fn thir_infer(&self, ctx: sol_thir::shared::Context, expr: Expr) -> InferResult {
+        sol_thir_lowering::infer::thir_infer(self, ctx, expr)
     }
 
     fn thir_check(&self, ctx: sol_thir::shared::Context, expr: Expr, type_repr: Type) -> Term {
-        sol_thir_lowering::thir_check(self, ctx, expr, type_repr)
+        sol_thir_lowering::check::thir_check(self, ctx, expr, type_repr)
     }
 }
 

@@ -84,10 +84,25 @@ pub trait ThirLowering {
 /// Represents the typing functions for Typed High-Level Intermediate Representation.
 pub trait ThirTyping {
     /// The infer function to infer the type of the term.
-    fn thir_infer(&self, ctx: Context, expr: Expr) -> (Term, Type);
+    fn thir_infer(&self, ctx: Context, expr: Expr) -> InferResult;
 
     /// The check function to check the type of the term.
     fn thir_check(&self, ctx: Context, expr: Expr, type_repr: Type) -> Term;
+}
+
+#[derive(Debug, Clone, Hash, PartialEq, Eq)]
+pub struct InferResult(pub Term, pub Type);
+
+impl From<(Term, Type)> for InferResult {
+    fn from((term, ty): (Term, Type)) -> Self {
+        Self(term, ty)
+    }
+}
+
+impl Default for InferResult {
+    fn default() -> Self {
+        todo!()
+    }
 }
 
 /// Represents the diagnostic for High-Level Intermediate Representation. It's intended to be used

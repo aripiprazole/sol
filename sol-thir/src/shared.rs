@@ -14,6 +14,12 @@ pub struct Constructor {
     pub location: Location,
 }
 
+impl Constructor {
+    pub fn infer(self) -> Type {
+        todo!()
+    }
+}
+
 #[salsa::tracked]
 pub struct Context {
     pub lvl: Level,

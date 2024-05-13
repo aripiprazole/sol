@@ -29,11 +29,12 @@ extern crate salsa_2022 as salsa;
 
 pub mod check;
 pub mod elaboration;
+pub mod infer;
 
 #[salsa::jar(db = ThirLoweringDb)]
 pub struct Jar(
     thir_eval,
-    thir_infer,
+    infer::thir_infer,
     check::thir_check,
     thir_quote,
     elaboration::unify_catch,
@@ -134,34 +135,6 @@ pub fn thir_quote(db: &dyn ThirLoweringDb, lvl: Level, value: Value) -> Term {
             Term::Location(location.clone(), value.into())
         })
         .unwrap_or_else(|| thir_quote_impl(db, None, lvl, value))
-}
-
-/// The infer function to infer the type of the term.
-#[salsa::tracked]
-pub fn thir_infer(db: &dyn ThirLoweringDb, ctx: Context, expr: Expr) -> (Term, Type) {
-    use Expr::*;
-
-    ctx.location(db).update(expr.location(db));
-
-    match expr {
-        Empty => todo!(),
-        Error(_) => todo!(),
-        Path(_) => todo!(),
-        Literal(_) => todo!(),
-        Call(_) => todo!(),
-        Ann(_) => todo!(),
-        Abs(_) => todo!(),
-        Match(_) => todo!(),
-        Upgrade(box TypeRep::App(_)) => todo!(),
-        Upgrade(box TypeRep::Hole) => todo!(),
-        Upgrade(box TypeRep::SelfType) => todo!(),
-        Upgrade(box TypeRep::Unit) => todo!(),
-        Upgrade(box TypeRep::Type) => todo!(),
-        Upgrade(box TypeRep::Pi(_)) => todo!(),
-        Upgrade(box TypeRep::Path(_, _)) => todo!(),
-        Upgrade(box TypeRep::Error(_)) => todo!(),
-        Upgrade(box TypeRep::Downgrade(box expr)) => db.thir_infer(ctx, expr),
-    }
 }
 
 pub fn extract_parameter_definition(db: &dyn ThirLoweringDb, pattern: Pattern) -> Definition {

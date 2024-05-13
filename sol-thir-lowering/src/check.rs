@@ -1,3 +1,5 @@
+use sol_thir::InferResult;
+
 use super::*;
 
 enum Curried {
@@ -49,8 +51,8 @@ fn type_hole() -> Term {
 }
 
 fn term_equality(db: &dyn ThirLoweringDb, ctx: Context, expr: Expr, expected: Type) -> Term {
-    let (term, type_repr) = db.thir_infer(ctx, expr);
-    let (term, inferred_type) = elaboration::insert(ctx, term, type_repr);
+    let InferResult(term, type_repr) = db.thir_infer(ctx, expr);
+    let InferResult(term, inferred_type) = elaboration::insert(ctx, term, type_repr);
     elaboration::unify_catch(db, ctx, expected, inferred_type);
     term
 }
