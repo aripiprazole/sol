@@ -27,8 +27,8 @@ use sol_thir::{
 
 extern crate salsa_2022 as salsa;
 
-mod check;
-mod elaboration;
+pub mod check;
+pub mod elaboration;
 
 #[salsa::jar(db = ThirLoweringDb)]
 pub struct Jar(
