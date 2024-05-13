@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use super::*;
 
 pub type Expr = Box<Term>;
@@ -19,5 +21,11 @@ pub enum Term {
 impl Term {
     pub fn normalise(self, db: &dyn ThirDb, env: shared::Env) -> Term {
         db.thir_quote(Level::new(db, env.len(db)), db.thir_eval(env, self))
+    }
+}
+
+impl Display for Term {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{:?}", self)
     }
 }

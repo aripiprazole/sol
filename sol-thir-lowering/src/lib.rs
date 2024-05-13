@@ -26,8 +26,16 @@ use sol_thir::{
 
 extern crate salsa_2022 as salsa;
 
+mod elaboration;
+
 #[salsa::jar(db = ThirLoweringDb)]
-pub struct Jar(thir_eval, thir_infer, thir_check, thir_quote);
+pub struct Jar(
+    thir_eval,
+    thir_infer,
+    thir_check,
+    thir_quote,
+    elaboration::unify_catch,
+);
 
 /// The database that stores all the information about the source code. It is
 /// implemented using the [`salsa`] crate, and it's used by the [`sol-driver`] crate.
@@ -171,8 +179,11 @@ pub fn thir_check(db: &dyn ThirLoweringDb, ctx: Context, expr: Expr, type_repr: 
         Term::InsertedMeta(MetaVar::new(None))
     }
 
-    fn term_equality(db: &dyn ThirLoweringDb, ctx: Context, expr: Expr, type_repr: Type) -> Term {
-        todo!()
+    fn term_equality(db: &dyn ThirLoweringDb, ctx: Context, expr: Expr, expected: Type) -> Term {
+        let (term, type_repr) = db.thir_infer(ctx, expr);
+        let (term, inferred_type) = elaboration::insert(ctx, term, type_repr);
+        elaboration::unify_catch(db, ctx, expected, inferred_type);
+        term
     }
 
     #[rustfmt::skip]
