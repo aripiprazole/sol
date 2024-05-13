@@ -1,9 +1,0 @@
-Error: found 2 errors
-    ╭─[repl:1:1]
-    │
- 26 │   maybe $ (|value| value) $ sorry
-    │         ┬────────────────   ┬────  
-    │         ╰────────────────────────── parse error: unexpected token(s): $ (|value| value)
-    │                             │      
-    │                             ╰────── resolution error: unresolved `function` `sorry`
-────╯

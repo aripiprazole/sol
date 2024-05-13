@@ -30,6 +30,7 @@ pub mod debruijin;
 pub mod sexpr;
 pub mod shared;
 pub mod source;
+pub mod unification;
 pub mod value;
 
 #[salsa::jar(db = ThirDb)]

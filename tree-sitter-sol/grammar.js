@@ -45,7 +45,6 @@ module.exports = grammar({
     [$._pi_parameter_set, $.ann_expr],
     [$._pi_parameter_set, $.pi_expr],
     [$._pi_parameter_set, $.sigma_expr],
-    [$._pi_parameter_set, $.forall_expr],
     [$.path, $.primary],
   ],
 
@@ -256,7 +255,6 @@ module.exports = grammar({
         $.ann_expr,
         $.pi_expr,
         $.binary_expr,
-        $.forall_expr,
       ),
 
     _type_expr: ($) =>
@@ -269,17 +267,6 @@ module.exports = grammar({
         $.ann_expr,
         $.pi_expr,
         $.binary_expr,
-        $.forall_expr,
-      ),
-
-    forall_expr: ($) =>
-      prec.left(
-        seq(
-          'forall',
-          repeat1(field('parameter', $.forall_parameter)),
-          '.',
-          field('value', $._type_expr),
-        ),
       ),
 
     _primary_or_binary: ($) => choice($.primary, $.binary_expr),
@@ -377,10 +364,13 @@ module.exports = grammar({
         ),
       ),
 
-    pi_named_parameter_set: ($) =>
-      seq('(', field('parameter', $._parameter_set), ')'),
+    pi_parameters: ($) => seq('(', field('parameter', $._parameter_set), ')'),
 
-    _pi_parameter_set: ($) => choice($.pi_named_parameter_set, $._type_expr),
+    forall_parameters: ($) =>
+      seq('{', field('parameter', $._parameter_set), '}'),
+
+    _pi_parameter_set: ($) =>
+      choice($.pi_parameters, $.forall_parameters, $._type_expr),
 
     pi_expr: ($) =>
       prec.left(

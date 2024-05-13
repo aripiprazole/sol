@@ -72,7 +72,7 @@ impl HirLowering<'_, '_> {
             .solve(self, |this, node| this.expr(node, level));
 
         let then = stmt.then().solve(self, |this, node| {
-            use sol_syntax::anon_unions::AnnExpr_AppExpr_BinaryExpr_Block_ForallExpr_LamExpr_MatchExpr_PiExpr_Primary_SigmaExpr::*;
+            use sol_syntax::anon_unions::AnnExpr_AppExpr_BinaryExpr_Block_LamExpr_MatchExpr_PiExpr_Primary_SigmaExpr::*;
 
             node.child().solve(this, |this, node| match node {
                 Block(block) => Expr::block(this.db, this.block(block, level)),
@@ -82,7 +82,7 @@ impl HirLowering<'_, '_> {
 
         let otherwise = stmt.otherwise().map(|then| {
           then.solve(self, |this, node| {
-                use sol_syntax::anon_unions::AnnExpr_AppExpr_BinaryExpr_Block_ForallExpr_LamExpr_MatchExpr_PiExpr_Primary_SigmaExpr::*;
+                use sol_syntax::anon_unions::AnnExpr_AppExpr_BinaryExpr_Block_LamExpr_MatchExpr_PiExpr_Primary_SigmaExpr::*;
 
                 node.value().solve(this, |this, node| match node {
                   Block(block) => Expr::block(this.db, this.block(block, level)),

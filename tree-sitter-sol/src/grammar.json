@@ -1255,10 +1255,6 @@
         {
           "type": "SYMBOL",
           "name": "binary_expr"
-        },
-        {
-          "type": "SYMBOL",
-          "name": "forall_expr"
         }
       ]
     },
@@ -1296,48 +1292,8 @@
         {
           "type": "SYMBOL",
           "name": "binary_expr"
-        },
-        {
-          "type": "SYMBOL",
-          "name": "forall_expr"
         }
       ]
-    },
-    "forall_expr": {
-      "type": "PREC_LEFT",
-      "value": 0,
-      "content": {
-        "type": "SEQ",
-        "members": [
-          {
-            "type": "STRING",
-            "value": "forall"
-          },
-          {
-            "type": "REPEAT1",
-            "content": {
-              "type": "FIELD",
-              "name": "parameter",
-              "content": {
-                "type": "SYMBOL",
-                "name": "forall_parameter"
-              }
-            }
-          },
-          {
-            "type": "STRING",
-            "value": "."
-          },
-          {
-            "type": "FIELD",
-            "name": "value",
-            "content": {
-              "type": "SYMBOL",
-              "name": "_type_expr"
-            }
-          }
-        ]
-      }
     },
     "_primary_or_binary": {
       "type": "CHOICE",
@@ -1839,7 +1795,7 @@
         ]
       }
     },
-    "pi_named_parameter_set": {
+    "pi_parameters": {
       "type": "SEQ",
       "members": [
         {
@@ -1860,12 +1816,37 @@
         }
       ]
     },
+    "forall_parameters": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "{"
+        },
+        {
+          "type": "FIELD",
+          "name": "parameter",
+          "content": {
+            "type": "SYMBOL",
+            "name": "_parameter_set"
+          }
+        },
+        {
+          "type": "STRING",
+          "value": "}"
+        }
+      ]
+    },
     "_pi_parameter_set": {
       "type": "CHOICE",
       "members": [
         {
           "type": "SYMBOL",
-          "name": "pi_named_parameter_set"
+          "name": "pi_parameters"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "forall_parameters"
         },
         {
           "type": "SYMBOL",
@@ -3008,16 +2989,6 @@
       {
         "type": "SYMBOL",
         "name": "sigma_expr"
-      }
-    ],
-    [
-      {
-        "type": "SYMBOL",
-        "name": "_pi_parameter_set"
-      },
-      {
-        "type": "SYMBOL",
-        "name": "forall_expr"
       }
     ],
     [

@@ -19,10 +19,10 @@ use sol_hir::{
 use super::*;
 
 #[rustfmt::skip]
-type SyntaxExpr<'tree> = sol_syntax::anon_unions::AnnExpr_AppExpr_BinaryExpr_ForallExpr_LamExpr_MatchExpr_PiExpr_Primary_SigmaExpr<'tree>;
+type SyntaxExpr<'tree> = sol_syntax::anon_unions::AnnExpr_AppExpr_BinaryExpr_LamExpr_MatchExpr_PiExpr_Primary_SigmaExpr<'tree>;
 
 #[rustfmt::skip]
-type SyntaxTypeRep<'tree> = sol_syntax::anon_unions::AnnExpr_BinaryExpr_ForallExpr_LamExpr_MatchExpr_PiExpr_Primary_SigmaExpr_TypeAppExpr<'tree>;
+type SyntaxTypeRep<'tree> = sol_syntax::anon_unions::AnnExpr_BinaryExpr_LamExpr_MatchExpr_PiExpr_Primary_SigmaExpr_TypeAppExpr<'tree>;
 
 impl HirLowering<'_, '_> {
     /// Resolves a type level expression.
@@ -30,7 +30,7 @@ impl HirLowering<'_, '_> {
     /// It does use the type level of expressions to resolve syntax
     /// expressions into high-level type representations.
     pub fn type_expr(&mut self, tree: SyntaxTypeRep) -> TypeRep {
-        use sol_syntax::anon_unions::AnnExpr_BinaryExpr_ForallExpr_LamExpr_MatchExpr_PiExpr_Primary_SigmaExpr_TypeAppExpr::*;
+        use sol_syntax::anon_unions::AnnExpr_BinaryExpr_LamExpr_MatchExpr_PiExpr_Primary_SigmaExpr_TypeAppExpr::*;
 
         match tree {
             // SECTION: type_expr
@@ -49,7 +49,6 @@ impl HirLowering<'_, '_> {
             PiExpr(pi) => self.pi_expr(pi),
             SigmaExpr(sigma) => self.sigma_expr(sigma),
             TypeAppExpr(type_app) => self.type_app_expr(type_app),
-            ForallExpr(forall) => self.forall_expr(forall),
         }
     }
 
@@ -58,7 +57,7 @@ impl HirLowering<'_, '_> {
     /// It does use the expression level of expressions to resolve syntax
     /// expressions into high-level expressions.
     pub fn expr(&mut self, tree: SyntaxExpr, level: HirLevel) -> Expr {
-        use sol_syntax::anon_unions::AnnExpr_AppExpr_BinaryExpr_ForallExpr_LamExpr_MatchExpr_PiExpr_Primary_SigmaExpr::*;
+        use sol_syntax::anon_unions::AnnExpr_AppExpr_BinaryExpr_LamExpr_MatchExpr_PiExpr_Primary_SigmaExpr::*;
 
         match tree {
             // SECTION: expr
@@ -72,7 +71,6 @@ impl HirLowering<'_, '_> {
             // Type level expressions
             PiExpr(pi) => self.pi_expr(pi).downgrade(self.db),
             SigmaExpr(sigma) => self.sigma_expr(sigma).downgrade(self.db),
-            ForallExpr(forall) => self.forall_expr(forall).downgrade(self.db),
         }
     }
 
@@ -218,13 +216,22 @@ impl HirLowering<'_, '_> {
     /// It does translate the syntax pi type expression
     /// into a high-level pi type expression.
     pub fn pi_expr(&mut self, tree: sol_syntax::PiExpr) -> TypeRep {
-        use sol_syntax::anon_unions::AnnExpr_BinaryExpr_ForallExpr_LamExpr_MatchExpr_PiExpr_PiNamedParameterSet_Primary_SigmaExpr_TypeAppExpr::*;
+        use sol_syntax::anon_unions::AnnExpr_BinaryExpr_ForallParameters_LamExpr_MatchExpr_PiExpr_PiParameters_Primary_SigmaExpr_TypeAppExpr::*;
 
         self.scope = self.scope.fork(ScopeKind::Pi);
 
         let parameters = tree.parameter().solve(self, |this, node| {
             let type_rep = match node {
-                PiNamedParameterSet(tree) => {
+                PiParameters(tree) => {
+                    return tree
+                        .parameters(&mut tree.walk())
+                        .flatten()
+                        .filter_map(|node| node.regular())
+                        .filter_map(|node| node.parameter())
+                        .map(|parameter| this.parameter(false, true, parameter))
+                        .collect::<Vec<_>>();
+                }
+                ForallParameters(tree) => {
                     return tree
                         .parameters(&mut tree.walk())
                         .flatten()
@@ -310,34 +317,6 @@ impl HirLowering<'_, '_> {
         ))
     }
 
-    /// Resolves a forall expression.
-    ///
-    /// It does translate the syntax forall expression
-    /// into a high-level forall expression.
-    pub fn forall_expr(&mut self, tree: sol_syntax::ForallExpr) -> TypeRep {
-        self.scope = self.scope.fork(ScopeKind::Sigma);
-
-        let parameters = tree
-            .parameters(&mut tree.walk())
-            .flatten()
-            .filter_map(|parameter| parameter.regular())
-            .map(|parameter| self.forall_parameter(parameter))
-            .collect::<Vec<_>>();
-
-        let value = tree.value().solve(self, |this, expr| this.type_expr(expr));
-
-        let scope = self.pop_scope();
-
-        TypeRep::Pi(PiTypeRep::new(
-            self.db,
-            /* kind       = */ ArrowKind::Forall,
-            /* parameters = */ parameters,
-            /* value      = */ value,
-            /* location   = */ self.range(tree.range()),
-            /* scope      = */ scope,
-        ))
-    }
-
     /// Resolves a match expression.
     ///
     /// It does translate the syntax match expression
@@ -355,7 +334,7 @@ impl HirLowering<'_, '_> {
       .map(|node| {
         let pattern = node.pattern().solve(self, |this, pattern| this.pattern(pattern));
         let body = node.body().solve(self, |this, node| {
-          use sol_syntax::anon_unions::AnnExpr_AppExpr_BinaryExpr_Block_ForallExpr_LamExpr_MatchExpr_PiExpr_Primary_SigmaExpr::*;
+          use sol_syntax::anon_unions::AnnExpr_AppExpr_BinaryExpr_Block_LamExpr_MatchExpr_PiExpr_Primary_SigmaExpr::*;
 
           match node {
             Block(block) => Expr::block(this.db, this.block(block, level)),
@@ -390,7 +369,7 @@ impl HirLowering<'_, '_> {
             .solve(self, |this, node| this.expr(node, level));
 
         let then = tree.then().solve(self, |this, node| {
-        use sol_syntax::anon_unions::AnnExpr_AppExpr_BinaryExpr_Block_ForallExpr_LamExpr_MatchExpr_PiExpr_Primary_SigmaExpr::*;
+        use sol_syntax::anon_unions::AnnExpr_AppExpr_BinaryExpr_Block_LamExpr_MatchExpr_PiExpr_Primary_SigmaExpr::*;
 
         node.child().solve(this, |this, node| match node {
           Block(block) => Expr::block(this.db, this.block(block, level)),
@@ -399,7 +378,7 @@ impl HirLowering<'_, '_> {
       });
 
         let otherwise = tree.otherwise().solve(self, |this, node| {
-        use sol_syntax::anon_unions::AnnExpr_AppExpr_BinaryExpr_Block_ForallExpr_LamExpr_MatchExpr_PiExpr_Primary_SigmaExpr::*;
+        use sol_syntax::anon_unions::AnnExpr_AppExpr_BinaryExpr_Block_LamExpr_MatchExpr_PiExpr_Primary_SigmaExpr::*;
 
         node.value().solve(this, |this, node| match node {
           Block(block) => Expr::block(this.db, this.block(block, level)),

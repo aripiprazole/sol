@@ -12,12 +12,15 @@ Zero = |n succ$ zero$| zero$
 Maybe : U -> U
 Maybe = |t| (a : U) -> (t -> a) -> a -> a
 
-Just : ^a -> Maybe ^a
+Just : {A : U} -> A -> Maybe A
 Just = |value t just$ nothing$| just$ value
 
-Nothing : Maybe ^a
+Nothing : {A : U} -> Maybe A
 Nothing = |t just$ nothing$| nothing$
 
-Maybe.unwrap : Maybe -> ^a
+Sorry : {A : U} -> A
+Sorry = Sorry
+
+Maybe.unwrap : {A : U} -> Maybe A -> A
 Maybe.unwrap = |maybe|
-  maybe (|value| value) sorry
+  maybe (|value| value) Sorry

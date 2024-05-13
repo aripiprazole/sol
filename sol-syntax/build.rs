@@ -1,14 +1,31 @@
-use std::{fmt::Display, fs::File, io::Write, path::Path};
+use std::{fmt::Display, fs::File, io::Write, path::Path, process::Command};
 
 use rust_format::{Formatter, RustFmt};
 use type_sitter_gen::tree_sitter;
 
 fn main() {
+    regenerate_tree_sitter_grammar();
+
     if std::env::var("NO_REBUILD_TYPE_SITTER").is_err() {
         regenerate_node_types();
     }
 
-    println!("cargo:rerun-if-changed=../tree-sitter-sol/src/parser.c");
+    println!("cargo:rerun-if-changed=../tree-sitter-sol/grammar.js");
+}
+
+/// Regenerate tree-sitter grammar
+fn regenerate_tree_sitter_grammar() {
+    Command::new("tree-sitter")
+        .current_dir(Path::new("../tree-sitter-sol"))
+        .arg("generate")
+        .status()
+        .expect("failed to generate tree-sitter grammar");
+
+    Command::new("tree-sitter")
+        .current_dir(Path::new("../tree-sitter-sol"))
+        .arg("build-wasm")
+        .status()
+        .expect("failed to generate tree-sitter grammar for wasm");
 }
 
 /// Regenerates the `src/generated/sol.rs` file from the `src/node-types.json`
