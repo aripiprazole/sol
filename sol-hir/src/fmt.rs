@@ -359,7 +359,7 @@ mod impls {
     impl HirFormatter for stmt::Block {
         fn hir_fmt(&self, db: &dyn HirDb, f: &mut Formatter, scope: &Scope) -> std::fmt::Result {
             code_block(db, scope, f, |db, f, scope| {
-                for statement in self.statements(db) {
+                for statement in self.statements.iter() {
                     statement.hir_fmt(db, f, scope)?;
                 }
                 Ok(())
@@ -420,14 +420,14 @@ mod impls {
 
     impl HirFormatter for pattern::ConstructorPattern {
         fn hir_fmt(&self, db: &dyn HirDb, f: &mut Formatter, scope: &Scope) -> std::fmt::Result {
-            let arguments = self.arguments(db);
+            let arguments = self.arguments.clone();
             if arguments.is_empty() {
-                self.name(db).hir_fmt(db, f, scope)?;
+                self.name.clone().hir_fmt(db, f, scope)?;
                 write!(f, " ")?;
                 scope.punctuated(db, f, arguments, ", ")
             } else {
                 write!(f, "(")?;
-                self.name(db).hir_fmt(db, f, scope)?;
+                self.name.hir_fmt(db, f, scope)?;
                 write!(f, " ")?;
                 scope.punctuated(db, f, arguments, ", ")?;
                 write!(f, ")")
@@ -515,13 +515,13 @@ mod impls {
     impl HirFormatter for expr::CallExpr {
         fn hir_fmt(&self, db: &dyn HirDb, f: &mut Formatter, scope: &Scope) -> std::fmt::Result {
             write!(f, "(")?;
-            self.callee(db).hir_fmt(db, f, scope)?;
-            let arguments = self.arguments(db);
+            self.callee.hir_fmt(db, f, scope)?;
+            let arguments = self.arguments.clone();
             if !arguments.is_empty() {
                 write!(f, " ")?;
                 scope.punctuated(db, f, arguments, " ")?;
             }
-            if let Some(block) = self.do_notation(db) {
+            if let Some(block) = self.do_notation.clone() {
                 write!(f, " ")?;
                 block.hir_fmt(db, f, scope)?;
             }
@@ -535,18 +535,18 @@ mod impls {
         fn hir_fmt(&self, db: &dyn HirDb, f: &mut Formatter, scope: &Scope) -> std::fmt::Result {
             write!(f, "λ")?;
             write!(f, " ")?;
-            scope.punctuated(db, f, self.parameters(db), ", ")?;
+            scope.punctuated(db, f, self.parameters.clone(), ", ")?;
             write!(f, ".")?;
             write!(f, " ")?;
-            self.value(db).hir_fmt(db, f, scope)
+            self.value.hir_fmt(db, f, scope)
         }
     }
 
     impl HirFormatter for expr::AnnExpr {
         fn hir_fmt(&self, db: &dyn HirDb, f: &mut Formatter, scope: &Scope) -> std::fmt::Result {
-            self.value(db).hir_fmt(db, f, scope)?;
+            self.value.hir_fmt(db, f, scope)?;
             write!(f, " : ")?;
-            self.type_rep(db).hir_fmt(db, f, scope)
+            self.type_rep.hir_fmt(db, f, scope)
         }
     }
 
@@ -562,11 +562,11 @@ mod impls {
         fn hir_fmt(&self, db: &dyn HirDb, f: &mut Formatter, scope: &Scope) -> std::fmt::Result {
             write!(f, "match")?;
             write!(f, " ")?;
-            self.scrutinee(db).hir_fmt(db, f, scope)?;
+            self.scrutinee.hir_fmt(db, f, scope)?;
             write!(f, " ")?;
             write!(f, "{{")?;
             code_block(db, scope, f, |db, f, scope| {
-                scope.unlined(db, f, self.clauses(db), ", ")
+                scope.unlined(db, f, self.clauses.clone(), ", ")
             })?;
             write!(f, "}}")
         }

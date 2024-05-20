@@ -142,8 +142,8 @@ impl<'db, U: Checkable> HirListener for ReferenceWalker<'db, U> {
     }
 
     fn enter_block(&mut self, block: stmt::Block) {
-        self.enter_scope(self.db, block.location(self.db), block.scope(self.db));
-        self.stack.push(block.scope(self.db));
+        self.enter_scope(self.db, block.location(self.db), block.scope.clone());
+        self.stack.push(block.scope.clone());
     }
 
     fn exit_block(&mut self, _: stmt::Block) {
@@ -151,8 +151,8 @@ impl<'db, U: Checkable> HirListener for ReferenceWalker<'db, U> {
     }
 
     fn enter_abs_expr(&mut self, abs_expr: expr::AbsExpr) {
-        self.enter_scope(self.db, abs_expr.location(self.db), abs_expr.scope(self.db));
-        self.stack.push(abs_expr.scope(self.db));
+        self.enter_scope(self.db, abs_expr.location(self.db), abs_expr.scope.clone());
+        self.stack.push(abs_expr.scope.clone());
     }
 
     fn exit_abs_expr(&mut self, _: expr::AbsExpr) {

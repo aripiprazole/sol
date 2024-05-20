@@ -1306,37 +1306,10 @@ pub mod pattern {
     impl walking::Walker for ConstructorPattern {
         fn accept<T: HirListener>(self, db: &dyn crate::HirDb, listener: &mut T) {
             listener.enter_constructor_pattern(self.clone());
-            self.name(db).accept(db, listener);
-            self.arguments(db).accept(db, listener);
+            self.name.clone().accept(db, listener);
+            self.arguments.clone().accept(db, listener);
             self.location(db).accept(db, listener);
             listener.exit_constructor_pattern(self);
-        }
-    }
-
-    impl ConstructorPattern {
-        pub fn new(
-            _: &dyn crate::HirDb,
-            name: Constructor,
-            arguments: Vec<Pattern>,
-            location: Location,
-        ) -> ConstructorPattern {
-            ConstructorPattern {
-                name,
-                arguments,
-                location,
-            }
-        }
-
-        pub fn name(&self, _db: &dyn crate::HirDb) -> Constructor {
-            self.name.clone()
-        }
-
-        pub fn arguments(&self, _db: &dyn crate::HirDb) -> Vec<Pattern> {
-            self.arguments.clone()
-        }
-
-        pub fn location(&self, _db: &dyn crate::HirDb) -> Location {
-            self.location.clone()
         }
     }
 
@@ -1696,7 +1669,7 @@ pub mod stmt {
     impl walking::Walker for Block {
         fn accept<T: HirListener>(self, db: &dyn crate::HirDb, listener: &mut T) {
             listener.enter_block(self.clone());
-            self.statements(db).accept(db, listener);
+            self.statements.clone().accept(db, listener);
             self.location(db).accept(db, listener);
             listener.exit_block(self);
         }
@@ -1706,34 +1679,11 @@ pub mod stmt {
         fn default_with_db(db: &dyn crate::HirDb) -> Self {
             let scope = Scope::new_ref(ScopeKind::Block);
 
-            Self::new(db, vec![], Location::call_site(db), scope)
-        }
-    }
-
-    impl Block {
-        pub fn new(
-            _: &dyn crate::HirDb,
-            statements: Vec<Stmt>,
-            location: Location,
-            scope: Arc<Scope>,
-        ) -> Self {
             Self {
-                statements,
-                location,
+                statements: vec![],
+                location: Location::call_site(db),
                 scope,
             }
-        }
-
-        pub fn statements(&self, _: &dyn crate::HirDb) -> Vec<Stmt> {
-            self.statements.clone()
-        }
-
-        pub fn scope(&self, _db: &dyn crate::HirDb) -> Arc<Scope> {
-            self.scope.clone()
-        }
-
-        pub fn location(&self, _db: &dyn crate::HirDb) -> Location {
-            self.location.clone()
         }
     }
 
@@ -1905,43 +1855,10 @@ pub mod expr {
     impl walking::Walker for AbsExpr {
         fn accept<T: walking::HirListener>(self, db: &dyn crate::HirDb, listener: &mut T) {
             listener.enter_abs_expr(self.clone());
-            self.parameters(db).accept(db, listener);
-            self.value(db).accept(db, listener);
+            self.parameters.clone().accept(db, listener);
+            self.value.clone().accept(db, listener);
             self.location(db).accept(db, listener);
             listener.exit_abs_expr(self);
-        }
-    }
-
-    impl AbsExpr {
-        pub fn new(
-            _: &dyn crate::HirDb,
-            parameters: Vec<pattern::Pattern>,
-            value: expr::Expr,
-            location: Location,
-            scope: Arc<Scope>,
-        ) -> Self {
-            Self {
-                parameters,
-                value: Box::new(value),
-                location,
-                scope,
-            }
-        }
-
-        pub fn parameters(&self, _db: &dyn crate::HirDb) -> Vec<pattern::Pattern> {
-            self.parameters.clone()
-        }
-
-        pub fn value(&self, _db: &dyn crate::HirDb) -> Expr {
-            (*self.value).clone()
-        }
-
-        pub fn location(&self, _db: &dyn crate::HirDb) -> Location {
-            self.location.clone()
-        }
-
-        pub fn scope(&self, _db: &dyn crate::HirDb) -> Arc<Scope> {
-            self.scope.clone()
         }
     }
 
@@ -1971,37 +1888,10 @@ pub mod expr {
     impl walking::Walker for AnnExpr {
         fn accept<T: walking::HirListener>(self, db: &dyn crate::HirDb, listener: &mut T) {
             listener.enter_ann_expr(self.clone());
-            self.value(db).accept(db, listener);
-            self.type_rep(db).accept(db, listener);
+            self.value.clone().accept(db, listener);
+            self.type_rep.clone().accept(db, listener);
             self.location(db).accept(db, listener);
             listener.exit_ann_expr(self);
-        }
-    }
-
-    impl AnnExpr {
-        pub fn new(
-            _: &dyn crate::HirDb,
-            value: expr::Expr,
-            type_rep: type_rep::TypeRep,
-            location: Location,
-        ) -> Self {
-            Self {
-                value: Box::new(value),
-                type_rep,
-                location,
-            }
-        }
-
-        pub fn value(&self, _db: &dyn crate::HirDb) -> Expr {
-            (*self.value).clone()
-        }
-
-        pub fn type_rep(&self, _db: &dyn crate::HirDb) -> type_rep::TypeRep {
-            self.type_rep.clone()
-        }
-
-        pub fn location(&self, _db: &dyn crate::HirDb) -> Location {
-            self.location.clone()
         }
     }
 
@@ -2061,39 +1951,10 @@ pub mod expr {
     impl walking::Walker for MatchExpr {
         fn accept<T: walking::HirListener>(self, db: &dyn crate::HirDb, listener: &mut T) {
             listener.enter_match_expr(self.clone());
-            self.scrutinee(db).accept(db, listener);
-            self.clauses(db).accept(db, listener);
+            self.scrutinee.clone().accept(db, listener);
+            self.clauses.clone().accept(db, listener);
             self.location(db).accept(db, listener);
             listener.exit_match_expr(self);
-        }
-    }
-
-    impl MatchExpr {
-        pub fn new(
-            _: &dyn crate::HirDb,
-            kind: MatchKind,
-            scrutinee: expr::Expr,
-            clauses: Vec<MatchArm>,
-            location: Location,
-        ) -> Self {
-            Self {
-                kind,
-                scrutinee: Box::new(scrutinee),
-                clauses,
-                location,
-            }
-        }
-
-        pub fn scrutinee(&self, _db: &dyn crate::HirDb) -> Expr {
-            (*self.scrutinee).clone()
-        }
-
-        pub fn clauses(&self, _db: &dyn crate::HirDb) -> Vec<MatchArm> {
-            self.clauses.clone()
-        }
-
-        pub fn location(&self, _db: &dyn crate::HirDb) -> Location {
-            self.location.clone()
         }
     }
 
@@ -2130,46 +1991,11 @@ pub mod expr {
     impl walking::Walker for CallExpr {
         fn accept<T: walking::HirListener>(self, db: &dyn crate::HirDb, listener: &mut T) {
             listener.enter_call_expr(self.clone());
-            self.callee(db).accept(db, listener);
-            self.arguments(db).accept(db, listener);
-            self.do_notation(db).accept(db, listener);
+            self.callee.clone().accept(db, listener);
+            self.arguments.clone().accept(db, listener);
+            self.do_notation.clone().accept(db, listener);
             self.location(db).accept(db, listener);
             listener.exit_call_expr(self);
-        }
-    }
-
-    impl CallExpr {
-        pub fn new(
-            _: &dyn crate::HirDb,
-            kind: CallKind,
-            callee: Callee,
-            arguments: Vec<expr::Expr>,
-            do_notation: Option<stmt::Block>,
-            location: Location,
-        ) -> Self {
-            Self {
-                kind,
-                callee,
-                arguments,
-                do_notation,
-                location,
-            }
-        }
-
-        pub fn callee(&self, _db: &dyn crate::HirDb) -> Callee {
-            self.callee.clone()
-        }
-
-        pub fn arguments(&self, _db: &dyn crate::HirDb) -> Vec<Expr> {
-            self.arguments.clone()
-        }
-
-        pub fn do_notation(&self, _db: &dyn crate::HirDb) -> Option<stmt::Block> {
-            self.do_notation.clone()
-        }
-
-        pub fn location(&self, _db: &dyn crate::HirDb) -> Location {
-            self.location.clone()
         }
     }
 
@@ -2250,28 +2076,26 @@ pub mod expr {
     impl Expr {
         /// Creates a unit expression. It's used to create a unit expression, that is just like a
         /// `()` value.
-        pub fn call_unit_expr(location: Location, db: &dyn crate::HirDb) -> Self {
-            Self::Call(CallExpr::new(
-                db,
-                /* kind        = */ CallKind::Prefix,
-                /* callee      = */ Callee::Unit,
-                /* arguments   = */ vec![],
-                /* do_notation = */ None,
-                /* location    = */ location,
-            ))
+        pub fn call_unit_expr(location: Location) -> Self {
+            Self::Call(CallExpr {
+                kind: CallKind::Prefix,
+                callee: Callee::Unit,
+                arguments: vec![],
+                do_notation: None,
+                location,
+            })
         }
 
         /// Creates a block do-notation expression. It's used to create a block expression, that is
         /// just like a `do { }` value.
         pub fn block(db: &dyn crate::HirDb, do_notation: stmt::Block) -> Self {
-            Self::Call(CallExpr::new(
-                db,
-                /* kind        = */ CallKind::Prefix,
-                /* callee      = */ Callee::Do,
-                /* arguments   = */ vec![],
-                /* do_notation = */ Some(do_notation.clone()),
-                /* location    = */ do_notation.location(db),
-            ))
+            Self::Call(CallExpr {
+                kind: CallKind::Prefix,
+                callee: Callee::Do,
+                arguments: vec![],
+                do_notation: Some(do_notation.clone()),
+                location: do_notation.location(db),
+            })
         }
 
         /// Upgrades this expression to a type representation. This is useful for error recovery and
