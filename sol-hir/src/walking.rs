@@ -55,6 +55,7 @@ pub trait HirListener {
 
     // SECTION: expr
     fn visit_type(&mut self, definition: expr::Type, location: Location) {}
+    fn visit_hole(&mut self, location: Location) {}
     fn visit_empty_expr(&mut self) {}
     fn enter_error_expr(&mut self, error: HirError) {}
     fn enter_path_expr(&mut self, definition: Reference) {}

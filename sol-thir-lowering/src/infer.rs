@@ -15,19 +15,14 @@ pub fn thir_infer(db: &dyn ThirLoweringDb, ctx: Context, expr: Expr) -> InferRes
                 location: literal.location(db),
                 kind: literal.value.into(),
             };
-
             (Term::Constructor(constructor.clone()), constructor.infer())
         }
         Call(_) => todo!(),
         Ann(_) => todo!(),
         Abs(_) => todo!(),
-        Upgrade(box TypeRep::App(_)) => todo!(),
-        Upgrade(box TypeRep::Hole) => todo!(),
-        Upgrade(box TypeRep::Unit) => todo!(),
-        Upgrade(box TypeRep::Type) => todo!(),
-        Upgrade(box TypeRep::Pi(_)) => todo!(),
-        Upgrade(box TypeRep::Path(_, _)) => todo!(),
-        Upgrade(box TypeRep::Error(_) | box TypeRep::SelfType) => todo!("unsuporrted type rep"),
-        Upgrade(box TypeRep::Downgrade(box expr)) => return db.thir_infer(ctx, expr),
+        Type(_, _) => todo!(),
+        Pi(_) => todo!(),
+        Sigma(_) => todo!(),
+        Hole(_) => todo!(),
     })
 }

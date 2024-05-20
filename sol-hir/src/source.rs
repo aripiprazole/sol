@@ -2061,6 +2061,7 @@ pub mod expr {
         /// it's splitted into a different variant to make it easier to work with, when we don't
         /// have an actual expression, like in [`Self::Error`].
         Empty,
+        Hole(Location),
         Type(Type, Location),
         Error(HirError),
         Path(Reference),
@@ -2215,6 +2216,7 @@ pub mod expr {
         fn fmt(&self, f: &mut Formatter<'_>, db: &dyn crate::HirDb, _: bool) -> std::fmt::Result {
             match self {
                 Expr::Empty => write!(f, "Empty"),
+                Expr::Hole(_) => write!(f, "Hole"),
                 Expr::Error(error) => write!(f, "Error({:?})", error.debug_all(db)),
                 Expr::Literal(literal) => write!(f, "Literal({literal:?})"),
                 Expr::Path(reference) => reference.debug_all(db).fmt(f),
@@ -2233,6 +2235,8 @@ pub mod expr {
         fn accept<T: walking::HirListener>(self, db: &dyn crate::HirDb, listener: &mut T) {
             match self {
                 Expr::Empty => listener.visit_empty_expr(),
+                Expr::Type(type_ref, location) => listener.visit_type(type_ref, location),
+                Expr::Hole(location) => listener.visit_hole(location),
                 Expr::Call(call_expr) => call_expr.accept(db, listener),
                 Expr::Ann(ann_expr) => ann_expr.accept(db, listener),
                 Expr::Abs(abs_expr) => abs_expr.accept(db, listener),
@@ -2262,7 +2266,6 @@ pub mod expr {
                     pi.clone().accept(db, listener);
                     listener.exit_sigma(pi);
                 }
-                Expr::Type(type_ref, location) => listener.visit_type(type_ref, location),
             }
         }
     }
@@ -2281,6 +2284,7 @@ pub mod expr {
                 Self::Pi(downcast) => downcast.location.clone(),
                 Self::Sigma(downcast) => downcast.location.clone(),
                 Self::Type(_, location) => location.clone(),
+                Self::Hole(location) => location.clone(),
             }
         }
     }

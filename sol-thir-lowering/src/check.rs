@@ -76,7 +76,7 @@ pub fn thir_check(db: &dyn ThirLoweringDb, ctx: Context, expr: Expr, type_repr: 
     match (expr, type_repr) {
         (Expr::Abs(abs), Type::Pi(pi)) => lam_pi(db, ctx, new_curried_function(db, abs), pi.clone(), pi.implicitness),
         (value, Type::Pi(pi @ Pi { implicitness: Implicit, .. })) => implicit_fun_eta(db, ctx, value, pi),
-        (Expr::Upgrade(box TypeRep::Hole), _) => type_hole(),
+        (Expr::Hole(_), _) => type_hole(),
         (value, expected) => term_equality(db, ctx, value, expected)
     }
 }

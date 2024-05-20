@@ -590,7 +590,7 @@ mod impls {
             use expr::Expr::*;
 
             match self {
-                Empty => write!(f, "_"),
+                Empty | Hole(_) => write!(f, "_"),
                 Error(_) => write!(f, "!"),
                 Path(path) => path.hir_fmt(db, f, scope),
                 Literal(literal) => literal.value.hir_fmt(db, f, scope),
