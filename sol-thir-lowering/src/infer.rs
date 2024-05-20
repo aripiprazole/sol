@@ -58,6 +58,10 @@ pub fn thir_infer(db: &dyn ThirLoweringDb, ctx: Context, expr: Expr) -> InferRes
         Lam(_) => todo!(),
         Pi(_) => todo!(),
         Sigma(_) => todo!(),
-        Hole(_) => todo!(),
+        Hole(_) => {
+            let meta = MetaVar::new(None);
+            let term = Term::InsertedMeta(meta.clone());
+            (term, Value::Flexible(meta, vec![]))
+        }
     })
 }
