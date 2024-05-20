@@ -23,6 +23,7 @@ impl Constructor {
 #[salsa::tracked]
 pub struct Context {
     pub lvl: Level,
+    pub env: Env,
 }
 
 #[salsa::tracked]
