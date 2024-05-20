@@ -6,7 +6,8 @@ use fxhash::FxBuildHasher;
 use crate::{
     solver::{Definition, DefinitionId, DefinitionKind},
     source::{
-        type_rep::{TypeReference, TypeRep},
+        expr::{Expr, Type},
+        type_rep::TypeRep,
         HirPath, Location,
     },
 };
@@ -35,30 +36,30 @@ pub trait PrimitiveProvider {
 pub fn initialize_primitive_bag(db: &dyn crate::HirDb) {
     /// Overrides the [`self::new_type_rep`] query, to make it simplier to
     /// use.
-    pub fn new_type_rep(db: &dyn crate::HirDb, name: &str, refr: TypeReference) {
-        let type_rep = TypeRep::Path(refr, Location::CallSite);
-
-        self::new_type_rep(db, HirPath::create(db, name), type_rep);
+    pub fn new_type_rep(db: &dyn crate::HirDb, name: &str, refr: Type) {
+        self::new_type_rep(db, HirPath::create(db, name), TypeRep {
+            expr: Expr::Type(refr, Location::CallSite).into(),
+        });
     }
 
     // Defines string types
-    new_type_rep(db, "String", TypeReference::String);
-    new_type_rep(db, "Unit", TypeReference::Unit);
+    new_type_rep(db, "String", Type::String);
+    new_type_rep(db, "Unit", Type::Unit);
 
     // Defines bool types
-    new_type_rep(db, "Bool", TypeReference::Bool);
+    new_type_rep(db, "Bool", Type::Bool);
 
     // Defines integer types
-    new_type_rep(db, "Int", TypeReference::Int32);
-    new_type_rep(db, "Int8", TypeReference::Int8);
-    new_type_rep(db, "UInt8", TypeReference::UInt8);
-    new_type_rep(db, "Int16", TypeReference::Int16);
-    new_type_rep(db, "UInt16", TypeReference::UInt16);
-    new_type_rep(db, "Int32", TypeReference::Int32);
-    new_type_rep(db, "UInt32", TypeReference::UInt32);
-    new_type_rep(db, "Int64", TypeReference::Int64);
-    new_type_rep(db, "UInt64", TypeReference::UInt64);
-    new_type_rep(db, "Nat", TypeReference::Nat);
+    new_type_rep(db, "Int", Type::Int32);
+    new_type_rep(db, "Int8", Type::Int8);
+    new_type_rep(db, "UInt8", Type::UInt8);
+    new_type_rep(db, "Int16", Type::Int16);
+    new_type_rep(db, "UInt16", Type::UInt16);
+    new_type_rep(db, "Int32", Type::Int32);
+    new_type_rep(db, "UInt32", Type::UInt32);
+    new_type_rep(db, "Int64", Type::Int64);
+    new_type_rep(db, "UInt64", Type::UInt64);
+    new_type_rep(db, "Nat", Type::Nat);
 }
 
 /// Defines the [`new_type_rep`] query.

@@ -158,15 +158,6 @@ impl<'db, U: Checkable> HirListener for ReferenceWalker<'db, U> {
     fn exit_abs_expr(&mut self, _: expr::AbsExpr) {
         self.stack.pop();
     }
-
-    fn enter_arrow_type_rep(&mut self, arrow: type_rep::PiTypeRep) {
-        self.enter_scope(self.db, arrow.location(self.db), arrow.scope(self.db));
-        self.stack.push(arrow.scope(self.db));
-    }
-
-    fn exit_arrow_type_rep(&mut self, _: type_rep::PiTypeRep) {
-        self.stack.pop();
-    }
 }
 
 /// Defines a trait that can be used to check if a value is true or not. It's a trait, to be easier

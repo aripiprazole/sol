@@ -5,10 +5,7 @@ use std::collections::HashSet;
 
 use fxhash::FxBuildHasher;
 
-use crate::{
-    solver::Reference,
-    source::{type_rep::TypeReference, *},
-};
+use crate::{solver::Reference, source::*};
 
 pub trait Walker {
     fn accept<T: HirListener>(self, db: &dyn crate::HirDb, listener: &mut T);
@@ -56,19 +53,8 @@ pub trait HirListener {
     // SECTION: visitors
     fn visit_reference(&mut self, reference: Reference) {}
 
-    // SECTION: type_rep
-    fn visit_unit_type_rep(&mut self) {}
-    fn visit_hole_type_rep(&mut self) {}
-    fn visit_self_type_rep(&mut self) {}
-    fn visit_tt_type_rep(&mut self) {}
-    fn enter_arrow_type_rep(&mut self, arrow: type_rep::PiTypeRep) {}
-    fn enter_error_type_rep(&mut self, error: HirError) {}
-    fn enter_path_type_rep(&mut self, definition: TypeReference) {}
-    fn enter_qpath_type_rep(&mut self, qpath: type_rep::QPath) {}
-    fn enter_app_type_rep(&mut self, app: type_rep::AppTypeRep) {}
-    fn enter_downgrade_type_rep(&mut self, expr: Box<expr::Expr>) {}
-
     // SECTION: expr
+    fn visit_type(&mut self, definition: expr::Type, location: Location) {}
     fn visit_empty_expr(&mut self) {}
     fn enter_error_expr(&mut self, error: HirError) {}
     fn enter_path_expr(&mut self, definition: Reference) {}
@@ -78,6 +64,9 @@ pub trait HirListener {
     fn enter_abs_expr(&mut self, call_expr: expr::AbsExpr) {}
     fn enter_match_expr(&mut self, match_expr: expr::MatchExpr) {}
     fn enter_upgrade_expr(&mut self, type_rep: Box<type_rep::TypeRep>) {}
+    fn enter_pi(&mut self, type_rep: expr::Pi) {}
+    fn enter_sigma(&mut self, type_rep: expr::Pi) {}
+    fn enter_fun(&mut self, type_rep: expr::Pi) {}
 
     // SECTION: stmt
     fn visit_empty_stmt(&mut self) {}
@@ -104,12 +93,6 @@ pub trait HirListener {
     fn enter_inductive_top_level(&mut self, inductive: top_level::Inductive) {}
 
     // SECTION: type_rep
-    fn exit_arrow_type_rep(&mut self, arrow: type_rep::PiTypeRep) {}
-    fn exit_error_type_rep(&mut self, error: HirError) {}
-    fn exit_path_type_rep(&mut self, definition: TypeReference) {}
-    fn exit_qpath_type_rep(&mut self, qpath: type_rep::QPath) {}
-    fn exit_app_type_rep(&mut self, app: type_rep::AppTypeRep) {}
-    fn exit_downgrade_type_rep(&mut self, expr: Box<expr::Expr>) {}
 
     // SECTION: expr
     fn exit_error_expr(&mut self, error: HirError) {}
@@ -119,7 +102,9 @@ pub trait HirListener {
     fn exit_ann_expr(&mut self, call_expr: expr::AnnExpr) {}
     fn exit_abs_expr(&mut self, call_expr: expr::AbsExpr) {}
     fn exit_match_expr(&mut self, match_expr: expr::MatchExpr) {}
-    fn exit_upgrade_expr(&mut self, type_rep: Box<type_rep::TypeRep>) {}
+    fn exit_pi(&mut self, type_rep: expr::Pi) {}
+    fn exit_sigma(&mut self, type_rep: expr::Pi) {}
+    fn exit_fun(&mut self, type_rep: expr::Pi) {}
 
     // SECTION: stmt
     fn exit_error_stmt(&mut self, error: HirError) {}

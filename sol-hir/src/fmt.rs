@@ -129,7 +129,7 @@ mod impls {
     use super::*;
     use crate::{
         solver::{Definition, Reference},
-        source::{declaration::Declaration, type_rep::TypeReference, *},
+        source::{declaration::Declaration, *},
     };
 
     /// Formats a declaration using the given formatter. The declaration is
@@ -459,43 +459,9 @@ mod impls {
         }
     }
 
-    impl HirFormatter for type_rep::QPath {
-        fn hir_fmt(&self, _: &dyn HirDb, _: &mut Formatter, _: &Scope) -> std::fmt::Result {
-            todo!("QPath is not implemented")
-        }
-    }
-
-    impl HirFormatter for type_rep::AppTypeRep {
-        fn hir_fmt(&self, db: &dyn HirDb, f: &mut Formatter, scope: &Scope) -> std::fmt::Result {
-            let arguments = self.arguments(db);
-            if arguments.is_empty() {
-                self.callee(db).hir_fmt(db, f, scope)
-            } else {
-                write!(f, "(")?;
-                self.callee(db).hir_fmt(db, f, scope)?;
-                write!(f, " ")?;
-                scope.punctuated(db, f, arguments, ", ")?;
-                write!(f, ")")
-            }
-        }
-    }
-
-    impl HirFormatter for type_rep::PiTypeRep {
-        fn hir_fmt(&self, db: &dyn HirDb, f: &mut Formatter, scope: &Scope) -> std::fmt::Result {
-            for parameter in self.parameters(db) {
-                parameter.hir_fmt(db, f, scope)?;
-                write!(f, " -> ")?;
-            }
-            self.value(db).hir_fmt(db, f, scope)
-        }
-    }
-
-    impl HirFormatter for type_rep::TypeReference {
-        fn hir_fmt(&self, db: &dyn HirDb, f: &mut Formatter, scope: &Scope) -> std::fmt::Result {
-            match self {
-                TypeReference::Reference(path) => path.hir_fmt(db, f, scope),
-                _ => write!(f, "{:?}", self),
-            }
+    impl HirFormatter for expr::Type {
+        fn hir_fmt(&self, _: &dyn HirDb, f: &mut Formatter, _: &Scope) -> std::fmt::Result {
+            write!(f, "{:?}", self)
         }
     }
 
@@ -504,19 +470,7 @@ mod impls {
     /// in a source file.
     impl HirFormatter for type_rep::TypeRep {
         fn hir_fmt(&self, db: &dyn HirDb, f: &mut Formatter, scope: &Scope) -> std::fmt::Result {
-            use type_rep::TypeRep::*;
-
-            match self {
-                Unit => write!(f, "()"),
-                Hole => write!(f, "_"),
-                SelfType => write!(f, "Self"),
-                Type => write!(f, "*"),
-                Error(_) => write!(f, "!"),
-                Path(path, _) => path.hir_fmt(db, f, scope),
-                App(app) => app.hir_fmt(db, f, scope),
-                Pi(arrow) => arrow.hir_fmt(db, f, scope),
-                Downgrade(expr) => expr.hir_fmt(db, f, scope),
-            }
+            self.expr.hir_fmt(db, f, scope)
         }
     }
 
@@ -618,6 +572,16 @@ mod impls {
         }
     }
 
+    impl HirFormatter for expr::Pi {
+        fn hir_fmt(&self, db: &dyn HirDb, f: &mut Formatter, scope: &Scope) -> std::fmt::Result {
+            for parameter in self.parameters.iter() {
+                parameter.hir_fmt(db, f, scope)?;
+                write!(f, " -> ")?;
+            }
+            self.value.hir_fmt(db, f, scope)
+        }
+    }
+
     /// A formatter for [`expr::Expr`]. It does
     /// takes an attribute and format it as it would be written
     /// in a source file.
@@ -634,7 +598,9 @@ mod impls {
                 Ann(ann_expr) => ann_expr.hir_fmt(db, f, scope),
                 Abs(abs_expr) => abs_expr.hir_fmt(db, f, scope),
                 Match(match_expr) => match_expr.hir_fmt(db, f, scope),
-                Upgrade(type_rep) => type_rep.hir_fmt(db, f, scope),
+                Type(type_ref, _) => type_ref.hir_fmt(db, f, scope),
+                Pi(pi) => pi.hir_fmt(db, f, scope),
+                Sigma(pi) => pi.hir_fmt(db, f, scope),
             }
         }
     }
