@@ -20,10 +20,22 @@ impl Constructor {
     }
 }
 
-#[salsa::tracked]
+#[salsa::input]
+pub struct GlobalEnv {
+    pub definitions: im::HashMap<Definition, (Term, Type)>,
+}
+
+#[salsa::input]
 pub struct Context {
     pub lvl: Level,
-    pub env: Env,
+    pub locals: Env,
+    pub env: GlobalEnv,
+}
+
+impl Context {
+    pub fn default_with_env(db: &dyn ThirDb, env: GlobalEnv) -> Self {
+        Self::new(db, Level::new(db, 0), Env::new(db, VecDeque::new()), env)
+    }
 }
 
 #[salsa::tracked]
@@ -39,7 +51,7 @@ impl Context {
     }
 }
 
-#[salsa::tracked]
+#[salsa::input]
 pub struct Env {
     pub values: VecDeque<value::Value>,
 }

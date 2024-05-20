@@ -7,7 +7,7 @@ use similar::{ChangeTag, TextDiff};
 use sol_ariadne::AriadneReport;
 use sol_diagnostic::{Report, TextRange};
 use sol_hir::{fmt::HirFormatter, source::HirElement};
-use sol_typer::table::TypeTable;
+use sol_typer::TypeTable;
 
 use crate::RootDb;
 
