@@ -1845,30 +1845,30 @@ pub mod expr {
     /// This is called Abs as a short for Abstraction, because lambda abstraction is the main
     /// principle of abstraction in a functional language.
     #[derive(Debug, Clone, Hash, PartialEq, Eq)]
-    pub struct AbsExpr {
+    pub struct LamExpr {
         pub parameters: Vec<pattern::Pattern>,
         pub value: Box<expr::Expr>,
         pub location: Location,
         pub scope: Arc<Scope>,
     }
 
-    impl walking::Walker for AbsExpr {
+    impl walking::Walker for LamExpr {
         fn accept<T: walking::HirListener>(self, db: &dyn crate::HirDb, listener: &mut T) {
-            listener.enter_abs_expr(self.clone());
+            listener.enter_lam_expr(self.clone());
             self.parameters.clone().accept(db, listener);
             self.value.clone().accept(db, listener);
             self.location(db).accept(db, listener);
-            listener.exit_abs_expr(self);
+            listener.exit_lam_expr(self);
         }
     }
 
-    impl salsa::DebugWithDb<<crate::Jar as salsa::jar::Jar<'_>>::DynDb> for AbsExpr {
+    impl salsa::DebugWithDb<<crate::Jar as salsa::jar::Jar<'_>>::DynDb> for LamExpr {
         fn fmt(&self, f: &mut Formatter<'_>, _: &dyn crate::HirDb, _: bool) -> std::fmt::Result {
             Debug::fmt(self, f)
         }
     }
 
-    impl HirElement for AbsExpr {
+    impl HirElement for LamExpr {
         fn location(&self, _: &dyn crate::HirDb) -> Location {
             self.location.clone()
         }
@@ -2015,6 +2015,8 @@ pub mod expr {
     /// be used in the type level
     #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
     pub enum Type {
+        Universe,
+        This,
         Unit,
         String,
         Bool,
@@ -2068,7 +2070,7 @@ pub mod expr {
         Literal(Spanned<literal::Literal>),
         Call(CallExpr),
         Ann(AnnExpr),
-        Abs(AbsExpr),
+        Lam(LamExpr),
         Match(MatchExpr),
         Pi(Pi),
         Sigma(Pi),
@@ -2222,7 +2224,7 @@ pub mod expr {
                 Expr::Path(reference) => reference.debug_all(db).fmt(f),
                 Expr::Call(call_expr) => call_expr.debug_all(db).fmt(f),
                 Expr::Ann(ann_expr) => ann_expr.debug_all(db).fmt(f),
-                Expr::Abs(abs_expr) => abs_expr.debug_all(db).fmt(f),
+                Expr::Lam(abs_expr) => abs_expr.debug_all(db).fmt(f),
                 Expr::Match(match_expr) => match_expr.debug_all(db).fmt(f),
                 Expr::Type(type_ref, _) => write!(f, "Type({:?})", type_ref),
                 Expr::Pi(pi) => pi.debug_all(db).fmt(f),
@@ -2239,7 +2241,7 @@ pub mod expr {
                 Expr::Hole(location) => listener.visit_hole(location),
                 Expr::Call(call_expr) => call_expr.accept(db, listener),
                 Expr::Ann(ann_expr) => ann_expr.accept(db, listener),
-                Expr::Abs(abs_expr) => abs_expr.accept(db, listener),
+                Expr::Lam(abs_expr) => abs_expr.accept(db, listener),
                 Expr::Match(match_expr) => match_expr.accept(db, listener),
                 Expr::Error(error) => {
                     listener.enter_error_expr(error);
@@ -2279,7 +2281,7 @@ pub mod expr {
                 Self::Literal(downcast) => downcast.location.clone().unwrap(),
                 Self::Call(downcast) => downcast.location(db),
                 Self::Ann(downcast) => downcast.location(db),
-                Self::Abs(downcast) => downcast.location(db),
+                Self::Lam(downcast) => downcast.location(db),
                 Self::Match(downcast) => downcast.location(db),
                 Self::Pi(downcast) => downcast.location.clone(),
                 Self::Sigma(downcast) => downcast.location.clone(),

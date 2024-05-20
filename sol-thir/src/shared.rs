@@ -84,10 +84,15 @@ impl From<bool> for Implicitness {
 #[derive(Debug, Clone, Hash, PartialEq, Eq)]
 pub enum ConstructorKind {
     Unit,
+    UnitType,
     True,
     False,
+    BooleanType,
+    NatType,
     Definition(Definition),
+    IntType(bool, isize),
     Int(isize),
+    StringType,
     String(String),
 }
 

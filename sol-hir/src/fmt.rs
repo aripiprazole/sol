@@ -531,7 +531,7 @@ mod impls {
         }
     }
 
-    impl HirFormatter for expr::AbsExpr {
+    impl HirFormatter for expr::LamExpr {
         fn hir_fmt(&self, db: &dyn HirDb, f: &mut Formatter, scope: &Scope) -> std::fmt::Result {
             write!(f, "λ")?;
             write!(f, " ")?;
@@ -596,7 +596,7 @@ mod impls {
                 Literal(literal) => literal.value.hir_fmt(db, f, scope),
                 Call(call_expr) => call_expr.hir_fmt(db, f, scope),
                 Ann(ann_expr) => ann_expr.hir_fmt(db, f, scope),
-                Abs(abs_expr) => abs_expr.hir_fmt(db, f, scope),
+                Lam(abs_expr) => abs_expr.hir_fmt(db, f, scope),
                 Match(match_expr) => match_expr.hir_fmt(db, f, scope),
                 Type(type_ref, _) => type_ref.hir_fmt(db, f, scope),
                 Pi(pi) => pi.hir_fmt(db, f, scope),

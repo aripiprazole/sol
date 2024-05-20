@@ -62,7 +62,7 @@ pub trait HirListener {
     fn enter_literal_expr(&mut self, literal: Spanned<literal::Literal>) {}
     fn enter_call_expr(&mut self, call_expr: expr::CallExpr) {}
     fn enter_ann_expr(&mut self, call_expr: expr::AnnExpr) {}
-    fn enter_abs_expr(&mut self, call_expr: expr::AbsExpr) {}
+    fn enter_lam_expr(&mut self, call_expr: expr::LamExpr) {}
     fn enter_match_expr(&mut self, match_expr: expr::MatchExpr) {}
     fn enter_upgrade_expr(&mut self, type_rep: Box<type_rep::TypeRep>) {}
     fn enter_pi(&mut self, type_rep: expr::Pi) {}
@@ -101,7 +101,7 @@ pub trait HirListener {
     fn exit_literal_expr(&mut self, literal: Spanned<literal::Literal>) {}
     fn exit_call_expr(&mut self, call_expr: expr::CallExpr) {}
     fn exit_ann_expr(&mut self, call_expr: expr::AnnExpr) {}
-    fn exit_abs_expr(&mut self, call_expr: expr::AbsExpr) {}
+    fn exit_lam_expr(&mut self, call_expr: expr::LamExpr) {}
     fn exit_match_expr(&mut self, match_expr: expr::MatchExpr) {}
     fn exit_pi(&mut self, type_rep: expr::Pi) {}
     fn exit_sigma(&mut self, type_rep: expr::Pi) {}

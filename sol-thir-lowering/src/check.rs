@@ -20,13 +20,13 @@ enum Curried {
     Expr(Expr),
 }
 
-fn new_curried_function(db: &dyn ThirLoweringDb, abs: AbsExpr) -> Curried {
+fn new_curried_function(db: &dyn ThirLoweringDb, abs: LamExpr) -> Curried {
     let mut acc = Curried::Expr(*abs.value);
     for parameter in abs.parameters.into_iter() {
         let parameter = extract_parameter_definition(db, parameter);
         acc = Curried::Lam(parameter, Box::new(acc));
     }
-    if let Curried::Expr(value) = acc {
+    if let Curried::Expr(_) = acc {
         todo!("handle: no parameters")
     }
     acc
@@ -42,7 +42,7 @@ fn lam_thir_check(db: &dyn ThirLoweringDb, ctx: Context, expr: Curried, type_rep
     }
 }
 
-fn expected_lam_pi(db: &dyn ThirLoweringDb, ctx: Context, expr: Curried, type_repr: Value) -> Term {
+fn expected_lam_pi(_: &dyn ThirLoweringDb, _: Context, _: Curried, _: Value) -> Term {
     todo!("handle: error")
 }
 
@@ -74,7 +74,7 @@ fn term_equality(db: &dyn ThirLoweringDb, ctx: Context, expr: Expr, expected: Ty
 #[rustfmt::skip]
 pub fn thir_check(db: &dyn ThirLoweringDb, ctx: Context, expr: Expr, type_repr: Type) -> Term {
     match (expr, type_repr) {
-        (Expr::Abs(abs), Type::Pi(pi)) => lam_pi(db, ctx, new_curried_function(db, abs), pi.clone(), pi.implicitness),
+        (Expr::Lam(abs), Type::Pi(pi)) => lam_pi(db, ctx, new_curried_function(db, abs), pi.clone(), pi.implicitness),
         (value, Type::Pi(pi @ Pi { implicitness: Implicit, .. })) => implicit_fun_eta(db, ctx, value, pi),
         (Expr::Hole(_), _) => type_hole(),
         (value, expected) => term_equality(db, ctx, value, expected)

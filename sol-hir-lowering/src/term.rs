@@ -151,7 +151,7 @@ impl HirLowering<'_, '_> {
 
         let scope = self.pop_scope();
 
-        Expr::Abs(AbsExpr::new(self.db, parameters, value, location, scope))
+        Expr::Lam(LamExpr::new(self.db, parameters, value, location, scope))
     }
 
     /// Resolves a call expression.

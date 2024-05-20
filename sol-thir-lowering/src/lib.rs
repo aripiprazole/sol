@@ -11,7 +11,7 @@ use salsa::DbWithJar;
 use sol_hir::{
     solver::{Definition, DefinitionId, DefinitionKind::Variable, Reference},
     source::{
-        expr::{AbsExpr, Expr},
+        expr::{Expr, LamExpr},
         pattern::Pattern,
         type_rep::TypeRep,
         HirElement, HirPath, Location,

@@ -1,6 +1,33 @@
-use sol_thir::{shared::Constructor, InferResult};
+use sol_thir::{
+    shared::{Constructor, ConstructorKind},
+    InferResult,
+};
 
 use super::*;
+
+fn create_from_type(definition: sol_hir::source::expr::Type, location: Location) -> Term {
+    use sol_hir::source::expr::Type::*;
+
+    Term::Constructor(Constructor {
+        location,
+        kind: match definition {
+            Universe => return Term::U,
+            This => todo!("handle: error"),
+            Unit => ConstructorKind::UnitType,
+            String => ConstructorKind::StringType,
+            Bool => ConstructorKind::BooleanType,
+            Nat => ConstructorKind::NatType,
+            Int8 => ConstructorKind::IntType(true, 8),
+            UInt8 => ConstructorKind::IntType(false, 8),
+            Int16 => ConstructorKind::IntType(true, 16),
+            UInt16 => ConstructorKind::IntType(false, 16),
+            Int32 => ConstructorKind::IntType(true, 32),
+            UInt32 => ConstructorKind::IntType(false, 32),
+            Int64 => ConstructorKind::IntType(true, 64),
+            UInt64 => ConstructorKind::IntType(false, 64),
+        },
+    })
+}
 
 /// The infer function to infer the type of the term.
 #[salsa::tracked]
@@ -17,10 +44,13 @@ pub fn thir_infer(db: &dyn ThirLoweringDb, ctx: Context, expr: Expr) -> InferRes
             };
             (Term::Constructor(constructor.clone()), constructor.infer())
         }
+        Type(definition, location) => match create_from_type(definition, location) {
+            Term::U => (Term::U, Value::U),
+            term => (term, Value::U),
+        },
         Call(_) => todo!(),
         Ann(_) => todo!(),
-        Abs(_) => todo!(),
-        Type(_, _) => todo!(),
+        Lam(_) => todo!(),
         Pi(_) => todo!(),
         Sigma(_) => todo!(),
         Hole(_) => todo!(),

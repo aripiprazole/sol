@@ -29,7 +29,7 @@ use sol_hir::{
     },
     source::{
         declaration::{Attribute, DocString, Parameter, Vis},
-        expr::{AbsExpr, AnnExpr, CallExpr, CallKind, Callee, Expr},
+        expr::{LamExpr, AnnExpr, CallExpr, CallKind, Callee, Expr},
         pattern::{BindingPattern, Pattern},
         top_level::{
             BindingGroup, Clause, CommandTopLevel, Constructor, ConstructorKind, Inductive,

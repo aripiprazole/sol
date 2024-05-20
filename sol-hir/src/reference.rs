@@ -150,12 +150,12 @@ impl<'db, U: Checkable> HirListener for ReferenceWalker<'db, U> {
         self.stack.pop();
     }
 
-    fn enter_abs_expr(&mut self, abs_expr: expr::AbsExpr) {
+    fn enter_lam_expr(&mut self, abs_expr: expr::LamExpr) {
         self.enter_scope(self.db, abs_expr.location(self.db), abs_expr.scope.clone());
         self.stack.push(abs_expr.scope.clone());
     }
 
-    fn exit_abs_expr(&mut self, _: expr::AbsExpr) {
+    fn exit_lam_expr(&mut self, _: expr::LamExpr) {
         self.stack.pop();
     }
 }

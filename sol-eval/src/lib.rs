@@ -69,7 +69,7 @@ pub fn eval_expr(_db: &dyn sol_hir::HirDb, stack: stack::Stack, _env: Env, expr:
         Expr::Literal(_) => todo!(),
         Expr::Call(_) => todo!(),
         Expr::Ann(_) => todo!(),
-        Expr::Abs(_) => todo!(),
+        Expr::Lam(_) => todo!(),
         Expr::Match(_) => todo!(),
         Expr::Upgrade(_) => todo!(),
     }
