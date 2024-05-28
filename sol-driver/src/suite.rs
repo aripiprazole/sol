@@ -122,7 +122,7 @@ pub fn run_test_suite(
 }
 
 /// Groups the errors by file.
-pub fn push_ariadne_errors(
+pub fn push_fancy_errors(
     output: Expect,
     outputs: &[Vec<Arc<miette::Report>>],
 ) -> sol_eyre::Result<()> {
