@@ -13,7 +13,6 @@ members = [
   "sol-eyre",
   "sol-cli",
   "sol-typer",
-  "sol-ariadne",
   "sol-docs-backend",
   "tree-sitter-sol",
 ]
@@ -32,6 +31,7 @@ salsa-2022 = { git = "https://github.com/aripiprazole/salsa.git" }
 
 eyre = "0.6.8"
 miette = "5.10.0"
+bupropion = "0.0.18"
 paste = "1.0.14"
 
 tree-sitter = "~0.20.10"
@@ -75,7 +75,6 @@ toml = "0.7.6"
 
 clap = { version = "4.3.19", features = ["derive"] }
 
-sol-ariadne = { version = "0.0.1", path = "./sol-ariadne" }
 sol-cli = { version = "0.0.1", path = "./sol-cli" }
 sol-diagnostic = { version = "0.0.1", path = "./sol-diagnostic" }
 sol-docs-backend = { version = "0.0.1", path = "./sol-docs-backend" }
