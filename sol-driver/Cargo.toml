@@ -13,7 +13,6 @@ sol-syntax.workspace = true
 sol-vfs.workspace = true
 sol-typer.workspace = true
 sol-ariadne.workspace = true
-sol-eval.workspace = true
 sol-thir.workspace = true
 sol-thir-lowering.workspace = true
 sol-eyre.workspace = true

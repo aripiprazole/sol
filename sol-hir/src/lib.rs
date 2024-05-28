@@ -31,7 +31,6 @@ pub struct Jar(
     solver::query_module,
     solver::references,
     source::HirSource,
-    source::HirError,
     source::HirPath,
     source::HirLocation,
     source::VirtualPath,

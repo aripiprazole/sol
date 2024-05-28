@@ -57,7 +57,6 @@ pub trait HirListener {
     fn visit_type(&mut self, definition: expr::Type, location: Location) {}
     fn visit_hole(&mut self, location: Location) {}
     fn visit_empty_expr(&mut self) {}
-    fn enter_error_expr(&mut self, error: HirError) {}
     fn enter_path_expr(&mut self, definition: Reference) {}
     fn enter_literal_expr(&mut self, literal: Spanned<literal::Literal>) {}
     fn enter_call_expr(&mut self, call_expr: expr::CallExpr) {}
@@ -71,7 +70,6 @@ pub trait HirListener {
 
     // SECTION: stmt
     fn visit_empty_stmt(&mut self) {}
-    fn enter_error_stmt(&mut self, error: HirError) {}
     fn enter_let_stmt(&mut self, let_stmt: stmt::LetStmt) {}
     fn enter_ask_stmt(&mut self, ask_stmt: stmt::AskStmt) {}
     fn enter_downgrade_stmt(&mut self, expr: expr::Expr) {}
@@ -82,12 +80,10 @@ pub trait HirListener {
     fn enter_literal_pattern(&mut self, literal: Spanned<literal::Literal>) {}
     fn enter_wildcard_pattern(&mut self, location: Location) {}
     fn enter_rest_pattern(&mut self, location: Location) {}
-    fn enter_error_pattern(&mut self, error: HirError) {}
     fn enter_constructor_pattern(&mut self, constructor: pattern::ConstructorPattern) {}
     fn enter_binding_pattern(&mut self, binding: pattern::BindingPattern) {}
 
     // SECTION: top_level
-    fn enter_error_top_level(&mut self, error: HirError) {}
     fn enter_using_top_level(&mut self, using: top_level::UsingTopLevel) {}
     fn enter_binding_top_level(&mut self, binding: top_level::BindingGroup) {}
     fn enter_command_top_level(&mut self, command: top_level::CommandTopLevel) {}
@@ -96,7 +92,6 @@ pub trait HirListener {
     // SECTION: type_rep
 
     // SECTION: expr
-    fn exit_error_expr(&mut self, error: HirError) {}
     fn exit_path_expr(&mut self, definition: Reference) {}
     fn exit_literal_expr(&mut self, literal: Spanned<literal::Literal>) {}
     fn exit_call_expr(&mut self, call_expr: expr::CallExpr) {}
@@ -108,7 +103,6 @@ pub trait HirListener {
     fn exit_fun(&mut self, type_rep: expr::Pi) {}
 
     // SECTION: stmt
-    fn exit_error_stmt(&mut self, error: HirError) {}
     fn exit_let_stmt(&mut self, let_stmt: stmt::LetStmt) {}
     fn exit_ask_stmt(&mut self, ask_stmt: stmt::AskStmt) {}
     fn exit_downgrade_stmt(&mut self, expr: expr::Expr) {}
@@ -118,12 +112,10 @@ pub trait HirListener {
     fn exit_literal_pattern(&mut self, literal: Spanned<literal::Literal>) {}
     fn exit_wildcard_pattern(&mut self, location: Location) {}
     fn exit_rest_pattern(&mut self, location: Location) {}
-    fn exit_error_pattern(&mut self, error: HirError) {}
     fn exit_constructor_pattern(&mut self, constructor: pattern::ConstructorPattern) {}
     fn exit_binding_pattern(&mut self, binding: pattern::BindingPattern) {}
 
     // SECTION: top_level
-    fn exit_error_top_level(&mut self, error: HirError) {}
     fn exit_using_top_level(&mut self, using: top_level::UsingTopLevel) {}
     fn exit_binding_top_level(&mut self, binding: top_level::BindingGroup) {}
     fn exit_command_top_level(&mut self, command: top_level::CommandTopLevel) {}

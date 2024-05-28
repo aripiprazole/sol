@@ -8,13 +8,13 @@
 use debruijin::Level;
 use salsa::DbWithJar;
 use shared::{Context, Env};
-use sol_diagnostic::{Diagnostic, DiagnosticDb, ErrorId, ErrorKind};
+use sol_diagnostic::DiagnosticDb;
 use sol_hir::{
     lowering::HirLowering,
     package::HasManifest,
     primitives::PrimitiveProvider,
     solver::{Definition, Reference},
-    source::{expr::Expr, literal::Literal, HirError, Location},
+    source::{expr::Expr, literal::Literal, Location},
     HirDb,
 };
 use sol_syntax::ParseDb;
@@ -107,41 +107,32 @@ impl Default for InferResult {
     }
 }
 
-/// Represents the diagnostic for High-Level Intermediate Representation. It's intended to be used
-/// to report errors to the diagnostic database, by this crate, only.
-#[derive(Debug, thiserror::Error, serde::Serialize, miette::Diagnostic)]
+#[derive(Eq, PartialEq, Hash, Debug, Clone, thiserror::Error, miette::Diagnostic)]
 #[error("elaboration error")]
 #[diagnostic(code(solc::thir::error), url(docsrs))]
-pub struct ThirDiagnostic {
-    pub location: Location,
-    pub kind: ThirError,
+pub struct ThirError {
+    #[source_code]
+    pub source_code: Location,
+
+    #[label = "here"]
+    pub label: miette::SourceSpan,
+
+    #[source]
+    #[diagnostic_source]
+    pub kind: ThirErrorKind,
 }
 
-#[derive(
-    Eq, PartialEq, Hash, Debug, Clone, serde::Serialize, thiserror::Error, miette::Diagnostic,
-)]
-#[error("elaboration error")]
-#[diagnostic(code(solc::thir::error), url(docsrs))]
-pub enum ThirError {
-    HirError(HirError),
-    UpgradeNotSupported,
-    MatchNotSupported,
-}
+#[derive(Debug, Clone, PartialEq, Eq, Hash, thiserror::Error, miette::Diagnostic)]
+pub enum ThirErrorKind {
+    #[error("unexpected no expression")]
+    #[diagnostic(code(solc::thir::empty), url(docsrs))]
+    Empty,
 
-impl Diagnostic for ThirDiagnostic {
-    type TextRange = Location;
+    #[error("could not find {0} definition: {1}")]
+    #[diagnostic(code(solc::thir::unresolved_definition), url(docsrs))]
+    UnresolvedDefinition(String, String),
 
-    const KIND: ErrorKind = ErrorKind::LoweringError;
-
-    fn text(&self) -> Vec<sol_diagnostic::ErrorText> {
-        todo!()
-    }
-
-    fn location(&self) -> Option<Self::TextRange> {
-        Some(self.location.clone())
-    }
-
-    fn error_id(&self) -> ErrorId {
-        todo!()
-    }
+    #[error("incorrect kind: {0}")]
+    #[diagnostic(code(solc::thir::incorrect_kind), url(docsrs))]
+    IncorrectKind(String),
 }

@@ -11,10 +11,17 @@ use std::{
     sync::Arc,
 };
 
-use sol_diagnostic::{Offset, TextRange};
+use miette::{MietteError, SourceCode, SourceOffset, SourceSpan, SpanContents};
+use sol_diagnostic::TextSource;
 use sol_syntax::Source;
 
-use crate::{package::Package, reparse::reparse_hir_path, scope::Scope, walking};
+use crate::{
+    errors::{HirError, HirErrorKind},
+    package::Package,
+    reparse::reparse_hir_path,
+    scope::Scope,
+    walking,
+};
 
 pub trait OptionExt<T> {
     /// Returns the contained [`Some`] value or a default.
@@ -53,9 +60,11 @@ pub trait DefaultWithDb {
     where
         Self: Sized,
     {
-        let error = HirError::new(db, location, HirErrorKind::Kind(kind.into()));
-
-        Self::error(db, error)
+        Self::error(db, HirError {
+            kind: HirErrorKind::IncorrectKind(kind.to_string()),
+            source_code: location.clone(),
+            label: location.as_source_span(),
+        })
     }
 
     fn error(db: &dyn crate::HirDb, error: HirError) -> Self
@@ -99,29 +108,39 @@ pub fn default_with_db<T: DefaultWithDb>(db: &dyn crate::HirDb) -> T {
 /// [`Location`]: crate::Location
 #[derive(Clone, Hash, PartialEq, Eq, Debug)]
 pub struct HirTextRange {
-    pub source: Source,
-    pub start: Offset,
-    pub end: Offset,
+    pub abstract_source: Source,
+    pub start: SourceOffset,
+    pub end: SourceOffset,
+    pub text: TextSource,
+}
 
-    pub file_name: String,
-    pub text: Arc<String>,
+impl miette::SourceCode for HirTextRange {
+    fn read_span<'a>(
+        &'a self,
+        span: &miette::SourceSpan,
+        context_lines_before: usize,
+        context_lines_after: usize,
+    ) -> Result<Box<dyn SpanContents<'a> + 'a>, MietteError> {
+        self.text
+            .read_span(span, context_lines_before, context_lines_after)
+    }
 }
 
 impl serde::Serialize for HirTextRange {
     fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         #[derive(serde::Serialize)]
         struct HirTextRangeDelegate {
-            pub start: Offset,
-            pub end: Offset,
+            pub start: usize,
+            pub end: usize,
             pub file_name: String,
             pub text: String,
         }
 
         HirTextRangeDelegate {
-            start: self.start,
-            end: self.end,
-            file_name: self.file_name.clone(),
-            text: (*self.text).clone(),
+            start: self.start.offset(),
+            end: self.end.offset(),
+            file_name: self.text.name().into(),
+            text: self.text.data().to_string(),
         }
         .serialize(serializer)
     }
@@ -136,6 +155,52 @@ pub enum Location {
 
     #[default]
     CallSite,
+}
+
+impl SourceCode for Location {
+    fn read_span<'a>(
+        &'a self,
+        span: &SourceSpan,
+        context_lines_before: usize,
+        context_lines_after: usize,
+    ) -> Result<Box<dyn SpanContents<'a> + 'a>, MietteError> {
+        match self {
+            Self::TextRange(range) => {
+                range.read_span(span, context_lines_before, context_lines_after)
+            }
+            Self::CallSite => Err(MietteError::OutOfBounds),
+        }
+    }
+}
+
+impl Location {
+    pub fn start(&self) -> SourceOffset {
+        match self {
+            Location::TextRange(range) => range.start,
+            Location::CallSite => SourceOffset::from(0),
+        }
+    }
+
+    pub fn end(&self) -> SourceOffset {
+        match self {
+            Location::TextRange(range) => range.end,
+            Location::CallSite => SourceOffset::from(0),
+        }
+    }
+
+    pub fn as_source_span(self) -> SourceSpan {
+        match self {
+            Location::TextRange(range) => SourceSpan::new(range.start, range.end),
+            Location::CallSite => SourceSpan::new(SourceOffset::from(0), SourceOffset::from(0)),
+        }
+    }
+
+    pub fn text_source(self) -> TextSource {
+        match self {
+            Location::TextRange(range) => range.text,
+            Location::CallSite => TextSource::new("internal_error.txt", Arc::default()),
+        }
+    }
 }
 
 impl Debug for Location {
@@ -154,7 +219,8 @@ impl Display for Location {
                 .debug_struct("TextRange")
                 .field("start", &range.start)
                 .field("end", &range.end)
-                .field("file_name", &range.file_name)
+                .field("file.name", &range.text.name())
+                .field("file.text", &range.text.data())
                 .finish(),
             Self::CallSite => write!(f, "CallSite"),
         }
@@ -168,15 +234,11 @@ pub struct HirLocation {
 
 impl Location {
     /// Creates a new [Location] with the given [`source`] and range of [`start`] and [`end`].
-    pub fn new<I>(db: &dyn crate::HirDb, src: Source, text: Arc<String>, start: I, end: I) -> Self
-    where
-        I: Into<Offset>,
-    {
+    pub fn new<I: Into<SourceOffset>>(src: Source, text: TextSource, start: I, end: I) -> Self {
         Self::TextRange(HirTextRange {
-            source: src,
+            abstract_source: src,
             start: start.into(),
             end: end.into(),
-            file_name: src.file_path(db).to_string_lossy().into_owned(),
             text,
         })
     }
@@ -193,7 +255,7 @@ impl Location {
 
     /// Sets the [`end`] of the location. It's useful when we don't know the end of the location
     /// when we create it, but we know it later.
-    pub fn ending(self, end: Offset) -> Self {
+    pub fn ending(self, end: SourceOffset) -> Self {
         match self {
             Self::TextRange(mut range) => {
                 range.end = end;
@@ -208,75 +270,11 @@ impl walking::Walker for Location {
     fn accept<T: walking::HirListener>(self, _db: &dyn crate::HirDb, _listener: &mut T) {}
 }
 
-impl TextRange for Location {
-    /// Returns the start offset of the source file.
-    fn start(&self) -> Offset {
-        match self {
-            Location::TextRange(range) => range.start,
-            Location::CallSite => Offset(0),
-        }
-    }
-
-    /// Returns the end offset of the source file.
-    fn end(&self) -> Offset {
-        match self {
-            Location::TextRange(range) => range.end,
-            Location::CallSite => Offset(0),
-        }
-    }
-
-    /// Returns the file name of the source file.
-    fn file_name(&self) -> &str {
-        match self {
-            Location::TextRange(range) => &range.file_name,
-            Location::CallSite => "unresolved",
-        }
-    }
-
-    /// Returns the text of the source file.
-    fn source(&self) -> &str {
-        match self {
-            Location::TextRange(range) => &range.text,
-            Location::CallSite => "",
-        }
-    }
-}
-
 /// Defines an element of the High-Level Intermediate Representation. It's implemented for all
 /// elements of the HIR.
 pub trait HirElement {
     /// The range of the element in the source file.
     fn location(&self, db: &dyn crate::HirDb) -> Location;
-}
-
-/// A diagnostic error node for the HIR. It can be anything that can be reported to the diagnostic
-/// database.
-#[salsa::tracked]
-pub struct HirError {
-    /// The location of the error.
-    pub location: Location,
-    pub kind: HirErrorKind,
-}
-
-impl serde::Serialize for HirError {
-    fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
-        serializer.serialize_str("HirError")
-    }
-}
-
-/// The kind of the error. It can be anything that can be reported to the diagnostic database.
-/// It's used to distinguish between different kinds of errors.
-#[derive(Clone, Hash, PartialEq, Eq, Debug)]
-pub enum HirErrorKind {
-    ExtraData,
-    Unknown,
-    Kind(String),
-}
-
-impl walking::Walker for HirError {
-    fn accept<T: walking::HirListener>(self, db: &dyn crate::HirDb, listener: &mut T) {
-        self.location(db).accept(db, listener);
-    }
 }
 
 /// Defines the tracking of a HIR source code file. It's the base struct of the HIR.
@@ -712,6 +710,7 @@ pub mod top_level {
 
     use super::*;
     use crate::{
+        errors::HirError,
         solver::{Definition, Reference},
         walking::HirListener,
     };
@@ -1094,7 +1093,7 @@ pub mod top_level {
     ///
     /// It can have recovery errors, that are used to recover from errors, and to continue the
     /// parsing process.
-    #[derive(Clone, Copy, Hash, PartialEq, Eq, Debug)]
+    #[derive(Clone, Hash, PartialEq, Eq, Debug)]
     pub enum TopLevel {
         Error(HirError),
         Using(UsingTopLevel),
@@ -1106,7 +1105,7 @@ pub mod top_level {
     impl salsa::DebugWithDb<<crate::Jar as salsa::jar::Jar<'_>>::DynDb> for TopLevel {
         fn fmt(&self, f: &mut Formatter<'_>, db: &dyn crate::HirDb, _: bool) -> std::fmt::Result {
             match self {
-                TopLevel::Error(error) => write!(f, "Error({:?})", error.debug_all(db)),
+                TopLevel::Error(error) => Debug::fmt(error, f),
                 TopLevel::Using(using) => using.debug_all(db).fmt(f),
                 TopLevel::Command(command) => command.debug_all(db).fmt(f),
                 TopLevel::BindingGroup(binding) => binding.debug_all(db).fmt(f),
@@ -1118,11 +1117,7 @@ pub mod top_level {
     impl walking::Walker for TopLevel {
         fn accept<T: HirListener>(self, db: &dyn crate::HirDb, listener: &mut T) {
             match self {
-                TopLevel::Error(error) => {
-                    listener.enter_error_top_level(error);
-                    error.accept(db, listener);
-                    listener.exit_error_top_level(error);
-                }
+                TopLevel::Error(_) => {}
                 TopLevel::Using(using) => using.accept(db, listener),
                 TopLevel::Command(command) => command.accept(db, listener),
                 TopLevel::BindingGroup(binding) => binding.accept(db, listener),
@@ -1134,7 +1129,7 @@ pub mod top_level {
     impl HirElement for TopLevel {
         fn location(&self, db: &dyn crate::HirDb) -> Location {
             match self {
-                Self::Error(downcast) => downcast.location(db),
+                Self::Error(downcast) => downcast.source_code.clone(),
                 Self::Using(downcast) => downcast.location(db),
                 Self::Command(downcast) => downcast.location(db),
                 Self::BindingGroup(downcast) => downcast.location(db),
@@ -1155,7 +1150,7 @@ pub mod top_level {
     impl HirElement for DeclDescriptor {
         fn location(&self, db: &dyn crate::HirDb) -> Location {
             match self {
-                Self::Error(downcast) => downcast.location(db),
+                Self::Error(downcast) => downcast.source_code.clone(),
                 Self::BindingGroup(downcast) => downcast.location(db),
                 Self::Inductive(downcast) => downcast.location(db),
             }
@@ -1264,6 +1259,7 @@ pub mod pattern {
 
     use super::*;
     use crate::{
+        errors::HirError,
         solver::{Definition, Reference},
         walking::HirListener,
     };
@@ -1412,7 +1408,7 @@ pub mod pattern {
                 Pattern::Literal(literal) => write!(f, "Literal({literal:?})"),
                 Pattern::Wildcard(wildcard) => write!(f, "Wildcard(location: {wildcard:?})"),
                 Pattern::Rest(rest) => write!(f, "Rest(location: {rest:?})"),
-                Pattern::Error(error) => write!(f, "Error({:?})", error.debug_all(db)),
+                Pattern::Error(error) => write!(f, "Error({error:?})"),
                 Pattern::Constructor(constructor) => constructor.debug_all(db).fmt(f),
                 Pattern::Binding(binding) => binding.debug_all(db).fmt(f),
             }
@@ -1440,11 +1436,7 @@ pub mod pattern {
                     location.clone().accept(db, listener);
                     listener.exit_rest_pattern(location);
                 }
-                Pattern::Error(error) => {
-                    listener.enter_error_pattern(error);
-                    error.accept(db, listener);
-                    listener.exit_error_pattern(error);
-                }
+                Pattern::Error(_) => {}
             }
         }
     }
@@ -1456,9 +1448,9 @@ pub mod pattern {
                 Self::Literal(literal) => literal.location.clone().unwrap(),
                 Self::Wildcard(location) => location.clone(),
                 Self::Rest(location) => location.clone(),
-                Self::Error(downcast) => downcast.location(db),
                 Self::Constructor(downcast) => downcast.location(db),
                 Self::Binding(downcast) => downcast.location(db),
+                Self::Error(downcast) => downcast.source_code.clone(),
             }
         }
     }
@@ -1470,7 +1462,7 @@ pub mod stmt {
     use std::{fmt::Formatter, sync::Arc};
 
     use super::*;
-    use crate::{scope::ScopeKind, walking::HirListener};
+    use crate::{errors::HirError, scope::ScopeKind, walking::HirListener};
 
     /// Defines a ask statement, it will bind the value to a pattern, and it will return the value
     /// of the pattern.
@@ -1616,13 +1608,9 @@ pub mod stmt {
         fn accept<T: HirListener>(self, db: &dyn crate::HirDb, listener: &mut T) {
             match self {
                 Stmt::Empty => listener.visit_empty_stmt(),
+                Stmt::Error(_) => {}
                 Stmt::Ask(ask_stmt) => ask_stmt.accept(db, listener),
                 Stmt::Let(let_stmt) => let_stmt.accept(db, listener),
-                Stmt::Error(error) => {
-                    listener.enter_error_stmt(error);
-                    error.accept(db, listener);
-                    listener.exit_error_stmt(error);
-                }
                 Stmt::Downgrade(expr) => {
                     listener.enter_downgrade_stmt(expr.clone());
                     expr.clone().accept(db, listener);
@@ -1635,7 +1623,7 @@ pub mod stmt {
         fn fmt(&self, f: &mut Formatter<'_>, db: &dyn crate::HirDb, _: bool) -> std::fmt::Result {
             match self {
                 Stmt::Empty => write!(f, "Empty"),
-                Stmt::Error(error) => write!(f, "Error({:?})", error.debug_all(db)),
+                Stmt::Error(error) => write!(f, "Error({error:?})"),
                 Stmt::Ask(ask_stmt) => ask_stmt.debug_all(db).fmt(f),
                 Stmt::Let(let_stmt) => let_stmt.debug_all(db).fmt(f),
                 Stmt::Downgrade(expr) => expr.debug_all(db).fmt(f),
@@ -1647,7 +1635,7 @@ pub mod stmt {
         fn location(&self, db: &dyn crate::HirDb) -> Location {
             match self {
                 Self::Empty => Location::call_site(db),
-                Self::Error(downcast) => downcast.location(db),
+                Self::Error(downcast) => downcast.source_code.clone(),
                 Self::Ask(downcast) => downcast.location(db),
                 Self::Let(downcast) => downcast.location(db),
                 Self::Downgrade(downcast) => (*downcast).location(db),
@@ -1762,12 +1750,14 @@ pub mod literal {
 pub mod expr {
     use std::{fmt::Formatter, sync::Arc};
 
-    use sol_diagnostic::{message, Diagnostics, ErrorId, Report};
+    use miette::{SourceOffset, SourceSpan};
+    use sol_diagnostic::report_error;
 
     use super::*;
     use crate::{
+        errors::{HirError, HirErrorKind},
         primitives::primitive_type_rep,
-        solver::{HirDiagnostic, Reference},
+        solver::Reference,
     };
 
     /// Defines a kind of match. It's used to define the kind of a match expression, and to improve
@@ -2195,16 +2185,11 @@ pub mod expr {
         /// error reporting, the location of the `Empty` expression should be the same as
         /// the location of the context where it's used.
         fn default_with_db(db: &dyn crate::HirDb) -> Self {
-            Diagnostics::push(
-                db,
-                Report::new(HirDiagnostic {
-                    message: message![
-                        "Empty expression representation is not allowed to be used in any contexts",
-                    ],
-                    id: ErrorId("empty-expression"),
-                    location: Location::call_site(db),
-                }),
-            );
+            report_error(db, HirError {
+                kind: HirErrorKind::Empty,
+                label: SourceSpan::new(SourceOffset::from(0), SourceOffset::from(0)),
+                source_code: Location::CallSite,
+            });
 
             Self::Empty
         }
@@ -2219,7 +2204,7 @@ pub mod expr {
             match self {
                 Expr::Empty => write!(f, "Empty"),
                 Expr::Hole(_) => write!(f, "Hole"),
-                Expr::Error(error) => write!(f, "Error({:?})", error.debug_all(db)),
+                Expr::Error(error) => write!(f, "Error({error:?})"),
                 Expr::Literal(literal) => write!(f, "Literal({literal:?})"),
                 Expr::Path(reference) => reference.debug_all(db).fmt(f),
                 Expr::Call(call_expr) => call_expr.debug_all(db).fmt(f),
@@ -2243,11 +2228,7 @@ pub mod expr {
                 Expr::Ann(ann_expr) => ann_expr.accept(db, listener),
                 Expr::Lam(abs_expr) => abs_expr.accept(db, listener),
                 Expr::Match(match_expr) => match_expr.accept(db, listener),
-                Expr::Error(error) => {
-                    listener.enter_error_expr(error);
-                    error.accept(db, listener);
-                    listener.exit_error_expr(error);
-                }
+                Expr::Error(_) => {}
                 Expr::Path(path) => {
                     listener.enter_path_expr(path);
                     path.accept(db, listener);
@@ -2276,7 +2257,7 @@ pub mod expr {
         fn location(&self, db: &dyn crate::HirDb) -> Location {
             match self {
                 Self::Empty => Location::call_site(db),
-                Self::Error(downcast) => downcast.location(db),
+                Self::Error(downcast) => downcast.source_code.clone(),
                 Self::Path(downcast) => downcast.location(db),
                 Self::Literal(downcast) => downcast.location.clone().unwrap(),
                 Self::Call(downcast) => downcast.location(db),

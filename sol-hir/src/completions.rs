@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use dashmap::DashSet;
-use sol_diagnostic::{Offset, TextRange};
+use miette::SourceOffset;
 
 use crate::{
     reference::ReferenceWalker,
@@ -22,11 +22,6 @@ pub struct HirCompletion {
     pub visibility: Vis,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct Position {
-    pub offset: Offset,
-}
-
 /// Defines the [`completion`] query.
 ///
 /// Takes the path to the cursor. It's used to search the name completions, and the
@@ -36,7 +31,7 @@ pub fn completions(
     db: &dyn crate::HirDb,
     file: HirSource,
     path: String,
-    position: Position,
+    position: SourceOffset,
 ) -> Vec<HirCompletion> {
     // TODO: filter by path
     let _ = path;
@@ -46,8 +41,8 @@ pub fn completions(
 
     ReferenceWalker::<()>::empty()
         .enter_scope(move |db, location, scope| {
-            let is_in_start_bounds = location.start() < position.offset;
-            let is_in_end_bounds = location.end() > position.offset;
+            let is_in_start_bounds = location.end().offset() < position.offset();
+            let is_in_end_bounds = location.end().offset() > position.offset();
             if is_in_start_bounds && is_in_end_bounds {
                 scope
                     .all_definitions()

@@ -1,32 +1,44 @@
-use sol_diagnostic::{Diagnostic, ErrorId, ErrorKind, ErrorText};
+use miette::SourceSpan;
 
 use crate::source::Location;
 
-/// Represents the diagnostic for High-Level Intermediate Representation. It's intended to be used
-/// to report errors to the diagnostic database, by this crate, only.
-#[derive(Debug)]
-pub struct HirDiagnostic {
-    pub location: Location,
-    pub message: Vec<ErrorText>,
+#[derive(Debug, Clone, PartialEq, Eq, Hash, thiserror::Error, miette::Diagnostic)]
+pub enum HirErrorKind {
+    /// An error occurred while parsing the source code.
+    ///
+    /// This error is used when the parser encounters an unexpected token.
+    #[error("unexpected no expression")]
+    #[diagnostic(code(solc::hir_internal_error), url(docsrs))]
+    Empty,
 
-    /// The error id, used to identify the error in the diagnostic database.
-    pub id: ErrorId,
+    /// Could not find a definition in source code. This is used when the solver
+    /// cannot find a definition in the source code.
+    ///
+    /// ```
+    /// A = b
+    /// ```
+    ///
+    /// And b is free bound.
+    #[error("could not find {0} definition: {1}")]
+    #[diagnostic(code(solc::hir_unresolved_definition), url(docsrs))]
+    UnresolvedDefinition(String, String),
+
+    /// An error occurred while parsing the source code.
+    #[error("incorrect kind: {0}")]
+    IncorrectKind(String),
 }
 
-impl Diagnostic for HirDiagnostic {
-    type TextRange = Location;
+#[derive(Debug, Clone, PartialEq, Eq, Hash, thiserror::Error, miette::Diagnostic)]
+#[diagnostic(code(solc::hir_error), url(docsrs))]
+#[error("hir error: {kind}")]
+pub struct HirError {
+    #[source_code]
+    pub source_code: Location,
 
-    const KIND: ErrorKind = ErrorKind::ResolutionError;
+    #[label = "here"]
+    pub label: SourceSpan,
 
-    fn text(&self) -> Vec<sol_diagnostic::ErrorText> {
-        self.message.clone()
-    }
-
-    fn location(&self) -> Option<Self::TextRange> {
-        Some(self.location.clone())
-    }
-
-    fn error_id(&self) -> ErrorId {
-        self.id
-    }
+    #[source]
+    #[diagnostic_source]
+    pub kind: HirErrorKind,
 }

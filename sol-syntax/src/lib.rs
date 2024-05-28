@@ -34,7 +34,6 @@ pub struct Jar(
     imp_parse,
     error_handling::Source_errors,
     error_handling::Source_validated,
-    error_handling::SyntaxError,
 );
 
 /// A database that contains all the information needed to parse a Sol program. This includes

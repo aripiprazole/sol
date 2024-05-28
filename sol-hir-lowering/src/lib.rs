@@ -29,7 +29,7 @@ use sol_hir::{
     },
     source::{
         declaration::{Attribute, DocString, Parameter, Vis},
-        expr::{LamExpr, AnnExpr, CallExpr, CallKind, Callee, Expr},
+        expr::{AnnExpr, CallExpr, CallKind, Callee, Expr, LamExpr},
         pattern::{BindingPattern, Pattern},
         top_level::{
             BindingGroup, Clause, CommandTopLevel, Constructor, ConstructorKind, Inductive,
@@ -881,9 +881,8 @@ impl<'db, 'tree> HirLowering<'db, 'tree> {
     /// raw location, in a high level location, to be handled within resolution.
     pub fn range(&self, range: tree_sitter::Range) -> Location {
         Location::new(
-            self.db,
             self.src,
-            self.txt.clone(),
+            self.txt.clone().into(),
             range.start_byte,
             range.end_byte,
         )

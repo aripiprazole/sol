@@ -8,7 +8,6 @@ members = [
   "sol-diagnostic",
   "sol-vfs",
   "sol-ide",
-  "sol-eval",
   "sol-thir",
   "sol-thir-lowering",
   "sol-eyre",
@@ -81,7 +80,6 @@ sol-cli = { version = "0.0.1", path = "./sol-cli" }
 sol-diagnostic = { version = "0.0.1", path = "./sol-diagnostic" }
 sol-docs-backend = { version = "0.0.1", path = "./sol-docs-backend" }
 sol-driver = { version = "0.0.1", path = "./sol-driver" }
-sol-eval = { version = "0.0.1", path = "./sol-eval" }
 sol-eyre = { version = "0.0.1", path = "./sol-eyre" }
 sol-hir = { version = "0.0.1", path = "./sol-hir" }
 sol-hir-lowering = { version = "0.0.1", path = "./sol-hir-lowering" }

@@ -18,3 +18,4 @@ petgraph.workspace = true
 once_cell.workspace = true
 thiserror.workspace = true
 serde.workspace = true
+miette.workspace = true

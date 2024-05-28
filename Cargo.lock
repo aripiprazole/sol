@@ -1523,6 +1523,7 @@ name = "sol-diagnostic"
 version = "0.0.1"
 dependencies = [
  "eyre",
+ "miette",
  "paste",
  "salsa-2022",
  "serde",
@@ -1557,7 +1558,6 @@ dependencies = [
  "similar",
  "sol-ariadne",
  "sol-diagnostic",
- "sol-eval",
  "sol-eyre",
  "sol-hir",
  "sol-hir-lowering",
@@ -1567,19 +1567,6 @@ dependencies = [
  "sol-typer",
  "sol-vfs",
  "strip-ansi-escapes",
-]
-
-[[package]]
-name = "sol-eval"
-version = "0.0.1"
-dependencies = [
- "im",
- "salsa-2022",
- "sol-diagnostic",
- "sol-hir",
- "sol-syntax",
- "sol-thir",
- "sol-vfs",
 ]
 
 [[package]]
@@ -1606,6 +1593,7 @@ dependencies = [
  "fxhash",
  "if_chain",
  "im",
+ "miette",
  "once_cell",
  "petgraph",
  "salsa-2022",
@@ -1669,11 +1657,13 @@ dependencies = [
 name = "sol-syntax"
 version = "0.0.1"
 dependencies = [
+ "miette",
  "rust-format",
  "salsa-2022",
  "serde",
  "sol-diagnostic",
  "sol-vfs",
+ "thiserror",
  "tree-sitter",
  "tree-sitter-sol",
  "type-sitter-gen",

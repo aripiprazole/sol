@@ -1,59 +1,21 @@
 use std::sync::Arc;
 
-use sol_diagnostic::{Diagnostic, Diagnostics, ErrorKind, ErrorText, Offset, Report, TextRange};
+use miette::{SourceOffset, SourceSpan};
+use sol_diagnostic::{Diagnostics, TextSource};
 
 use crate::Source;
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct SyntaxLocation {
-    pub start: Offset,
-    pub end: Offset,
-
-    pub file_name: String,
-    pub text: Arc<String>,
-}
-
-impl TextRange for SyntaxLocation {
-    fn start(&self) -> Offset {
-        self.start
-    }
-
-    fn end(&self) -> Offset {
-        self.end
-    }
-
-    fn file_name(&self) -> &str {
-        &self.file_name
-    }
-
-    fn source(&self) -> &str {
-        &self.text
-    }
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct SyntaxDiagnostic {
-    pub location: SyntaxLocation,
-    pub message: String,
-}
-
-#[salsa::tracked]
+#[derive(Debug, Clone, PartialEq, Eq, miette::Diagnostic, thiserror::Error)]
+#[error("syntax error: {message}")]
+#[diagnostic(code(solc::syntax_error), url(docsrs))]
 pub struct SyntaxError {
-    pub diagnostic: SyntaxDiagnostic,
-}
+    #[source_code]
+    pub source_code: TextSource,
 
-impl Diagnostic for SyntaxDiagnostic {
-    type TextRange = SyntaxLocation;
+    #[label = "here"]
+    pub location: SourceSpan,
 
-    const KIND: ErrorKind = ErrorKind::ParseError;
-
-    fn text(&self) -> Vec<sol_diagnostic::ErrorText> {
-        vec![ErrorText::Text(self.message.clone())]
-    }
-
-    fn location(&self) -> Option<Self::TextRange> {
-        Some(self.location.clone())
-    }
+    pub message: String,
 }
 
 #[salsa::tracked]
@@ -77,23 +39,17 @@ impl Source {
                 stack.push(child);
             }
 
-            let location = SyntaxLocation {
-                start: Offset(node.start_byte()),
-                end: Offset(node.end_byte()),
-                file_name: file_name.clone(),
-                text: text.clone(),
-            };
-
             match true {
                 _ if node.has_error() && node.is_missing() => {
-                    errors.push(SyntaxError::new(
-                        db,
-                        SyntaxDiagnostic {
-                            // The error message is the node's S-expression.
-                            message: node.to_sexp().to_lowercase(),
-                            location,
-                        },
-                    ));
+                    errors.push(SyntaxError {
+                        // The error message is the node's S-expression.
+                        message: node.to_sexp().to_lowercase(),
+                        source_code: TextSource::new(file_name.clone(), text.clone()),
+                        location: SourceSpan::new(
+                            SourceOffset::from(0),
+                            SourceOffset::from(text.len()),
+                        ),
+                    });
                 }
                 _ if node.is_error() => {
                     let mut cursor = node.walk();
@@ -104,13 +60,14 @@ impl Source {
                         .collect::<Vec<_>>()
                         .join(" ");
 
-                    errors.push(SyntaxError::new(
-                        db,
-                        SyntaxDiagnostic {
-                            message: format!("unexpected token(s): {unexpected}"),
-                            location,
-                        },
-                    ));
+                    errors.push(SyntaxError {
+                        message: format!("unexpected token(s): {unexpected}"),
+                        source_code: TextSource::new(file_name.clone(), text.clone()),
+                        location: SourceSpan::new(
+                            SourceOffset::from(0),
+                            SourceOffset::from(text.len()),
+                        ),
+                    });
                 }
                 _ => {}
             };
@@ -128,7 +85,7 @@ impl Source {
     #[salsa::tracked]
     pub fn validated(self, db: &dyn crate::ParseDb) -> Source {
         for error in self.errors(db) {
-            Diagnostics::push(db, Report::new(error.diagnostic(db)));
+            Diagnostics::push(db, Arc::new(error.into()));
         }
 
         self

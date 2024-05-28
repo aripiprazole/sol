@@ -13,6 +13,8 @@ tree-sitter.workspace = true
 tree-sitter-sol.workspace = true
 type-sitter-lib.workspace = true
 serde.workspace = true
+thiserror.workspace = true
+miette.workspace = true
 
 [build-dependencies]
 type-sitter-gen.workspace = true

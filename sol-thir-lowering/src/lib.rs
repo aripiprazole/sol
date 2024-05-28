@@ -13,7 +13,6 @@ use sol_hir::{
     source::{
         expr::{Expr, LamExpr},
         pattern::Pattern,
-        type_rep::TypeRep,
         HirElement, HirPath, Location,
     },
 };

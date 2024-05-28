@@ -50,7 +50,7 @@ pub fn thir_infer(db: &dyn ThirLoweringDb, ctx: Context, expr: Expr) -> InferRes
         },
         Ann(ann) => {
             let actual_type = db.thir_check(ctx, *ann.type_rep.expr, Value::U);
-            let actual_type = db.thir_eval(ctx.env(db), actual_type);
+            let actual_type = db.thir_eval(ctx.locals(db), actual_type);
             let term = db.thir_check(ctx, *ann.value, actual_type.clone());
             (term, actual_type)
         }

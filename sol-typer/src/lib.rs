@@ -24,7 +24,7 @@ extern crate salsa_2022 as salsa;
 pub type TypeTable = im::HashMap<Definition, (Term, Type)>;
 
 #[salsa::jar(db = TyperDb)]
-pub struct Jar(create_type_table);
+pub struct Jar(infer_type_table);
 
 /// The database that Typer uses internally. This is a trait so that we can
 /// mock it during testing.
@@ -36,7 +36,7 @@ pub mod options;
 pub mod utils;
 
 #[salsa::tracked]
-pub fn create_type_table(db: &dyn TyperDb, global_env: GlobalEnv, source: HirSource) -> TypeTable {
+pub fn infer_type_table(db: &dyn TyperDb, global_env: GlobalEnv, source: HirSource) -> TypeTable {
     let mut table = TypeTable::new();
     let ctx = Context::default_with_env(db, global_env);
 

@@ -1,12 +1,12 @@
 use im::OrdSet;
-use sol_diagnostic::{code, message, Diagnostics, ErrorId, Report};
+use sol_diagnostic::{report_error, TextSource};
 
 // Re-export the diagnostics. The diagnostics are used to report errors, warnings, and other kinds
 // of diagnostics.
 //
 // They were defined here, so we are rexporting it to avoid confusion!
-pub use crate::errors::HirDiagnostic;
 use crate::{
+    errors::{HirError, HirErrorKind},
     primitives::{initialize_primitive_bag, primitive_type_definition},
     reference::ReferenceWalker,
     reparse::reparse_hir_path,
@@ -124,14 +124,11 @@ impl Definition {
         let name_str = name.to_string(db).unwrap_or("~INTERNAL ERROR~".into());
 
         // Reports an error to the diagnostic database.
-        Diagnostics::push(
-            db,
-            Report::new(HirDiagnostic {
-                location: name.location(db),
-                message: message!("unresolved", code!(kind_str), code!(name_str)),
-                id: ErrorId("unresolved-definition"),
-            }),
-        );
+        report_error(db, HirError {
+            source_code: name.location(db),
+            label: name.location(db).as_source_span(),
+            kind: HirErrorKind::UnresolvedDefinition(kind_str, name_str),
+        });
 
         let id = DefinitionId::new(db, name.location(db), None);
 
@@ -318,8 +315,12 @@ pub fn query_module(db: &dyn crate::HirDb, name: HirPath) -> (Scope, Definition)
             // If the name of the file is the same as the name of the module, then it's the
             // module we're looking for.
             if &path == name {
-                let txt = file.source_text(db).to_string();
-                let id = DefinitionId::new(db, Location::new(db, file, txt.into(), 0, 0), None);
+                let text = file.source_text(db).to_string();
+                let id = DefinitionId::new(
+                    db,
+                    Location::new(file, TextSource::new(name, text.into()), 0, 0),
+                    None,
+                );
                 let kind = DefinitionKind::Module;
                 let path = HirPath::create(db, name);
 
