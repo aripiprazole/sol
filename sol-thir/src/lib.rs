@@ -78,30 +78,30 @@ impl<DB> ThirDb for DB where
 
 /// Represents the lowering functions for Low-Level Intermediate Representation.
 pub trait ThirLowering {
-    fn thir_eval(&self, env: Env, term: Term) -> Value;
+    fn thir_eval(&self, env: Env, term: Term) -> sol_eyre::Result<Value>;
 
-    fn thir_quote(&self, lvl: Level, value: Value) -> Term;
+    fn thir_quote(&self, lvl: Level, value: Value) -> sol_eyre::Result<Term>;
 }
 
 /// Represents the typing functions for Typed High-Level Intermediate Representation.
 pub trait ThirTyping {
     /// The infer function to infer the type of the term.
-    fn thir_infer(&self, ctx: Context, expr: Expr) -> InferResult;
+    fn thir_infer(&self, ctx: Context, expr: Expr) -> sol_eyre::Result<ElaboratedTerm>;
 
     /// The check function to check the type of the term.
-    fn thir_check(&self, ctx: Context, expr: Expr, type_repr: Type) -> Term;
+    fn thir_check(&self, ctx: Context, expr: Expr, type_repr: Type) -> sol_eyre::Result<Term>;
 }
 
 #[derive(Debug, Clone, Hash, PartialEq, Eq)]
-pub struct InferResult(pub Term, pub Type);
+pub struct ElaboratedTerm(pub Term, pub Type);
 
-impl From<(Term, Type)> for InferResult {
+impl From<(Term, Type)> for ElaboratedTerm {
     fn from((term, ty): (Term, Type)) -> Self {
         Self(term, ty)
     }
 }
 
-impl Default for InferResult {
+impl Default for ElaboratedTerm {
     fn default() -> Self {
         todo!()
     }

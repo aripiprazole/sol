@@ -18,9 +18,15 @@ pub enum Term {
     InsertedMeta(shared::MetaVar),
 }
 
+impl Default for Term {
+    fn default() -> Self {
+        Term::U
+    }
+}
+
 impl Term {
-    pub fn normalise(self, db: &dyn ThirDb, env: shared::Env) -> Term {
-        db.thir_quote(Level::new(db, env.len(db)), db.thir_eval(env, self))
+    pub fn normalise(self, db: &dyn ThirDb, env: shared::Env) -> sol_eyre::Result<Term> {
+        db.thir_quote(Level::new(db, env.len(db)), db.thir_eval(env, self)?)
     }
 }
 

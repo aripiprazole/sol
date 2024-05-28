@@ -47,7 +47,7 @@ impl<E: std::error::Error + Send + Sync + 'static> From<E> for Report {
 /// #     let resource = 0;
 /// #
 /// if !has_permission(user, resource) {
-///   bail!("permission denied for accessing {}", resource);
+///     bail!("permission denied for accessing {}", resource);
 /// }
 /// #     Ok(())
 /// # }
@@ -169,11 +169,11 @@ macro_rules! ensure {
 /// use sol_eyre::{eyre, Result};
 ///
 /// fn lookup(key: &str) -> Result<V> {
-///   if key.len() != 16 {
-///     return Err(eyre!("key length must be 16 characters, got {:?}", key));
-///   }
+///     if key.len() != 16 {
+///         return Err(eyre!("key length must be 16 characters, got {:?}", key));
+///     }
 ///
-///   // ...
+///     // ...
 ///     # Ok(())
 /// }
 /// ```
@@ -232,10 +232,10 @@ macro_rules! eyre {
 ///
 /// fn main() -> Result<()> {
 ///     # return Ok(());
-///   let config = std::fs::read_to_string("cluster.json")?;
-///   let map: ClusterMap = serde_json::from_str(&config)?;
-///   println!("cluster info: {:#?}", map);
-///   Ok(())
+///     let config = std::fs::read_to_string("cluster.json")?;
+///     let map: ClusterMap = serde_json::from_str(&config)?;
+///     println!("cluster info: {:#?}", map);
+///     Ok(())
 /// }
 /// ```
 pub type Result<T, E = Report> = core::result::Result<T, E>;
@@ -312,7 +312,7 @@ pub type Result<T, E = Report> = core::result::Result<T, E>;
 /// use sol_eyre::{eyre, Report, WrapErr};
 ///
 /// fn wrap_example(err: Result<(), Box<dyn Error + Send + Sync + 'static>>) -> Result<(), Report> {
-///   err.map_err(|e| eyre!(e)).wrap_err("saw a downstream error")
+///     err.map_err(|e| eyre!(e)).wrap_err("saw a downstream error")
 /// }
 /// ```
 ///
@@ -394,9 +394,9 @@ pub trait WrapErr<T, E>: sealed::Sealed {
 /// use sol_eyre::ContextCompat;
 ///
 /// fn get_thing(mut things: impl Iterator<Item = u32>) -> sol_eyre::Result<u32> {
-///   things
-///     .find(|&thing| thing == 42)
-///     .context("the thing wasnt in the list")
+///     things
+///         .find(|&thing| thing == 42)
+///         .context("the thing wasnt in the list")
 /// }
 /// ```
 ///
@@ -406,9 +406,9 @@ pub trait WrapErr<T, E>: sealed::Sealed {
 /// use sol_eyre::eyre;
 ///
 /// fn get_thing(mut things: impl Iterator<Item = u32>) -> sol_eyre::Result<u32> {
-///   things
-///     .find(|&thing| thing == 42)
-///     .ok_or_else(|| eyre!("the thing wasnt in the list"))
+///     things
+///         .find(|&thing| thing == 42)
+///         .ok_or_else(|| eyre!("the thing wasnt in the list"))
 /// }
 /// ```
 pub trait ContextCompat<T>: sealed::Sealed {

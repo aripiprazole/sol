@@ -15,10 +15,55 @@ pub struct Jar(crate::Diagnostics);
 ///
 /// This is used to store diagnostics, accross salsa revisions.
 #[salsa::accumulator]
-pub struct Diagnostics(Arc<miette::Report>);
+pub struct Diagnostics(Arc<sol_eyre::Report>);
+
+/// A result type that uses [`Diagnostic`] as the error type.
+pub type Result<T, E = Diagnostic> = std::result::Result<T, E>;
+
+/// A trait for types that can be unwrapped or report an error. By reporting
+/// an error, it means that the error is added to the diagnostic accumulator.
+pub trait UnwrapOrReport<T: Default> {
+    fn unwrap_or_report(self, db: &dyn DiagnosticDb) -> T;
+}
+
+impl<T: Default> UnwrapOrReport<T> for sol_eyre::Result<T> {
+    fn unwrap_or_report(self, db: &dyn DiagnosticDb) -> T {
+        self.unwrap_or_else(|diagnostic| {
+            report_error(db, diagnostic);
+            T::default()
+        })
+    }
+}
+
+pub trait IntoSolDiagnostic<T> {
+    fn into_sol_diagnostic(self) -> Result<T>;
+}
+
+impl<T> IntoSolDiagnostic<T> for Result<T, sol_eyre::Report> {
+    fn into_sol_diagnostic(self) -> Result<T> {
+        self.map_err(Diagnostic::from)
+    }
+}
+
+#[derive(Clone, Debug)]
+pub struct Diagnostic(pub Arc<sol_eyre::Report>);
+
+impl Eq for Diagnostic {}
+
+impl From<sol_eyre::Report> for Diagnostic {
+    fn from(report: sol_eyre::Report) -> Self {
+        Self(Arc::new(report))
+    }
+}
+
+impl PartialEq for Diagnostic {
+    fn eq(&self, other: &Diagnostic) -> bool {
+        Arc::ptr_eq(&self.0, &other.0)
+    }
+}
 
 /// Report miette error to the diagnostic accumulator.
-pub fn report_error<T: Into<miette::Report>>(db: &dyn DiagnosticDb, report: T) {
+pub fn report_error<T: Into<sol_eyre::Report>>(db: &dyn DiagnosticDb, report: T) {
     Diagnostics::push(db, Arc::new(report.into()));
 }
 

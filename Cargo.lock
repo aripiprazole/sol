@@ -1590,11 +1590,11 @@ dependencies = [
 name = "sol-diagnostic"
 version = "0.0.1"
 dependencies = [
- "eyre",
  "miette",
  "paste",
  "salsa-2022",
  "serde",
+ "sol-eyre",
  "tree-sitter",
  "type-sitter-lib",
 ]
@@ -1645,10 +1645,6 @@ dependencies = [
  "im",
  "miette",
  "salsa-2022",
- "sol-diagnostic",
- "sol-hir",
- "sol-syntax",
- "sol-vfs",
  "thiserror",
 ]
 
@@ -1747,6 +1743,7 @@ dependencies = [
  "salsa-2022",
  "serde",
  "sol-diagnostic",
+ "sol-eyre",
  "sol-hir",
  "sol-syntax",
  "sol-vfs",
@@ -1760,6 +1757,7 @@ dependencies = [
  "im",
  "salsa-2022",
  "sol-diagnostic",
+ "sol-eyre",
  "sol-hir",
  "sol-syntax",
  "sol-thir",

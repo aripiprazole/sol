@@ -14,6 +14,12 @@ pub enum Value {
     Location(Location, Box<Value>),
 }
 
+impl Default for Value {
+    fn default() -> Self {
+        Value::U
+    }
+}
+
 impl Value {
     pub fn new_var(lvl: debruijin::Level, _reference: Option<Reference>) -> Value {
         Value::Rigid(lvl, vec![])
@@ -67,7 +73,7 @@ pub struct Closure {
 impl Closure {
     /// Apply the closure to the value. It does apply as as snoc list in the environment
     /// to be the first to be applied.
-    pub fn apply(self, db: &dyn ThirDb, value: Value) -> Value {
+    pub fn apply(self, db: &dyn ThirDb, value: Value) -> sol_eyre::Result<Value> {
         let closure_env = self.env.push(db, value);
 
         db.thir_eval(closure_env, self.expr)

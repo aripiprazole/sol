@@ -1,6 +1,6 @@
 use sol_thir::{
     shared::{Constructor, ConstructorKind},
-    InferResult,
+    ElaboratedTerm,
 };
 
 use super::*;
@@ -31,10 +31,14 @@ fn create_from_type(definition: sol_hir::source::expr::Type, location: Location)
 
 /// The infer function to infer the type of the term.
 #[salsa::tracked]
-pub fn thir_infer(db: &dyn ThirLoweringDb, ctx: Context, expr: Expr) -> InferResult {
+pub fn thir_infer(
+    db: &dyn ThirLoweringDb,
+    ctx: Context,
+    expr: Expr,
+) -> sol_diagnostic::Result<ElaboratedTerm> {
     use Expr::*;
 
-    InferResult::from(match expr {
+    Ok(ElaboratedTerm::from(match expr {
         Empty | Error(_) | Match(_) => todo!(),
         Path(_) => todo!(),
         Literal(literal) => {
@@ -49,9 +53,9 @@ pub fn thir_infer(db: &dyn ThirLoweringDb, ctx: Context, expr: Expr) -> InferRes
             term => (term, Value::U),
         },
         Ann(ann) => {
-            let actual_type = db.thir_check(ctx, *ann.type_rep.expr, Value::U);
-            let actual_type = db.thir_eval(ctx.locals(db), actual_type);
-            let term = db.thir_check(ctx, *ann.value, actual_type.clone());
+            let actual_type = db.thir_check(ctx, *ann.type_rep.expr, Value::U)?;
+            let actual_type = db.thir_eval(ctx.locals(db), actual_type)?;
+            let term = db.thir_check(ctx, *ann.value, actual_type.clone())?;
             (term, actual_type)
         }
         Call(_) => todo!(),
@@ -63,5 +67,5 @@ pub fn thir_infer(db: &dyn ThirLoweringDb, ctx: Context, expr: Expr) -> InferRes
             let term = Term::InsertedMeta(meta.clone());
             (term, Value::Flexible(meta, vec![]))
         }
-    })
+    }))
 }

@@ -7,6 +7,7 @@
 use std::collections::VecDeque;
 
 use salsa::DbWithJar;
+use sol_diagnostic::{report_error, UnwrapOrReport};
 use sol_hir::{
     solver::Definition,
     source::{declaration::Declaration, HirSource},
@@ -47,8 +48,12 @@ pub fn infer_type_table(db: &dyn TyperDb, global_env: GlobalEnv, source: HirSour
             BindingGroup(group) => {
                 let actual_type = match group.signature(db).type_rep(db) {
                     Some(value) => {
-                        let term = db.thir_check(ctx, *value.expr, Type::U);
+                        let term = db
+                            .thir_check(ctx, *value.expr, Type::U)
+                            .unwrap_or_report(db);
+
                         db.thir_eval(Env::new(db, VecDeque::new()), term)
+                            .unwrap_or_report(db)
                     }
                     None => Type::Flexible(MetaVar::new(None), vec![]),
                 };
@@ -57,7 +62,9 @@ pub fn infer_type_table(db: &dyn TyperDb, global_env: GlobalEnv, source: HirSour
                     0 => todo!("handle: error"),
                     1 => {
                         let clause = group.clauses(db).into_iter().next().unwrap();
-                        let term = db.thir_check(ctx, clause.value(db), actual_type.clone());
+                        let term = db
+                            .thir_check(ctx, clause.value(db), actual_type.clone())
+                            .unwrap_or_report(db);
                         table.insert(clause.name(db), (term, actual_type));
                     }
                     _ => todo!("handle: different error"),
