@@ -44,10 +44,6 @@ fn main() -> sol_eyre::Result<()> {
 
                 todo!()
             }
-
-            sol_ariadne::AriadneReport::default()
-                .expand(manifest.diagnostics.into_iter().collect_vec())
-                .eprint()?;
         }
         Command::TypeCheck => todo!(),
     }

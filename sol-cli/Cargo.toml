@@ -15,7 +15,6 @@ sol-hir.workspace = true
 sol-hir-lowering.workspace = true
 sol-syntax.workspace = true
 sol-vfs.workspace = true
-sol-ariadne.workspace = true
 sol-driver.workspace = true
 sol-eyre.workspace = true
 salsa-2022.workspace = true
