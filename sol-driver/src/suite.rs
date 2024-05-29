@@ -1,11 +1,12 @@
 use std::{collections::HashMap, io::Write, sync::Arc};
 
-use ariadne::{Color, Fmt};
 use itertools::Itertools;
+use owo_colors::{
+    colors::{Green, Red, White},
+    OwoColorize,
+};
 use salsa_2022::DebugWithDb;
 use similar::{ChangeTag, TextDiff};
-use sol_ariadne::AriadneReport;
-use sol_diagnostic::{Report, TextRange};
 use sol_hir::{fmt::HirFormatter, source::HirElement};
 use sol_typer::TypeTable;
 
@@ -110,9 +111,9 @@ pub fn run_test_suite(
         let diff = TextDiff::from_lines(expect, &output);
         for change in diff.iter_all_changes() {
             let sign = match change.tag() {
-                ChangeTag::Delete => format!("- {change}").fg(Color::Red),
-                ChangeTag::Insert => format!("+ {change}").fg(Color::Green),
-                ChangeTag::Equal => format!("  {change}").fg(Color::White),
+                ChangeTag::Delete => format!("- {change}").fg::<Red>().to_string(),
+                ChangeTag::Insert => format!("+ {change}").fg::<Green>().to_string(),
+                ChangeTag::Equal => format!("  {change}").fg::<White>().to_string(),
             };
             print!("{}", sign);
         }
@@ -124,7 +125,7 @@ pub fn run_test_suite(
 /// Groups the errors by file.
 pub fn push_fancy_errors(
     output: Expect,
-    outputs: &[Vec<Arc<miette::Report>>],
+    outputs: &[Vec<Arc<sol_eyre::Report>>],
 ) -> sol_eyre::Result<()> {
     todo!();
 }
@@ -135,9 +136,7 @@ pub fn debug_type_table(
     db: &RootDb,
     type_table: TypeTable,
 ) -> sol_eyre::Result<()> {
-    for (name, (term, type_rep)) in type_table {
-        writeln!(expect, "{name} : {type_rep} = {term}")?;
-    }
+    for (name, (term, type_rep)) in type_table {}
 
     Ok(())
 }

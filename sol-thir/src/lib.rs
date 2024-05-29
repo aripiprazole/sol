@@ -78,18 +78,19 @@ impl<DB> ThirDb for DB where
 
 /// Represents the lowering functions for Low-Level Intermediate Representation.
 pub trait ThirLowering {
-    fn thir_eval(&self, env: Env, term: Term) -> sol_eyre::Result<Value>;
+    fn thir_eval(&self, env: Env, term: Term) -> sol_diagnostic::Result<Value>;
 
-    fn thir_quote(&self, lvl: Level, value: Value) -> sol_eyre::Result<Term>;
+    fn thir_quote(&self, lvl: Level, value: Value) -> sol_diagnostic::Result<Term>;
 }
 
 /// Represents the typing functions for Typed High-Level Intermediate Representation.
 pub trait ThirTyping {
     /// The infer function to infer the type of the term.
-    fn thir_infer(&self, ctx: Context, expr: Expr) -> sol_eyre::Result<ElaboratedTerm>;
+    fn thir_infer(&self, ctx: Context, expr: Expr) -> sol_diagnostic::Result<ElaboratedTerm>;
 
     /// The check function to check the type of the term.
-    fn thir_check(&self, ctx: Context, expr: Expr, type_repr: Type) -> sol_eyre::Result<Term>;
+    fn thir_check(&self, ctx: Context, expr: Expr, type_repr: Type)
+        -> sol_diagnostic::Result<Term>;
 }
 
 #[derive(Debug, Clone, Hash, PartialEq, Eq)]

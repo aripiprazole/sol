@@ -88,7 +88,7 @@ pub fn thir_quote(
         location: Option<sol_hir::source::Location>,
         lvl: Level,
         value: Value,
-    ) -> sol_eyre::Result<Term> {
+    ) -> sol_diagnostic::Result<Term> {
         use sol_thir::value::Value::*;
 
         Ok(match value {
@@ -137,7 +137,6 @@ pub fn thir_quote(
             Ok(Term::Location(location.clone(), value.into()))
         })
         .unwrap_or_else(|| thir_quote_impl(db, None, lvl, value))
-        .into_sol_diagnostic()
 }
 
 pub fn extract_parameter_definition(db: &dyn ThirLoweringDb, pattern: Pattern) -> Definition {

@@ -24,4 +24,5 @@ bupropion.workspace = true
 similar.workspace = true
 strip-ansi-escapes.workspace = true
 env_logger.workspace = true
+owo-colors.workspace = true
 log.workspace = true

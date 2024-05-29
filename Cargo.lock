@@ -247,7 +247,7 @@ dependencies = [
  "backtrace",
  "backtrace-ext",
  "miette",
- "owo-colors",
+ "owo-colors 3.5.0",
  "supports-color",
  "supports-hyperlinks",
  "supports-unicode",
@@ -1025,7 +1025,7 @@ dependencies = [
  "is-terminal",
  "miette-derive",
  "once_cell",
- "owo-colors",
+ "owo-colors 3.5.0",
  "supports-color",
  "supports-hyperlinks",
  "supports-unicode",
@@ -1131,6 +1131,12 @@ name = "owo-colors"
 version = "3.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c1b04fb49957986fdce4d6ee7a65027d55d4b6d2265e5848bbb507b58ccfdb6f"
+
+[[package]]
+name = "owo-colors"
+version = "4.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "caff54706df99d2a78a5a4e3455ff45448d81ef1bb63c22cd14052ca0e993a3f"
 
 [[package]]
 name = "parking_lot"
@@ -1623,6 +1629,7 @@ dependencies = [
  "itertools",
  "log",
  "miette",
+ "owo-colors 4.0.0",
  "salsa-2022",
  "similar",
  "sol-diagnostic",

@@ -1,4 +1,3 @@
-use sol_diagnostic::{Diagnostic, IntoSolDiagnostic};
 use sol_thir::ElaboratedTerm;
 use Implicitness::*;
 
@@ -11,7 +10,7 @@ fn lam_pi(
     lam: Curried,
     pi: Pi,
     icit: Implicitness,
-) -> sol_eyre::Result<Term> {
+) -> sol_diagnostic::Result<Term> {
     let Curried::Lam(definition, value) = lam else {
         panic!("handle: no parameters")
     };
@@ -40,7 +39,7 @@ fn new_curried_function(db: &dyn ThirLoweringDb, abs: LamExpr) -> Curried {
 }
 
 #[rustfmt::skip]
-fn lam_thir_check(db: &dyn ThirLoweringDb, ctx: Context, expr: Curried, type_repr: Type, icit: Implicitness) -> sol_eyre::Result<Term> {
+fn lam_thir_check(db: &dyn ThirLoweringDb, ctx: Context, expr: Curried, type_repr: Type, icit: Implicitness) -> sol_diagnostic::Result<Term> {
     match (&expr, &type_repr) {
         (Curried::Lam(_, _), Value::Pi(pi)) => lam_pi(db, ctx, expr, pi.clone(), icit),
         (Curried::Expr(expr), Value::Pi(pi @ Pi { implicitness: Implicit, .. })) => implicit_fun_eta(db, ctx, expr.clone(), pi.clone()),
@@ -54,7 +53,7 @@ fn expected_lam_pi(
     _: Context,
     _: Curried,
     _: Value,
-) -> sol_eyre::Result<Term> {
+) -> sol_diagnostic::Result<Term> {
     todo!("handle: error")
 }
 
@@ -66,7 +65,7 @@ fn implicit_fun_eta(
     ctx: Context,
     value: Expr,
     pi: Pi,
-) -> sol_eyre::Result<Term> {
+) -> sol_diagnostic::Result<Term> {
     let inner_ctx = ctx.insert_new_binder(db, pi.name.unwrap(), *pi.type_repr);
     let term_type = pi.closure.apply(db, Value::new_var(ctx.lvl(db), None))?;
     let elab_term = db.thir_check(inner_ctx, value, term_type)?;
@@ -74,7 +73,7 @@ fn implicit_fun_eta(
     Ok(Term::Lam(pi.name.unwrap(), Implicit, elab_term.into()))
 }
 
-fn type_hole() -> sol_eyre::Result<Term> {
+fn type_hole() -> sol_diagnostic::Result<Term> {
     Ok(Term::InsertedMeta(MetaVar::new(None)))
 }
 
@@ -84,7 +83,7 @@ fn term_equality(
     ctx: Context,
     expr: Expr,
     expected: Type,
-) -> sol_eyre::Result<Term> {
+) -> sol_diagnostic::Result<Term> {
     let ElaboratedTerm(term, type_repr) = db.thir_infer(ctx, expr)?;
     let ElaboratedTerm(term, inferred_type) = elaboration::insert(ctx, term, type_repr);
     elaboration::unify_catch(db, ctx, expected, inferred_type);
@@ -96,9 +95,9 @@ fn term_equality(
 #[rustfmt::skip]
 pub fn thir_check(db: &dyn ThirLoweringDb, ctx: Context, expr: Expr, type_repr: Type) -> sol_diagnostic::Result<Term> {
     match (expr, type_repr) {
-        (Expr::Lam(abs), Type::Pi(pi)) => lam_pi(db, ctx, new_curried_function(db, abs), pi.clone(), pi.implicitness).into_sol_diagnostic(),
-        (value, Type::Pi(pi @ Pi { implicitness: Implicit, .. })) => implicit_fun_eta(db, ctx, value, pi).into_sol_diagnostic(),
-        (Expr::Hole(_), _) => type_hole().into_sol_diagnostic(),
-        (value, expected) => term_equality(db, ctx, value, expected).into_sol_diagnostic()
+        (Expr::Lam(abs), Type::Pi(pi)) => lam_pi(db, ctx, new_curried_function(db, abs), pi.clone(), pi.implicitness),
+        (value, Type::Pi(pi @ Pi { implicitness: Implicit, .. })) => implicit_fun_eta(db, ctx, value, pi),
+        (Expr::Hole(_), _) => type_hole(),
+        (value, expected) => term_equality(db, ctx, value, expected),
     }
 }

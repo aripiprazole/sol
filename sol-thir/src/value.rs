@@ -73,7 +73,7 @@ pub struct Closure {
 impl Closure {
     /// Apply the closure to the value. It does apply as as snoc list in the environment
     /// to be the first to be applied.
-    pub fn apply(self, db: &dyn ThirDb, value: Value) -> sol_eyre::Result<Value> {
+    pub fn apply(self, db: &dyn ThirDb, value: Value) -> sol_diagnostic::Result<Value> {
         let closure_env = self.env.push(db, value);
 
         db.thir_eval(closure_env, self.expr)

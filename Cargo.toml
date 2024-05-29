@@ -1,20 +1,20 @@
 [workspace]
 resolver = "2"
 members = [
-  "sol-syntax",
-  "sol-hir",
-  "sol-hir-lowering",
-  "sol-driver",
-  "sol-diagnostic",
-  "sol-vfs",
-  "sol-ide",
-  "sol-thir",
-  "sol-thir-lowering",
-  "sol-eyre",
-  "sol-cli",
-  "sol-typer",
-  "sol-docs-backend",
-  "tree-sitter-sol",
+    "sol-syntax",
+    "sol-hir",
+    "sol-hir-lowering",
+    "sol-driver",
+    "sol-diagnostic",
+    "sol-vfs",
+    "sol-ide",
+    "sol-thir",
+    "sol-thir-lowering",
+    "sol-eyre",
+    "sol-cli",
+    "sol-typer",
+    "sol-docs-backend",
+    "tree-sitter-sol",
 ]
 
 [workspace.dependencies]
@@ -57,10 +57,10 @@ ropey = "1.5.0"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0.78"
 tokio = { version = "1.17.0", features = [
-  "macros",
-  "fs",
-  "rt-multi-thread",
-  "io-std",
+    "macros",
+    "fs",
+    "rt-multi-thread",
+    "io-std",
 ] }
 tower-lsp = { version = "0.19.0" }
 async-trait = "0.1.72"
@@ -88,6 +88,8 @@ sol-thir = { version = "0.0.1", path = "./sol-thir" }
 sol-thir-lowering = { version = "0.0.1", path = "./sol-thir-lowering" }
 sol-typer = { version = "0.0.1", path = "./sol-typer" }
 sol-vfs = { version = "0.0.1", path = "./sol-vfs" }
+
+owo-colors = "4.0.0"
 
 tree-sitter-sol = { version = "0.1.20", path = "./tree-sitter-sol" }
 

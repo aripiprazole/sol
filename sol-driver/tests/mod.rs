@@ -3,7 +3,7 @@ use sol_driver::{make_test_suite, suite::*};
 use sol_hir_lowering::hir_lower;
 use sol_syntax::parse;
 use sol_thir::shared::GlobalEnv;
-use sol_typer::{infer_type_table, table::infer_type_table};
+use sol_typer::infer_type_table;
 use sol_vfs::SourceFile;
 use utils::create_package;
 

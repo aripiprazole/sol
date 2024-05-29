@@ -1,8 +1,8 @@
 use std::collections::HashSet;
 
 use fxhash::FxBuildHasher;
+use miette::SourceOffset;
 use salsa_2022::Durability;
-use sol_diagnostic::{Offset, TextRange};
 use sol_hir::{
     reparse::reparse_hir_path,
     solver::{references, Definition},
@@ -38,8 +38,9 @@ impl RootDb {
         // The segments should be updated too, within a query that reorganize the [`CallSite`]
         // locations, to be coherent with the new name.
         let old_location = name.location(&*self);
-        let Offset(end_offset) = old_location.end();
-        let location = old_location.ending(Offset(end_offset + new_name.len()));
+        let location = old_location.clone().ending(SourceOffset::from(
+            old_location.end().offset() + new_name.len(),
+        ));
         let hir_location = HirLocation::new(&*self, location);
         let segments = reparse_hir_path(&*self, hir_location, new_name.to_string());
 
@@ -59,12 +60,13 @@ impl RootDb {
 
             // Set the name within new location
             let location = reference.location(&*self);
-            let Offset(end_offset) = location.end();
 
             reference
                 .set_location(&mut *self)
                 .with_durability(Durability::LOW)
-                .to(location.ending(Offset(end_offset + new_name.len())));
+                .to(location.ending(SourceOffset::from(
+                    old_location.end().offset() + new_name.len(),
+                )));
         }
 
         RenamesResult {
