@@ -40,8 +40,8 @@ pub enum DefinitionKind {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 #[repr(u8)]
 pub enum HirLevel {
-    Expr = 1,
-    Type = 2,
+    Expr,
+    Type,
 }
 
 #[salsa::interned]
@@ -119,7 +119,7 @@ impl crate::walking::Walker for Reference {
 impl Definition {
     /// Creates a new `Definition` with the given `kind`, `name`, and `location`, and reports
     /// an error to the diagnostic database.
-    pub fn no(db: &dyn crate::HirDb, kind: DefinitionKind, name: HirPath) -> Self {
+    pub fn not_found(db: &dyn crate::HirDb, kind: DefinitionKind, name: HirPath) -> Self {
         let kind_str = format!("{:?}", kind).to_lowercase();
         let name_str = name.to_string(db).unwrap_or("~INTERNAL ERROR~".into());
 
@@ -140,7 +140,7 @@ impl DefaultWithDb for Definition {
     fn default_with_db(db: &dyn crate::HirDb) -> Self {
         let name = HirPath::new(db, Location::call_site(db), vec![]);
 
-        Self::no(db, DefinitionKind::Unresolved, name)
+        Self::not_found(db, DefinitionKind::Unresolved, name)
     }
 }
 
@@ -186,7 +186,7 @@ pub fn find_function(db: &dyn crate::HirDb, name: HirPath) -> Definition {
         }
     }
 
-    Definition::no(db, DefinitionKind::Function, name)
+    Definition::not_found(db, DefinitionKind::Function, name)
 }
 
 /// Defines the [`find_constructor`] query.
@@ -216,7 +216,7 @@ pub fn find_constructor(db: &dyn crate::HirDb, name: HirPath) -> Definition {
         }
     }
 
-    Definition::no(db, DefinitionKind::Constructor, name)
+    Definition::not_found(db, DefinitionKind::Constructor, name)
 }
 
 /// Defines the [`find_trait`] query.
@@ -246,7 +246,7 @@ pub fn find_trait(db: &dyn crate::HirDb, name: HirPath) -> Definition {
         }
     }
 
-    Definition::no(db, DefinitionKind::Trait, name)
+    Definition::not_found(db, DefinitionKind::Trait, name)
 }
 
 /// Defines the [`find_type`] query.
@@ -290,7 +290,7 @@ pub fn find_type(db: &dyn crate::HirDb, name: HirPath) -> Definition {
     //
     // And will report an error to the revision diagnostic database.
     primitive_type_definition(db, name)
-        .unwrap_or_else(|| Definition::no(db, DefinitionKind::Type, name))
+        .unwrap_or_else(|| Definition::not_found(db, DefinitionKind::Type, name))
 }
 
 /// Defines the [`query_module`] query. It's defined as "query", because it's returning a scope
@@ -330,7 +330,7 @@ pub fn query_module(db: &dyn crate::HirDb, name: HirPath) -> (Scope, Definition)
 
     let file = Scope::new(ScopeKind::File);
 
-    (file, Definition::no(db, DefinitionKind::Type, name))
+    (file, Definition::not_found(db, DefinitionKind::Type, name))
 }
 
 /// Defines the [`references`] query.

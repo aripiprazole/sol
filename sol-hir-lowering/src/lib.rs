@@ -883,10 +883,10 @@ impl<'db, 'tree> HirLowering<'db, 'tree> {
             DefinitionKind::Constructor => find_constructor(self.db, path),
             DefinitionKind::Type => find_type(self.db, path),
             DefinitionKind::Trait => find_trait(self.db, path),
-            DefinitionKind::Variable => Definition::no(self.db, kind, path),
-            DefinitionKind::Module => Definition::no(self.db, kind, path),
-            DefinitionKind::Command => Definition::no(self.db, kind, path),
-            DefinitionKind::Unresolved => Definition::no(self.db, kind, path),
+            DefinitionKind::Variable => Definition::not_found(self.db, kind, path),
+            DefinitionKind::Module => Definition::not_found(self.db, kind, path),
+            DefinitionKind::Command => Definition::not_found(self.db, kind, path),
+            DefinitionKind::Unresolved => Definition::not_found(self.db, kind, path),
         })
     }
 
