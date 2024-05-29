@@ -1,0 +1,34 @@
+
+// Natural numbers
+Nat
+  : U
+  = (n : U) -> (n -> n) -> n
+
+Succ
+  : Nat -> Nat
+  = |prev n succ$ zero$| succ$ (prev n succ$ zero$) zero$
+
+Zero
+  : Nat
+  = |n succ$ zero$| zero$
+
+// Maybe definition
+Maybe
+  : U -> U
+  = |t| (a : U) -> (t -> a) -> a -> a
+
+Just
+  : {a : U} -> a -> Maybe a
+  = |value t just$ nothing$| just$ value
+
+Nothing
+  : {a : U} -> Maybe a
+  = |t just$ nothing$| nothing$
+
+Sorry
+  : {a : U} -> a
+  = Sorry
+
+Maybe.unwrap : {a : U} -> Maybe a -> a
+Maybe.unwrap = |maybe|
+  maybe (|value| value) Sorry

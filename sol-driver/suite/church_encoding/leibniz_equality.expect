@@ -1,0 +1,11 @@
+Eq
+  : {a : U} -> a -> a -> U
+  = |a x y| (p : a -> U) -> p x -> p y
+
+Eq.refl
+  : {a : U} -> {x : a} -> Eq a a
+  = |a px| px
+
+Test_Eq_Int64_10_10
+  : Eq 10 10
+  = Eq.refl
