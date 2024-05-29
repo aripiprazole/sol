@@ -7,6 +7,20 @@ pub struct TypeRep {
     pub expr: Box<expr::Expr>,
 }
 
+impl TypeRep {
+    pub fn downgrade(&self) -> expr::Expr {
+        *self.expr.clone()
+    }
+}
+
+impl Default for TypeRep {
+    fn default() -> Self {
+        Self {
+            expr: Box::new(expr::Expr::Empty),
+        }
+    }
+}
+
 impl HirElement for TypeRep {
     fn location(&self, db: &dyn crate::HirDb) -> Location {
         self.expr.location(db)

@@ -4,14 +4,14 @@
 //!
 //! It's only a module, to organization purposes.
 
-use sol_diagnostic::{message, Diagnostics, ErrorId, Report};
+use sol_diagnostic::report_error;
 use sol_hir::{
-    solver::{HirDiagnostic, HirLevel},
+    errors::{HirError, HirErrorKind},
+    solver::HirLevel,
     source::{
-        expr::{MatchArm, MatchExpr, MatchKind},
+        expr::{MatchArm, MatchExpr, MatchKind, Pi, Type},
         literal::Literal,
         pattern::Pattern,
-        type_rep::ArrowKind,
         HirElement,
     },
 };
@@ -69,8 +69,8 @@ impl HirLowering<'_, '_> {
             AppExpr(app) => self.app_expr(app, level),
 
             // Type level expressions
-            PiExpr(pi) => self.pi_expr(pi).downgrade(self.db),
-            SigmaExpr(sigma) => self.sigma_expr(sigma).downgrade(self.db),
+            PiExpr(pi) => self.pi_expr(pi).downgrade(),
+            SigmaExpr(sigma) => self.sigma_expr(sigma).downgrade(),
         }
     }
 
@@ -87,7 +87,11 @@ impl HirLowering<'_, '_> {
             .solve(self, |this, expr| this.type_expr(expr));
         let location = self.range(tree.range());
 
-        Expr::Ann(AnnExpr::new(self.db, value, type_rep, location))
+        Expr::Ann(AnnExpr {
+            value: Box::new(value),
+            type_rep,
+            location,
+        })
     }
 
     /// Resolves a binary expression.
@@ -120,14 +124,13 @@ impl HirLowering<'_, '_> {
 
         let reference = self.scope.using(self.db, op, location.clone());
 
-        Expr::Call(CallExpr::new(
-            self.db,
-            /* kind        = */ CallKind::Infix,
-            /* callee      = */ Callee::Reference(reference),
-            /* arguments   = */ vec![lhs, rhs],
-            /* do_notation = */ None,
-            /* location    = */ location,
-        ))
+        Expr::Call(CallExpr {
+            kind: CallKind::Infix,
+            callee: Callee::Reference(reference),
+            arguments: vec![lhs, rhs],
+            do_notation: None,
+            location,
+        })
     }
 
     /// Resolves a lambda expression.
@@ -151,7 +154,12 @@ impl HirLowering<'_, '_> {
 
         let scope = self.pop_scope();
 
-        Expr::Lam(LamExpr::new(self.db, parameters, value, location, scope))
+        Expr::Lam(LamExpr {
+            parameters,
+            value: Box::new(value),
+            location,
+            scope,
+        })
     }
 
     /// Resolves a call expression.
@@ -180,14 +188,13 @@ impl HirLowering<'_, '_> {
 
         let location = self.range(tree.range());
 
-        Expr::Call(CallExpr::new(
-            self.db,
-            /* kind        = */ CallKind::Infix,
-            /* callee      = */ Callee::Expr(callee.into()),
-            /* arguments   = */ arguments,
-            /* do_notation = */ do_notation,
-            /* location    = */ location,
-        ))
+        Expr::Call(CallExpr {
+            kind: CallKind::Infix,
+            callee: Callee::Expr(callee.into()),
+            arguments,
+            do_notation,
+            location,
+        })
     }
 
     /// Resolves a type level application expression.
@@ -208,7 +215,15 @@ impl HirLowering<'_, '_> {
 
         let location = self.range(tree.range());
 
-        TypeRep::App(AppTypeRep::new(self.db, callee, arguments, location))
+        TypeRep {
+            expr: Box::new(Expr::Call(CallExpr {
+                kind: CallKind::Prefix,
+                callee: Callee::Expr(callee.downgrade().into()),
+                do_notation: None,
+                arguments: arguments.into_iter().map(|expr| expr.downgrade()).collect(),
+                location,
+            })),
+        }
     }
 
     /// Resolves a pi type expression.
@@ -249,17 +264,15 @@ impl HirLowering<'_, '_> {
         });
 
         let value = tree.value().solve(self, |this, expr| this.type_expr(expr));
+        let _ = self.pop_scope();
 
-        let scope = self.pop_scope();
-
-        TypeRep::Pi(PiTypeRep::new(
-            self.db,
-            /* kind       = */ ArrowKind::Fun,
-            /* parameters = */ parameters,
-            /* value      = */ value,
-            /* location   = */ self.range(tree.range()),
-            /* scope      = */ scope,
-        ))
+        TypeRep {
+            expr: Box::new(Expr::Pi(Pi {
+                parameters,
+                value: Box::new(value),
+                location: self.range(tree.range()),
+            })),
+        }
     }
 
     /// Resolves a sigma type expression.
@@ -292,7 +305,9 @@ impl HirLowering<'_, '_> {
                         self::Parameter::new(
                             self.db,
                             /* binding     = */ pattern,
-                            /* type_rep    = */ TypeRep::Hole,
+                            /* type_rep    = */ TypeRep {
+                                expr: Box::new(Expr::Hole(location.clone())),
+                            },
                             /* is_implicit = */ true,
                             /* rigid       = */ false,
                             /* level       = */ HirLevel::Type,
@@ -304,17 +319,15 @@ impl HirLowering<'_, '_> {
             .collect::<Vec<_>>();
 
         let value = tree.value().solve(self, |this, expr| this.type_expr(expr));
+        let _ = self.pop_scope();
 
-        let scope = self.pop_scope();
-
-        TypeRep::Pi(PiTypeRep::new(
-            self.db,
-            /* kind       = */ ArrowKind::Sigma,
-            /* parameters = */ parameters,
-            /* value      = */ value,
-            /* location   = */ self.range(tree.range()),
-            /* scope      = */ scope,
-        ))
+        TypeRep {
+            expr: Box::new(Expr::Sigma(Pi {
+                parameters,
+                value: Box::new(value),
+                location: self.range(tree.range()),
+            })),
+        }
     }
 
     /// Resolves a match expression.
@@ -350,13 +363,12 @@ impl HirLowering<'_, '_> {
       })
       .collect();
 
-        Expr::Match(MatchExpr::new(
-            self.db,
-            /* kind      = */ MatchKind::Match,
-            /* scrutinee = */ scrutinee,
-            /* clauses   = */ clauses,
-            /* location  = */ location,
-        ))
+        Expr::Match(MatchExpr {
+            kind: MatchKind::Match,
+            scrutinee: Box::new(scrutinee),
+            clauses,
+            location,
+        })
     }
 
     /// Resolves a if expression.
@@ -401,13 +413,12 @@ impl HirLowering<'_, '_> {
 
         let location = self.range(tree.range());
 
-        Expr::Match(MatchExpr::new(
-            self.db,
-            /* kind      = */ MatchKind::If,
-            /* scrutinee = */ scrutinee,
-            /* clauses   = */ clauses,
-            /* location  = */ location,
-        ))
+        Expr::Match(MatchExpr {
+            kind: MatchKind::If,
+            scrutinee: Box::new(scrutinee),
+            clauses,
+            location,
+        })
     }
 
     /// Resolves an array expression.
@@ -422,14 +433,13 @@ impl HirLowering<'_, '_> {
             .map(|item| item.solve(self, |this, node| this.expr(node, level)))
             .collect::<Vec<_>>();
 
-        Expr::Call(CallExpr::new(
-            self.db,
-            /* kind        = */ CallKind::Prefix,
-            /* callee      = */ Callee::Array,
-            /* arguments   = */ items,
-            /* do_notation = */ None,
-            /* location    = */ location,
-        ))
+        Expr::Call(CallExpr {
+            kind: CallKind::Prefix,
+            callee: Callee::Array,
+            arguments: items,
+            do_notation: None,
+            location,
+        })
     }
 
     /// Resolves a tuple expression.
@@ -439,19 +449,18 @@ impl HirLowering<'_, '_> {
     pub fn tuple_expr(&mut self, tree: sol_syntax::TupleExpr, level: HirLevel) -> Expr {
         let location = self.range(tree.range());
 
-        let items = tree
+        let arguments = tree
             .children(&mut tree.walk())
             .map(|item| item.solve(self, |this, node| this.expr(node, level)))
             .collect::<Vec<_>>();
 
-        Expr::Call(CallExpr::new(
-            self.db,
-            /* kind        = */ CallKind::Prefix,
-            /* callee      = */ Callee::Tuple,
-            /* arguments   = */ items,
-            /* do_notation = */ None,
-            /* location    = */ location,
-        ))
+        Expr::Call(CallExpr {
+            kind: CallKind::Prefix,
+            callee: Callee::Tuple,
+            arguments,
+            do_notation: None,
+            location,
+        })
     }
 
     /// Resolves a return expression.
@@ -459,38 +468,34 @@ impl HirLowering<'_, '_> {
     /// It does translate the syntax return expression
     /// into a high-level return expression.
     pub fn return_expr(&mut self, tree: sol_syntax::ReturnExpr, level: HirLevel) -> Expr {
+        let location = self.range(tree.range());
+
         // Reports errors, because "return expression" is equivalent
         // to pure expression, and it's only allowed inside do notation.
         //
         // Or in other words, it's only allowed inside a do notation scope.
         if !self.scope.is_do_notation_scope() {
-            Diagnostics::push(
-                self.db,
-                Report::new(HirDiagnostic {
-                    id: ErrorId("escaping-return"),
-                    message: message!["return expression is only allowed inside do notation"],
-                    location: self.range(tree.range()),
-                }),
-            )
+            report_error(self.db, HirError {
+                label: location.as_source_span(),
+                source_code: location,
+                kind: HirErrorKind::ReturnOutsideDoNotation,
+            })
         }
-
-        let location = self.range(tree.range());
 
         // If it's a return expression, it will return the value of the expression, otherwise it
         // will return a default value.
         let value = tree
             .value()
             .map(|node| node.solve(self, |this, node| this.expr(node, level)))
-            .unwrap_or_else(|| Expr::call_unit_expr(location.clone(), self.db));
+            .unwrap_or_else(|| Expr::call_unit_expr(location.clone()));
 
-        Expr::Call(CallExpr::new(
-            self.db,
-            /* kind        = */ CallKind::Prefix,
-            /* callee      = */ Callee::Pure,
-            /* arguments   = */ vec![value],
-            /* do_notation = */ None,
-            /* location    = */ location,
-        ))
+        Expr::Call(CallExpr {
+            kind: CallKind::Prefix,
+            callee: Callee::Pure,
+            arguments: vec![value],
+            do_notation: None,
+            location,
+        })
     }
 
     /// Resolves a primary expression.
@@ -559,7 +564,7 @@ impl HirLowering<'_, '_> {
                 // Creates a new [`Expr`] with the [`Definition`] as the callee.
                 Expr::Path(this.scope.insert_free_variable(this.db, path))
             }
-            UniverseExpr(_) => TypeRep::Type.downgrade(this.db),
+            UniverseExpr(_) => Expr::Type(Type::Universe, location),
         })
     }
 }

@@ -276,7 +276,7 @@ pub enum Type {
 
 #[derive(Debug, Clone, Hash, PartialEq, Eq)]
 pub struct Pi {
-    pub parameters: Vec<pattern::Pattern>,
+    pub parameters: Vec<declaration::Parameter>,
     pub value: Box<type_rep::TypeRep>,
     pub location: Location,
 }

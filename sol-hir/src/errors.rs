@@ -26,6 +26,11 @@ pub enum HirErrorKind {
     /// An error occurred while parsing the source code.
     #[error("incorrect kind: {0}")]
     IncorrectKind(String),
+
+    /// Return outside do notation.
+    #[error("return outside do notation")]
+    #[diagnostic(code(solc::hir_return_outside_do_notation), url(docsrs))]
+    ReturnOutsideDoNotation,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, thiserror::Error, miette::Diagnostic)]
