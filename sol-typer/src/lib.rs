@@ -4,13 +4,17 @@
 #![feature(stmt_expr_attributes)]
 #![feature(box_patterns)]
 
-use std::collections::VecDeque;
+use std::{
+    collections::VecDeque,
+    panic::{catch_unwind, AssertUnwindSafe},
+    sync::Arc,
+};
 
 use salsa::DbWithJar;
-use sol_diagnostic::UnwrapOrReport;
+use sol_diagnostic::{report_error, TextSource, UnwrapOrReport};
 use sol_hir::{
     solver::Definition,
-    source::{declaration::Declaration, HirSource},
+    source::{declaration::Declaration, top_level::TopLevel, HirSource},
     HirDb,
 };
 use sol_thir::{
@@ -36,13 +40,15 @@ impl<DB: ThirDb> TyperDb for DB where DB: ?Sized + HirDb + salsa::DbWithJar<Jar>
 pub mod options;
 pub mod utils;
 
-#[salsa::tracked]
-pub fn infer_type_table(db: &dyn TyperDb, global_env: GlobalEnv, source: HirSource) -> TypeTable {
-    let mut table = TypeTable::new();
-    let ctx = Context::default_with_env(db, global_env);
+fn check_top_level(
+    db: &dyn TyperDb,
+    ctx: Context,
+    item: TopLevel,
+    table: &mut TypeTable,
+) -> std::thread::Result<()> {
+    use sol_hir::source::top_level::TopLevel::*;
 
-    for item in source.contents(db).iter() {
-        use sol_hir::source::top_level::TopLevel::*;
+    catch_unwind(AssertUnwindSafe(|| {
         match item {
             Error(_) | Inductive(_) | Using(_) | Command(_) => todo!("handle: error"),
             BindingGroup(group) => {
@@ -70,6 +76,38 @@ pub fn infer_type_table(db: &dyn TyperDb, global_env: GlobalEnv, source: HirSour
                     _ => todo!("handle: different error"),
                 }
             }
+        };
+    }))
+}
+
+#[derive(Debug, thiserror::Error, miette::Diagnostic)]
+#[error("type checker panicked, please report an error: {message}")]
+#[diagnostic(code(sol::typer::type_checker_panic))]
+pub struct TyperPanicError {
+    pub message: String,
+
+    #[source_code]
+    pub source_code: TextSource,
+}
+
+#[salsa::tracked]
+pub fn infer_type_table(db: &dyn TyperDb, global_env: GlobalEnv, source: HirSource) -> TypeTable {
+    let mut table = TypeTable::new();
+    let ctx = Context::default_with_env(db, global_env);
+    let text_source = TextSource::new(
+        source.source(db).file_path(db).to_string_lossy(),
+        Arc::new(source.source(db).source_text(db).to_string()),
+    );
+
+    for item in source.contents(db).iter() {
+        if let Err(panic_error) = check_top_level(db, ctx, item.clone(), &mut table) {
+            report_error(db, TyperPanicError {
+                source_code: text_source.clone(),
+                message: panic_error
+                    .downcast::<String>()
+                    .map(|e| e.to_string())
+                    .unwrap_or_else(|_| "unknown panic error".to_string()),
+            })
         }
     }
 

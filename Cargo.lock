@@ -1782,11 +1782,13 @@ dependencies = [
  "im",
  "im-rc",
  "log",
+ "miette",
  "petgraph",
  "salsa-2022",
  "sol-diagnostic",
  "sol-hir",
  "sol-thir",
+ "thiserror",
  "tree-sitter",
  "type-sitter-lib",
 ]
