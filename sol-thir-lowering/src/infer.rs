@@ -1,3 +1,4 @@
+use sol_diagnostic::bail;
 use sol_thir::{
     shared::{Constructor, ConstructorKind},
     ElaboratedTerm,
@@ -61,7 +62,7 @@ pub fn thir_infer(
         Call(_) => todo!(),
         Lam(_) => todo!(),
         Pi(_) => todo!(),
-        Sigma(_) => todo!(),
+        Sigma(_) => bail!("sigma types are not supported yet"),
         Hole(_) => {
             let meta = MetaVar::new(None);
             let term = Term::InsertedMeta(meta.clone());
