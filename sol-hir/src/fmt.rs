@@ -369,18 +369,18 @@ mod impls {
 
     impl HirFormatter for stmt::LetStmt {
         fn hir_fmt(&self, db: &dyn HirDb, f: &mut Formatter, scope: &Scope) -> std::fmt::Result {
-            self.pattern(db).hir_fmt(db, f, scope)?;
+            self.pattern.hir_fmt(db, f, scope)?;
             write!(f, " = ")?;
-            self.value(db).hir_fmt(db, f, scope)
+            self.value.hir_fmt(db, f, scope)
         }
     }
 
     impl HirFormatter for stmt::AskStmt {
         fn hir_fmt(&self, db: &dyn HirDb, f: &mut Formatter, scope: &Scope) -> std::fmt::Result {
             write!(f, "ask ")?;
-            self.pattern(db).hir_fmt(db, f, scope)?;
+            self.pattern.hir_fmt(db, f, scope)?;
             write!(f, " <- ")?;
-            self.value(db).hir_fmt(db, f, scope)
+            self.value.hir_fmt(db, f, scope)
         }
     }
 
