@@ -476,8 +476,8 @@ impl HirLowering<'_, '_> {
         // Or in other words, it's only allowed inside a do notation scope.
         if !self.scope.is_do_notation_scope() {
             report_error(self.db, HirError {
-                label: location.as_source_span(),
-                source_code: location,
+                source_code: location.clone(),
+                label: location.clone().as_source_span(),
                 kind: HirErrorKind::ReturnOutsideDoNotation,
             })
         }

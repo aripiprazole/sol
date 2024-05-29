@@ -20,6 +20,7 @@ use std::{
 
 use fxhash::FxBuildHasher;
 use salsa::{Cycle, DbWithJar};
+use sol_diagnostic::TextSource;
 use sol_hir::{
     package::Package,
     scope::{Scope, ScopeKind},
@@ -29,13 +30,13 @@ use sol_hir::{
     },
     source::{
         declaration::{Attribute, DocString, Parameter, Vis},
-        expr::{AnnExpr, CallExpr, CallKind, Callee, Expr, LamExpr},
+        expr::{AnnExpr, CallExpr, CallKind, Callee, Expr, LamExpr, Pi, Type},
         pattern::{BindingPattern, Pattern},
         top_level::{
             BindingGroup, Clause, CommandTopLevel, Constructor, ConstructorKind, Inductive,
             Signature, TopLevel, UsingTopLevel,
         },
-        type_rep::{AppTypeRep, ArrowKind, PiTypeRep, TypeRep},
+        type_rep::TypeRep,
         DefaultWithDb, HirPath, HirSource, Identifier, Location, OptionExt, Spanned,
     },
     HirDb,
@@ -359,7 +360,7 @@ impl<'db, 'tree> HirLowering<'db, 'tree> {
                     self.scope
                         .define(self.db, name, location.clone(), DefinitionKind::Constructor);
 
-                Some(Solver::new(move |db, this| {
+                Some(Solver::new(move |_, this| {
                     this.scope = this.scope.fork(ScopeKind::Pi);
 
                     let parameters = tree
@@ -369,20 +370,21 @@ impl<'db, 'tree> HirLowering<'db, 'tree> {
                         .map(|type_rep| Parameter::unnamed(this.db, this.type_expr(type_rep)))
                         .collect::<Vec<_>>();
 
-                    let scope = this.pop_scope();
+                    let _ = this.pop_scope();
 
                     // As the function isn't a data constructor, it will be a function constructor, and
                     // it's needed to create a local type representing the function.
                     //
                     // The Self type is used here, to avoid confusion in the resolution.
-                    let type_rep = TypeRep::Pi(PiTypeRep::new(
-                        db,
-                        /* kind       = */ ArrowKind::Fun,
-                        /* parameters = */ parameters,
-                        /* value      = */ TypeRep::SelfType,
-                        /* location   = */ Location::CallSite,
-                        /* scope      = */ scope,
-                    ));
+                    let type_rep = TypeRep {
+                        expr: Box::new(Expr::Pi(Pi {
+                            parameters,
+                            value: Box::new(TypeRep {
+                                expr: Box::new(Expr::Type(Type::This, location.clone())),
+                            }),
+                            location: location.clone(),
+                        })),
+                    };
 
                     Constructor::new(
                         this.db,
@@ -464,6 +466,10 @@ impl<'db, 'tree> HirLowering<'db, 'tree> {
             let clause = Clause::new(db, name, patterns, value, location.clone());
 
             let binding_group = this.clauses.entry(name).or_insert_with(|| {
+                let return_type = TypeRep {
+                    expr: Box::new(Expr::Hole(location.clone())),
+                };
+
                 // Creates a dummy signature implementation, to be used in the clause.
                 let signature = Signature::new(
                     db,
@@ -472,7 +478,7 @@ impl<'db, 'tree> HirLowering<'db, 'tree> {
                     /* visibility  = */ Spanned::on_call_site(Vis::Public),
                     /* name        = */ name,
                     /* parameters  = */ vec![],
-                    /* return_type = */ TypeRep::Hole,
+                    /* return_type = */ return_type,
                     /* location    = */ location,
                 );
 
@@ -742,13 +748,20 @@ impl<'db, 'tree> HirLowering<'db, 'tree> {
             /* location = */ name.location(self.db),
             /* kind     = */ DefinitionKind::Type,
         );
-        let binding = BindingPattern::new(self.db, definition, name.location(self.db));
-        let pattern = Pattern::Binding(binding);
+
+        let pattern = Pattern::Binding(BindingPattern {
+            name: definition,
+            location: name.location(self.db),
+        });
+
+        let type_rep = TypeRep {
+            expr: Box::new(Expr::Hole(location.clone())),
+        };
 
         Parameter::new(
             self.db,
             /* binding     = */ pattern,
-            /* type_rep    = */ TypeRep::Hole,
+            /* type_rep    = */ type_rep,
             /* is_implicit = */ true,
             /* rigid       = */ true,
             /* level       = */ HirLevel::Type,
@@ -882,7 +895,10 @@ impl<'db, 'tree> HirLowering<'db, 'tree> {
     pub fn range(&self, range: tree_sitter::Range) -> Location {
         Location::new(
             self.src,
-            self.txt.clone().into(),
+            TextSource::new(
+                self.src.file_path(self.db).to_string_lossy(),
+                self.txt.clone(),
+            ),
             range.start_byte,
             range.end_byte,
         )
