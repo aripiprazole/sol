@@ -45,20 +45,23 @@ impl<T> IntoSolDiagnostic<T> for Result<T, sol_eyre::Report> {
     }
 }
 
-#[derive(Clone, Debug)]
-pub struct Diagnostic(pub Arc<sol_eyre::Report>);
+#[derive(Debug)]
+pub struct Diagnostic(Box<sol_eyre::Report>);
 
 impl Eq for Diagnostic {}
 
 impl From<sol_eyre::Report> for Diagnostic {
     fn from(report: sol_eyre::Report) -> Self {
-        Self(Arc::new(report))
+        Self(Box::new(report))
     }
 }
 
 impl PartialEq for Diagnostic {
     fn eq(&self, other: &Diagnostic) -> bool {
-        Arc::ptr_eq(&self.0, &other.0)
+        let lhs: *const sol_eyre::Report = self.0.as_ref();
+        let rhs: *const sol_eyre::Report = other.0.as_ref();
+
+        lhs == rhs && !lhs.is_null()
     }
 }
 
