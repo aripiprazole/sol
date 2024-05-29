@@ -1,17 +1,25 @@
 //! Wrapper to eyre and miette, it will be used to provide a common error type for those two crates
 //! and to provide a common error handling API.
 
-use std::fmt::Display;
+use std::fmt::{Debug, Display};
 
 #[doc(hidden)]
 pub use eyre as private;
 pub use eyre::{set_hook, DefaultHandler};
 pub use WrapErr as Context;
 
-#[derive(Debug)]
 pub enum Report {
     Eyre(eyre::Report),
     Miette(miette::Report),
+}
+
+impl Debug for Report {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Report::Eyre(eyre) => Debug::fmt(eyre, f),
+            Report::Miette(miette) => Debug::fmt(miette, f),
+        }
+    }
 }
 
 impl Display for Report {
