@@ -5,6 +5,7 @@ use std::{
 
 use dashmap::{DashMap, DashSet};
 use salsa::DebugWithDb;
+use sol_diagnostic::IntoEyreDiagnostic;
 use sol_hir::{
     lowering::HirLowering,
     package::{HasManifest, Package},
@@ -66,22 +67,22 @@ impl HirLowering for RootDb {
 /// Bridges the [`RootDb`] with the [`sol_thir::ThirLowering`] trait.
 impl ThirLowering for RootDb {
     fn thir_eval(&self, env: sol_thir::shared::Env, term: Term) -> sol_thir::value::Value {
-        sol_thir_lowering::thir_eval(self, env, term)
+        sol_thir_lowering::thir_eval(self, env, term).into_eyre_diagnostic()
     }
 
     fn thir_quote(&self, lvl: sol_thir::debruijin::Level, value: sol_thir::value::Value) -> Term {
-        sol_thir_lowering::thir_quote(self, lvl, value)
+        sol_thir_lowering::thir_quote(self, lvl, value).into_eyre_diagnostic()
     }
 }
 
 /// Bridges the [`RootDb`] with the [`sol_thir::ThirTyping`] trait.
 impl ThirTyping for RootDb {
     fn thir_infer(&self, ctx: sol_thir::shared::Context, expr: Expr) -> ElaboratedTerm {
-        sol_thir_lowering::infer::thir_infer(self, ctx, expr)
+        sol_thir_lowering::infer::thir_infer(self, ctx, expr).into_eyre_diagnostic()
     }
 
     fn thir_check(&self, ctx: sol_thir::shared::Context, expr: Expr, type_repr: Type) -> Term {
-        sol_thir_lowering::check::thir_check(self, ctx, expr, type_repr)
+        sol_thir_lowering::check::thir_check(self, ctx, expr, type_repr).into_eyre_diagnostic()
     }
 }
 

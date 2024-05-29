@@ -20,6 +20,17 @@ pub struct Diagnostics(Arc<sol_eyre::Report>);
 /// A result type that uses [`Diagnostic`] as the error type.
 pub type Result<T, E = Diagnostic> = std::result::Result<T, E>;
 
+/// A trait for types that can be converted into a [`Diagnostic`].
+pub trait IntoEyreDiagnostic<T> {
+    fn into_eyre_diagnostic(self) -> sol_eyre::Result<T>;
+}
+
+impl<T> IntoEyreDiagnostic<T> for Result<T, Diagnostic> {
+    fn into_eyre_diagnostic(self) -> sol_eyre::Result<T> {
+        self.map_err(|diagnostic| *diagnostic.0)
+    }
+}
+
 /// A trait for types that can be unwrapped or report an error. By reporting
 /// an error, it means that the error is added to the diagnostic accumulator.
 pub trait UnwrapOrReport<T: Default> {
