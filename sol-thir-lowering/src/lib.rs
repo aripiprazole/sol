@@ -95,17 +95,17 @@ pub fn thir_quote(
             U => Term::U,
             Constructor(constructor) => Term::Constructor(constructor),
             Flexible(meta, spine) => {
-                let default = Ok(Term::InsertedMeta(meta));
-                return spine.into_iter().rev().fold(default, |acc, next| {
+                let default = Term::InsertedMeta(meta);
+                return spine.into_iter().rev().try_fold(default, |acc, next| {
                     let next = db.thir_quote(lvl, next)?;
-                    Ok(Term::App(acc?.into(), next.into()))
+                    Ok(Term::App(acc.into(), next.into()))
                 });
             }
             Rigid(x, spine) => {
-                let default = Ok(Term::Var(lvl.as_idx(db, x).unwrap(), None));
-                return spine.into_iter().rev().fold(default, |acc, next| {
+                let default = Term::Var(lvl.as_idx(db, x).unwrap(), None);
+                return spine.into_iter().rev().try_fold(default, |acc, next| {
                     let next = db.thir_quote(lvl, next)?;
-                    Ok(Term::App(acc?.into(), next.into()))
+                    Ok(Term::App(acc.into(), next.into()))
                 });
             }
             Pi(pi) => {

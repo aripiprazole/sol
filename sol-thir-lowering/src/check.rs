@@ -85,7 +85,7 @@ fn term_equality(
     expected: Type,
 ) -> sol_diagnostic::Result<Term> {
     let ElaboratedTerm(term, type_repr) = db.thir_infer(ctx, expr)?;
-    let ElaboratedTerm(term, inferred_type) = elaboration::insert(ctx, term, type_repr);
+    let ElaboratedTerm(term, inferred_type) = elaboration::insert(db, ctx, term, type_repr);
     elaboration::unify_catch(db, ctx, expected, inferred_type);
     Ok(term)
 }
