@@ -41,6 +41,12 @@ impl Context {
 #[salsa::tracked]
 impl Context {
     #[salsa::tracked]
+    pub fn increase_level(self, db: &dyn ThirDb) -> Context {
+        let lvl = self.lvl(db).increase(db);
+        Context::new(db, lvl, self.locals(db), self.env(db))
+    }
+
+    #[salsa::tracked]
     pub fn create_new_value(self, db: &dyn ThirDb, name: Definition, value: Value) -> Context {
         todo!()
     }

@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use miette::{SourceOffset, SourceSpan};
-use sol_diagnostic::{Diagnostics, TextSource};
+use sol_diagnostic::{report_error, TextSource};
 
 use crate::Source;
 
@@ -85,7 +85,7 @@ impl Source {
     #[salsa::tracked]
     pub fn validated(self, db: &dyn crate::ParseDb) -> Source {
         for error in self.errors(db) {
-            Diagnostics::push(db, Arc::new(error.into()));
+            report_error(db, error);
         }
 
         self

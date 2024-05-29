@@ -1,6 +1,6 @@
 #![feature(stmt_expr_attributes)]
 
-use std::sync::Arc;
+use std::{fmt::Debug, sync::Arc};
 
 use miette::{MietteError, MietteSpanContents, SpanContents};
 use salsa::DbWithJar;
@@ -15,7 +15,7 @@ pub struct Jar(crate::Diagnostics);
 ///
 /// This is used to store diagnostics, accross salsa revisions.
 #[salsa::accumulator]
-pub struct Diagnostics(Arc<sol_eyre::Report>);
+pub struct Diagnostics(Diagnostic);
 
 /// A result type that uses [`Diagnostic`] as the error type.
 pub type Result<T, E = Diagnostic> = std::result::Result<T, E>;
@@ -29,7 +29,7 @@ pub trait UnwrapOrReport<T: Default> {
 impl<T: Default> UnwrapOrReport<T> for Result<T> {
     fn unwrap_or_report(self, db: &dyn DiagnosticDb) -> T {
         self.unwrap_or_else(|diagnostic| {
-            Diagnostics::push(db, diagnostic.0.clone());
+            Diagnostics::push(db, Diagnostic(diagnostic.0.clone()));
             T::default()
         })
     }
@@ -54,8 +54,21 @@ impl<T> IntoSolDiagnostic<T> for Result<T, sol_eyre::Report> {
     }
 }
 
-#[derive(Clone, Debug)]
+/// Fail with miette error.
+pub fn fail<U, E: Into<miette::Report>>(report: E) -> Result<U> {
+    Err(Diagnostic(Arc::new(sol_eyre::Report::Miette(
+        report.into(),
+    ))))
+}
+
+#[derive(Clone)]
 pub struct Diagnostic(pub Arc<sol_eyre::Report>);
+
+impl Debug for Diagnostic {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        Debug::fmt(&self.0, f)
+    }
+}
 
 impl Eq for Diagnostic {}
 
@@ -76,7 +89,7 @@ impl PartialEq for Diagnostic {
 
 /// Report miette error to the diagnostic accumulator.
 pub fn report_error<T: Into<sol_eyre::Report>>(db: &dyn DiagnosticDb, report: T) {
-    Diagnostics::push(db, Arc::new(report.into()));
+    Diagnostics::push(db, Diagnostic(Arc::new(report.into())));
 }
 
 pub trait DiagnosticDb: DbWithJar<Jar> {}

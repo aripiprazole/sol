@@ -3,7 +3,7 @@ use std::{collections::HashMap, fmt::Display, path::PathBuf};
 use fxhash::FxBuildHasher;
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
-use sol_diagnostic::{Diagnostics, Report};
+use sol_diagnostic::Diagnostics;
 use sol_driver::RootDb;
 use sol_eyre::Context;
 use sol_hir::{
@@ -11,7 +11,7 @@ use sol_hir::{
     source::HirSource,
 };
 use sol_hir_lowering::hir_lower;
-use sol_syntax::Source;
+use sol_syntax::{parse, Source};
 use sol_vfs::SourceFile;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -29,7 +29,7 @@ pub struct Manifest<'db> {
     pub root_folder: PathBuf,
     pub soruce_folder: PathBuf,
     pub config: Config,
-    pub diagnostics: im::HashSet<Report, FxBuildHasher>,
+    pub diagnostics: im::Vector<sol_diagnostic::Diagnostic, FxBuildHasher>,
 }
 
 impl<'db> Manifest<'db> {
@@ -78,6 +78,9 @@ impl<'db> Manifest<'db> {
 
         let file = SourceFile::new(self.db, path, name, contents);
         let cst = sol_syntax::parse(self.db, file);
+        let diagnostics = sol_syntax::parse::accumulated::<Diagnostics>(self.db, file);
+
+        self.diagnostics.extend(diagnostics);
 
         Ok(cst)
     }
@@ -121,17 +124,6 @@ impl<'db> Manifest<'db> {
         let mut files = im::HashMap::default();
         for package in self.db.all_packages() {
             for file in package.all_files(self.db) {
-                // Gets the diagnostics from the CST
-                let diagnostics = file
-                    .errors(self.db)
-                    .iter()
-                    .map(|error| error.diagnostic(self.db))
-                    .map(Report::new)
-                    .collect_vec();
-
-                // Add syntax errors' diagnostics to the manifest
-                self.diagnostics.extend(diagnostics);
-
                 let hir = hir_lower(self.db, package, file);
                 let diagnostics = hir_lower::accumulated::<Diagnostics>(self.db, package, file);
 

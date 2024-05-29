@@ -7,6 +7,7 @@ use owo_colors::{
 };
 use salsa_2022::DebugWithDb;
 use similar::{ChangeTag, TextDiff};
+use sol_diagnostic::Diagnostic;
 use sol_hir::{fmt::HirFormatter, source::HirElement};
 use sol_typer::TypeTable;
 
@@ -90,11 +91,14 @@ pub fn run_test_suite(
     expect: &str,
     f: impl FnOnce(RootDb, SourceCode, Expect) -> sol_eyre::Result<()>,
 ) {
-    let _ = env_logger::builder()
+    bupropion::install(bupropion::BupropionHandlerOpts::new).unwrap();
+
+    env_logger::builder()
         .is_test(true)
         .filter_level(log::LevelFilter::Debug)
         .filter_module("salsa_2022", log::LevelFilter::Off)
-        .try_init();
+        .try_init()
+        .unwrap();
 
     let db = RootDb::default();
     let mut output = Vec::new();
@@ -123,10 +127,7 @@ pub fn run_test_suite(
 }
 
 /// Groups the errors by file.
-pub fn push_fancy_errors(
-    output: Expect,
-    outputs: &[Vec<Arc<sol_eyre::Report>>],
-) -> sol_eyre::Result<()> {
+pub fn push_fancy_errors(output: Expect, outputs: &[Vec<Diagnostic>]) -> sol_eyre::Result<()> {
     writeln!(output, "Errors:")?;
     for error in outputs.iter().flatten() {
         writeln!(output, "{error:?}")?;

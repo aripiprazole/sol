@@ -1,3 +1,6 @@
+use sol_diagnostic::fail;
+use unification::UnifyError;
+
 use super::*;
 
 pub type Type = Value;
@@ -25,33 +28,51 @@ impl Value {
         Value::Rigid(lvl, vec![])
     }
 
-    pub fn force(self, db: &dyn ThirDb) -> (Option<Location>, Value) {
+    pub fn force(self, db: &dyn ThirDb) -> sol_diagnostic::Result<(Option<Location>, Value)> {
         // TODO: use db
         let _ = db;
 
         match self {
-            Value::Flexible(ref m, ref spine) => (None, match m.get() {
-                Some(value) => value.apply_with_spine(spine.clone()),
+            Value::Flexible(ref m, ref spine) => Ok((None, match m.get() {
+                Some(value) => value.apply_with_spine(db, spine.clone())?,
                 None => self,
-            }),
-            Value::Location(ref location, _) => (Some(location.clone()), self.force(db).1),
-            _ => (None, self),
+            })),
+            Value::Location(ref location, _) => Ok((Some(location.clone()), self.force(db)?.1)),
+            _ => Ok((None, self)),
         }
     }
 
-    pub fn apply_with_spine(self, spine: Vec<Value>) -> Value {
-        spine.into_iter().rev().fold(self, Value::apply_to_spine)
+    pub fn apply(self, db: &dyn ThirDb, argument: Value) -> sol_diagnostic::Result<Value> {
+        match self {
+            _ => {
+                let this = db.thir_quote(debruijin::Level::new(db, 0), self.clone())?;
+                let argument = db.thir_quote(debruijin::Level::new(db, 0), argument.clone())?;
+                fail(UnifyError::CouldNotApply(this, argument))
+            }
+        }
     }
 
-    pub fn apply_to_spine(self, argument: Value) -> Value {
+    pub fn apply_with_spine(
+        self,
+        db: &dyn ThirDb,
+        spine: Vec<Value>,
+    ) -> sol_diagnostic::Result<Value> {
+        spine
+            .into_iter()
+            .rev()
+            .fold(Ok(self), |acc, next| Ok(acc?.apply_to_spine(db, next)?))
+    }
+
+    pub fn apply_to_spine(self, db: &dyn ThirDb, argument: Value) -> sol_diagnostic::Result<Value> {
         match self {
+            Value::Lam(_, _, closure) => closure.apply(db, argument),
             Value::Flexible(meta, mut spine) => {
                 spine.push(argument);
-                Value::Flexible(meta, spine)
+                Ok(Value::Flexible(meta, spine))
             }
             Value::Rigid(lvl, mut spine) => {
                 spine.push(argument);
-                Value::Rigid(lvl, spine)
+                Ok(Value::Rigid(lvl, spine))
             }
             _ => panic!("vapp: can't apply non-function value"),
         }

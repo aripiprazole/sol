@@ -4,6 +4,7 @@
 #![feature(fn_traits)]
 #![feature(unboxed_closures)]
 #![feature(trait_upcasting)]
+#![feature(box_patterns)]
 
 use debruijin::Level;
 use salsa::DbWithJar;
@@ -43,6 +44,7 @@ pub struct Jar(
     shared::Context,
     shared::Context_create_new_value,
     shared::Context_insert_new_binder,
+    shared::Context_increase_level,
     debruijin::Indices,
     debruijin::Level,
     debruijin::Level_as_idx,

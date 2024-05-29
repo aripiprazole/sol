@@ -56,7 +56,7 @@ pub fn thir_eval(db: &dyn ThirLoweringDb, env: Env, term: Term) -> sol_diagnosti
         }
         Term::App(callee, argument) => db
             .thir_eval(env, *callee)?
-            .apply_to_spine(db.thir_eval(env, *argument)?),
+            .apply_to_spine(db, db.thir_eval(env, *argument)?)?,
         Term::Pi(name, implicitness, domain, codomain) => Value::Pi(Pi {
             name,
             implicitness,
@@ -128,7 +128,7 @@ pub fn thir_quote(
         })
     }
 
-    let (location, value) = value.force(db);
+    let (location, value) = value.force(db)?;
 
     location
         .map(|location| {
