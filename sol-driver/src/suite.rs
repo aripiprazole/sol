@@ -127,7 +127,11 @@ pub fn push_fancy_errors(
     output: Expect,
     outputs: &[Vec<Arc<sol_eyre::Report>>],
 ) -> sol_eyre::Result<()> {
-    todo!();
+    writeln!(output, "Fancy errors:")?;
+    for error in outputs.iter().flatten() {
+        writeln!(output, "{error:?}")?;
+    }
+    Ok(())
 }
 
 /// Prints a debug report of the given `type_table`.
