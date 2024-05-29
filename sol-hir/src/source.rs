@@ -62,8 +62,7 @@ pub trait DefaultWithDb {
     {
         Self::error(db, HirError {
             kind: HirErrorKind::IncorrectKind(kind.to_string()),
-            source_code: location.clone(),
-            label: location.as_source_span(),
+            label: location,
         })
     }
 
@@ -200,6 +199,12 @@ impl Location {
             Location::TextRange(range) => range.text,
             Location::CallSite => TextSource::new("internal_error.txt", Arc::default()),
         }
+    }
+}
+
+impl From<Location> for SourceSpan {
+    fn from(location: Location) -> Self {
+        location.as_source_span()
     }
 }
 

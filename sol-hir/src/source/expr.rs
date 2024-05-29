@@ -3,7 +3,6 @@
 
 use std::{fmt::Formatter, sync::Arc};
 
-use miette::{SourceOffset, SourceSpan};
 use sol_diagnostic::report_error;
 
 use super::*;
@@ -440,8 +439,7 @@ impl DefaultWithDb for Expr {
     fn default_with_db(db: &dyn crate::HirDb) -> Self {
         report_error(db, HirError {
             kind: HirErrorKind::Empty,
-            label: SourceSpan::new(SourceOffset::from(0), SourceOffset::from(0)),
-            source_code: Location::CallSite,
+            label: Location::CallSite,
         });
 
         Self::Empty
@@ -510,7 +508,7 @@ impl HirElement for Expr {
     fn location(&self, db: &dyn crate::HirDb) -> Location {
         match self {
             Self::Empty => Location::call_site(db),
-            Self::Error(downcast) => downcast.source_code.clone(),
+            Self::Error(downcast) => downcast.label.clone(),
             Self::Path(downcast) => downcast.location(db),
             Self::Literal(downcast) => downcast.location.clone().unwrap(),
             Self::Call(downcast) => downcast.location(db),

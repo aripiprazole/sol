@@ -417,7 +417,7 @@ impl walking::Walker for TopLevel {
 impl HirElement for TopLevel {
     fn location(&self, db: &dyn crate::HirDb) -> Location {
         match self {
-            Self::Error(downcast) => downcast.source_code.clone(),
+            Self::Error(downcast) => downcast.label.clone(),
             Self::Using(downcast) => downcast.location(db),
             Self::Command(downcast) => downcast.location(db),
             Self::BindingGroup(downcast) => downcast.location(db),
@@ -438,7 +438,7 @@ pub enum DeclDescriptor {
 impl HirElement for DeclDescriptor {
     fn location(&self, db: &dyn crate::HirDb) -> Location {
         match self {
-            Self::Error(downcast) => downcast.source_code.clone(),
+            Self::Error(downcast) => downcast.label.clone(),
             Self::BindingGroup(downcast) => downcast.location(db),
             Self::Inductive(downcast) => downcast.location(db),
         }

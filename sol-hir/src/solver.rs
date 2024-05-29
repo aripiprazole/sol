@@ -22,17 +22,17 @@ use crate::{
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 #[repr(u8)]
 pub enum DefinitionKind {
-    Function = 1,
-    Constructor = 2,
-    Type = 3,
-    Variable = 4,
-    Module = 5,
-    Command = 6,
-    Trait = 7,
+    Function,
+    Constructor,
+    Type,
+    Variable,
+    Module,
+    Command,
+    Trait,
 
     /// This is a temporary state that should never be returned by the resolver. Only if there's
     /// an unresolved name.
-    Unresolved = 8,
+    Unresolved,
 }
 
 /// Represents the level of the expression in the High-Level Intermediate Representation. It's
@@ -125,8 +125,7 @@ impl Definition {
 
         // Reports an error to the diagnostic database.
         report_error(db, HirError {
-            source_code: name.location(db),
-            label: name.location(db).as_source_span(),
+            label: name.location(db),
             kind: HirErrorKind::UnresolvedDefinition(kind_str, name_str),
         });
 

@@ -123,7 +123,7 @@ impl HirElement for Stmt {
     fn location(&self, db: &dyn crate::HirDb) -> Location {
         match self {
             Self::Empty => Location::call_site(db),
-            Self::Error(downcast) => downcast.source_code.clone(),
+            Self::Error(downcast) => downcast.label.clone(),
             Self::Ask(downcast) => downcast.location(db),
             Self::Let(downcast) => downcast.location(db),
             Self::Downgrade(downcast) => (*downcast).location(db),

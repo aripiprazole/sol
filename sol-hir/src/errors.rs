@@ -1,5 +1,3 @@
-use miette::SourceSpan;
-
 use crate::source::Location;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, thiserror::Error, miette::Diagnostic)]
@@ -38,10 +36,8 @@ pub enum HirErrorKind {
 #[error("hir error: {kind}")]
 pub struct HirError {
     #[source_code]
-    pub source_code: Location,
-
     #[label = "here"]
-    pub label: SourceSpan,
+    pub label: Location,
 
     #[source]
     #[diagnostic_source]

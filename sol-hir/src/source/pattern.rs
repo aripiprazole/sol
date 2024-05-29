@@ -184,7 +184,7 @@ impl HirElement for Pattern {
             Self::Rest(location) => location.clone(),
             Self::Constructor(downcast) => downcast.location(db),
             Self::Binding(downcast) => downcast.location(db),
-            Self::Error(downcast) => downcast.source_code.clone(),
+            Self::Error(downcast) => downcast.label.clone(),
         }
     }
 }

@@ -59,7 +59,9 @@ pub fn thir_infer(
             let term = db.thir_check(ctx, *ann.value, actual_type.clone())?;
             (term, actual_type)
         }
-        Call(_) => todo!(),
+        Call(call) => {
+            todo!()
+        }
         Lam(_) => todo!(),
         Pi(_) => todo!(),
         Sigma(_) => bail!("sigma types are not supported yet"),
