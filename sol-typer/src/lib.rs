@@ -7,7 +7,7 @@
 use std::collections::VecDeque;
 
 use salsa::DbWithJar;
-use sol_diagnostic::{report_error, UnwrapOrReport};
+use sol_diagnostic::UnwrapOrReport;
 use sol_hir::{
     solver::Definition,
     source::{declaration::Declaration, HirSource},

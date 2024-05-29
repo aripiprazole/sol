@@ -154,7 +154,7 @@ pub fn extract_parameter_definition(db: &dyn ThirLoweringDb, pattern: Pattern) -
         Pattern::Hole | Pattern::Error(_) | Pattern::Wildcard(_) => fallback,
         Pattern::Literal(_) | Pattern::Constructor(_) => todo!("handle: unsuporrted pattern"),
         Pattern::Rest(_) => todo!("rest must be used inside a pattern"),
-        Pattern::Binding(binding) => binding.name(db),
+        Pattern::Binding(binding) => binding.name,
     }
 }
 

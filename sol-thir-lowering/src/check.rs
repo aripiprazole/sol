@@ -94,7 +94,7 @@ fn term_equality(
 /// The check function to check the type of the term.
 #[salsa::tracked]
 #[rustfmt::skip]
-pub fn thir_check(db: &dyn ThirLoweringDb, ctx: Context, expr: Expr, type_repr: Type) -> sol_eyre::Result<Term, sol_diagnostic::Diagnostic> {
+pub fn thir_check(db: &dyn ThirLoweringDb, ctx: Context, expr: Expr, type_repr: Type) -> sol_diagnostic::Result<Term> {
     match (expr, type_repr) {
         (Expr::Lam(abs), Type::Pi(pi)) => lam_pi(db, ctx, new_curried_function(db, abs), pi.clone(), pi.implicitness).into_sol_diagnostic(),
         (value, Type::Pi(pi @ Pi { implicitness: Implicit, .. })) => implicit_fun_eta(db, ctx, value, pi).into_sol_diagnostic(),
