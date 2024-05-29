@@ -1,5 +1,4 @@
-use sol_diagnostic::fail;
-use unification::UnifyError;
+use shared::MetaVar;
 
 use super::*;
 
@@ -19,7 +18,7 @@ pub enum Value {
 
 impl Default for Value {
     fn default() -> Self {
-        Value::U
+        Value::Flexible(MetaVar::new(None), vec![])
     }
 }
 
@@ -42,16 +41,6 @@ impl Value {
         }
     }
 
-    pub fn apply(self, db: &dyn ThirDb, argument: Value) -> sol_diagnostic::Result<Value> {
-        match self {
-            _ => {
-                let this = db.thir_quote(debruijin::Level::new(db, 0), self.clone())?;
-                let argument = db.thir_quote(debruijin::Level::new(db, 0), argument.clone())?;
-                fail(UnifyError::CouldNotApply(this, argument))
-            }
-        }
-    }
-
     pub fn apply_with_spine(
         self,
         db: &dyn ThirDb,
@@ -60,7 +49,7 @@ impl Value {
         spine
             .into_iter()
             .rev()
-            .fold(Ok(self), |acc, next| Ok(acc?.apply_to_spine(db, next)?))
+            .try_fold(self, |acc, next| acc.apply_to_spine(db, next))
     }
 
     pub fn apply_to_spine(self, db: &dyn ThirDb, argument: Value) -> sol_diagnostic::Result<Value> {

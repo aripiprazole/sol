@@ -20,7 +20,7 @@ pub enum Term {
 
 impl Default for Term {
     fn default() -> Self {
-        Term::U
+        Term::InsertedMeta(shared::MetaVar::new(None))
     }
 }
 

@@ -170,10 +170,10 @@ impl Value {
             }
             (Lam(_, _, clos_a)                 , rhs) => {
                 clos_a.apply(db, Value::new_var(ctx.lvl(db), None))?
-                    .unify(db, ctx.increase_level(db), rhs.apply(db, Value::new_var(ctx.lvl(db), None))?)
+                    .unify(db, ctx.increase_level(db), rhs.apply_to_spine(db, Value::new_var(ctx.lvl(db), None))?)
             }
             (lhs                               , Lam(_, _, clos_b)) => {
-                lhs.apply(db, Value::new_var(ctx.lvl(db), None))?
+                lhs.apply_to_spine(db, Value::new_var(ctx.lvl(db), None))?
                     .unify(db, ctx.increase_level(db), clos_b.apply(db, Value::new_var(ctx.lvl(db), None))?)
             }
 
