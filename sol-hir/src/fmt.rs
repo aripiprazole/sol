@@ -436,7 +436,7 @@ mod impls {
     }
     impl HirFormatter for pattern::BindingPattern {
         fn hir_fmt(&self, db: &dyn HirDb, f: &mut Formatter, scope: &Scope) -> std::fmt::Result {
-            self.name(db).hir_fmt(db, f, scope)
+            self.name.hir_fmt(db, f, scope)
         }
     }
 

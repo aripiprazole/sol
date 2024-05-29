@@ -21,24 +21,28 @@ impl HirLowering<'_, '_> {
             // because it needs to search for the trait constructor in the scope.
             ConsPattern(pattern) => {
                 let name = pattern.name().solve(self, |this, node| this.path(node));
-                let patterns = self.trait_patterns(pattern.patterns(&mut pattern.walk()));
+                let arguments = self.trait_patterns(pattern.patterns(&mut pattern.walk()));
                 let location = self.range(pattern.range());
 
                 // If the patterns are empty, it's a binding pattern, otherwise, it's a constructor
                 // pattern.
-                if patterns.is_empty() {
+                if arguments.is_empty() {
                     // Defines the node on the scope
                     let name =
                         self.scope
                             .define(self.db, name, location.clone(), DefinitionKind::Type);
 
-                    Pattern::Binding(BindingPattern::new(self.db, name, location))
+                    Pattern::Binding(BindingPattern { name, location })
                 } else {
                     let def = self.qualify(name, DefinitionKind::Trait);
                     let reference = self.scope.using(self.db, def, name.location(self.db));
                     let name = Constructor::Path(reference);
 
-                    Pattern::Constructor(ConstructorPattern::new(self.db, name, patterns, location))
+                    Pattern::Constructor(ConstructorPattern {
+                        name,
+                        arguments,
+                        location,
+                    })
                 }
             }
             GroupPattern(group_pattern) => {
@@ -72,12 +76,12 @@ impl HirLowering<'_, '_> {
 
     pub fn cons_pattern(&mut self, pattern: sol_syntax::ConsPattern) -> Pattern {
         let name = pattern.name().solve(self, |this, node| this.path(node));
-        let patterns = self.patterns(pattern.patterns(&mut pattern.walk()));
+        let arguments = self.patterns(pattern.patterns(&mut pattern.walk()));
         let location = self.range(pattern.range());
 
         // If the patterns are empty, it's a binding pattern, otherwise, it's a constructor
         // pattern.
-        if patterns.is_empty()
+        if arguments.is_empty()
             && name
                 .to_string(self.db)
                 .unwrap()
@@ -91,13 +95,17 @@ impl HirLowering<'_, '_> {
                 .scope
                 .define(self.db, name, location.clone(), DefinitionKind::Variable);
 
-            Pattern::Binding(BindingPattern::new(self.db, name, location))
+            Pattern::Binding(BindingPattern { name, location })
         } else {
             let def = self.qualify(name, DefinitionKind::Constructor);
             let reference = self.scope.using(self.db, def, name.location(self.db));
             let name = Constructor::Path(reference);
 
-            Pattern::Constructor(ConstructorPattern::new(self.db, name, patterns, location))
+            Pattern::Constructor(ConstructorPattern {
+                name,
+                arguments,
+                location,
+            })
         }
     }
 

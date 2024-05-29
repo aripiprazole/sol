@@ -80,24 +80,10 @@ pub struct BindingPattern {
     pub location: Location,
 }
 
-impl BindingPattern {
-    pub fn new(_: &dyn crate::HirDb, name: Definition, location: Location) -> Self {
-        Self { name, location }
-    }
-
-    pub fn name(&self, _db: &dyn crate::HirDb) -> Definition {
-        self.name
-    }
-
-    pub fn location(&self, _db: &dyn crate::HirDb) -> Location {
-        self.location.clone()
-    }
-}
-
 impl walking::Walker for BindingPattern {
     fn accept<T: HirListener>(self, db: &dyn crate::HirDb, listener: &mut T) {
         listener.enter_binding_pattern(self.clone());
-        self.name(db).accept(db, listener);
+        self.name.accept(db, listener);
         self.location(db).accept(db, listener);
         listener.exit_binding_pattern(self);
     }
