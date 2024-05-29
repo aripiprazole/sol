@@ -47,7 +47,11 @@ impl HirLowering<'_, '_> {
 
         let location = self.range(stmt.range());
 
-        Stmt::Ask(AskStmt::new(self.db, pattern, expr, location))
+        Stmt::Ask(AskStmt {
+            pattern,
+            value: expr,
+            location,
+        })
     }
 
     /// Resolves an expression statement.
@@ -90,7 +94,7 @@ impl HirLowering<'_, '_> {
                 })
               })
             })
-          .unwrap_or_else(|| Expr::call_unit_expr(Location::CallSite, self.db));
+          .unwrap_or_else(|| Expr::call_unit_expr(Location::CallSite));
 
         let clauses = vec![
             MatchArm {
@@ -107,13 +111,12 @@ impl HirLowering<'_, '_> {
 
         let location = self.range(stmt.range());
 
-        Stmt::Downgrade(Expr::Match(MatchExpr::new(
-            self.db,
-            /* kind      = */ MatchKind::StmtLevel(Box::new(MatchKind::If)),
-            /* scrutinee = */ scrutinee,
-            /* clauses   = */ clauses,
-            /* location  = */ location,
-        )))
+        Stmt::Downgrade(Expr::Match(MatchExpr {
+            kind: MatchKind::StmtLevel(Box::new(MatchKind::If)),
+            scrutinee: Box::new(scrutinee),
+            clauses,
+            location,
+        }))
     }
 
     /// Resolves a let statement.
@@ -127,7 +130,11 @@ impl HirLowering<'_, '_> {
 
         let location = self.range(stmt.range());
 
-        Stmt::Let(LetStmt::new(self.db, pattern, expr, location))
+        Stmt::Let(LetStmt {
+            pattern,
+            value: expr,
+            location,
+        })
     }
 
     /// Creates a new block using the current supplied scope.
@@ -135,19 +142,18 @@ impl HirLowering<'_, '_> {
     /// It's useful when you already have a well founded scope,
     /// and you want to create a block.
     pub fn scoped(&mut self, block: sol_syntax::Block, level: HirLevel) -> Block {
-        let stmts = block
+        let statements = block
             .statements(&mut block.walk())
             .flatten()
             .filter_map(|stmt| stmt.regular())
             .map(|stmt| self.stmt(stmt, level))
             .collect();
 
-        Block::new(
-            self.db,
-            /* statements = */ stmts,
-            /* location   = */ self.range(block.range()),
-            /* scope      = */ self.scope.clone().into(),
-        )
+        Block {
+            statements,
+            location: self.range(block.range()),
+            scope: self.scope.clone().into(),
+        }
     }
 
     /// Creates a new scope, and returns the value of the block.
