@@ -1,4 +1,4 @@
-use sol_diagnostic::fail;
+use sol_diagnostic::{fail, Result};
 use sol_thir::{
     find_reference_type, infer_constructor,
     shared::{Constructor, ConstructorKind},
@@ -6,6 +6,15 @@ use sol_thir::{
 };
 
 use super::*;
+
+#[derive(Debug, thiserror::Error, miette::Diagnostic)]
+#[error("unsupported term")]
+#[diagnostic(code(sol::thir::unsupported_term))]
+pub struct UnsupportedTermError {
+    #[source_code]
+    #[label = "here"]
+    pub location: Location,
+}
 
 fn create_from_type(definition: sol_hir::source::expr::Type, location: Location) -> Term {
     use sol_hir::source::expr::Type::*;
@@ -31,29 +40,42 @@ fn create_from_type(definition: sol_hir::source::expr::Type, location: Location)
     })
 }
 
-#[derive(Debug, thiserror::Error, miette::Diagnostic)]
-#[error("unsupported term")]
-#[diagnostic(code(sol::thir::unsupported_term))]
-pub struct UnsupportedTerm {
-    #[source_code]
-    #[label = "here"]
-    pub location: Location,
+fn infer_lam(db: &dyn ThirLoweringDb, ctx: Context, fun: Curried) -> Result<ElaboratedTerm> {
+    match fun {
+        Curried::Lam(domain, codomain) => {
+            let domain_type = Value::default();
+            let codomain_ctx = ctx.create_new_value(db, domain, domain_type.clone());
+            let ElaboratedTerm(codomain_term, codomain_type) =
+                infer_lam(db, codomain_ctx, *codomain)?;
+            let term = Term::Lam(domain, Implicitness::Explicit, codomain_term.clone().into());
+
+            Ok(ElaboratedTerm(
+                term,
+                Value::Pi(Pi {
+                    name: Some(domain),
+                    implicitness: Implicitness::Explicit,
+                    domain: Box::new(domain_type),
+                    codomain: Closure {
+                        env: ctx.locals(db),
+                        expr: db.thir_quote(ctx.lvl(db), codomain_type)?,
+                    },
+                }),
+            ))
+        }
+        Curried::Expr(expr) => thir_infer(db, ctx, expr),
+    }
 }
 
 /// The infer function to infer the type of the term.
 #[salsa::tracked]
-pub fn thir_infer(
-    db: &dyn ThirLoweringDb,
-    ctx: Context,
-    expr: Expr,
-) -> sol_diagnostic::Result<ElaboratedTerm> {
+pub fn thir_infer(db: &dyn ThirLoweringDb, ctx: Context, expr: Expr) -> Result<ElaboratedTerm> {
     use sol_hir::source::expr::Pi as EPi;
     use sol_hir::source::pattern::Pattern;
     use Expr::*;
 
     Ok(ElaboratedTerm::from(match expr {
         Empty | Error(_) | Match(_) | Sigma(_) => {
-            return fail(UnsupportedTerm {
+            return fail(UnsupportedTermError {
                 location: expr.location(db),
             })
         }
@@ -86,7 +108,7 @@ pub fn thir_infer(
             (term, actual_type)
         }
         Call(_) => todo!(),
-        Lam(_) => todo!(),
+        Lam(lam) => return infer_lam(db, ctx, new_curried_function(db, lam)),
         Pi(EPi {
             parameters, value, ..
         }) => {

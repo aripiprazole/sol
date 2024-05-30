@@ -138,6 +138,23 @@ pub fn thir_quote(
         .unwrap_or_else(|| thir_quote_impl(db, None, lvl, value))
 }
 
+enum Curried {
+    Lam(Definition, Box<Curried>),
+    Expr(Expr),
+}
+
+fn new_curried_function(db: &dyn ThirLoweringDb, abs: LamExpr) -> Curried {
+    let mut acc = Curried::Expr(*abs.value);
+    for parameter in abs.parameters.into_iter() {
+        let parameter = extract_parameter_definition(db, parameter);
+        acc = Curried::Lam(parameter, Box::new(acc));
+    }
+    if let Curried::Expr(_) = acc {
+        todo!("handle: no parameters")
+    }
+    acc
+}
+
 pub fn extract_parameter_definition(db: &dyn ThirLoweringDb, pattern: Pattern) -> Definition {
     let location = pattern.location(db);
     let hole = HirPath::create(db, "_");
