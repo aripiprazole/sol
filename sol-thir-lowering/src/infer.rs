@@ -1,6 +1,6 @@
 use sol_diagnostic::bail;
 use sol_thir::{
-    infer_constructor,
+    find_reference_type, infer_constructor,
     shared::{Constructor, ConstructorKind},
     ElaboratedTerm, ThirConstructor,
 };
@@ -42,16 +42,23 @@ pub fn thir_infer(
 
     Ok(ElaboratedTerm::from(match expr {
         Empty | Error(_) | Match(_) => todo!(),
-        Path(_) => todo!(),
+        Path(path) => {
+            let constructor = Constructor {
+                kind: ConstructorKind::Reference(path),
+                location: path.location(db),
+            };
+            let (_, inferred_type) = find_reference_type(db, ctx, path)?;
+
+            (Term::Constructor(constructor), inferred_type)
+        }
         Literal(literal) => {
             let constructor = Constructor {
                 location: literal.location(db),
                 kind: literal.value.into(),
             };
-            let inferred_type =
-                infer_constructor(db, ctx, ThirConstructor::new(db, constructor.clone()))?;
+            let inferred_type = infer_constructor(db, ctx, constructor.clone())?;
 
-            (Term::Constructor(constructor.clone()), inferred_type)
+            (Term::Constructor(constructor), inferred_type)
         }
         Type(definition, location) => match create_from_type(definition, location) {
             Term::U => (Term::U, Value::U),

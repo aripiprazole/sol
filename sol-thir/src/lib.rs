@@ -46,7 +46,7 @@ pub struct Jar(
     shared::Context_insert_new_binder,
     shared::Context_increase_level,
     ThirConstructor,
-    infer_constructor,
+    find_reference_type,
     debruijin::Indices,
     debruijin::Level,
     debruijin::Level_as_idx,
@@ -175,13 +175,11 @@ pub struct CouldNotFindTypeOfDefinitionError {
     pub location: Location,
 }
 
-#[salsa::tracked]
 pub fn infer_constructor(
     db: &dyn ThirDb,
     ctx: Context,
-    constructor: ThirConstructor,
+    constructor: Constructor,
 ) -> sol_diagnostic::Result<Type> {
-    let constructor = constructor.constructor(db);
     Ok(match constructor.kind {
         ConstructorKind::UnitType
         | ConstructorKind::BooleanType
@@ -204,30 +202,37 @@ pub fn infer_constructor(
             kind: ConstructorKind::IntType(true, 32),
             location: constructor.location,
         }),
-        ConstructorKind::Reference(reference) => {
-            let definition = reference.definition(db);
-            let Some(src) = definition.location(db).source() else {
-                return fail(CouldNotFindLocationSourceError {
-                    location: reference.location(db),
-                });
-            };
-
-            let type_table =
-                if definition.location(db).text_source() == reference.location(db).text_source() {
-                    ctx.env(db).definitions(db)
-                } else {
-                    let hir_src = db.hir_lower(ctx.pkg(db), src);
-                    db.infer_type_table(hir_src)?
-                };
-
-            let Some((_, inferred_type)) = type_table.get(&definition).cloned() else {
-                return fail(CouldNotFindTypeOfDefinitionError {
-                    name: definition.name(db).to_string(db).unwrap(),
-                    location: reference.location(db),
-                });
-            };
-
-            inferred_type
-        }
+        ConstructorKind::Reference(reference) => find_reference_type(db, ctx, reference)?.1,
     })
+}
+
+#[salsa::tracked]
+pub fn find_reference_type(
+    db: &dyn ThirDb,
+    ctx: Context,
+    reference: Reference,
+) -> sol_diagnostic::Result<(Term, Value)> {
+    let definition = reference.definition(db);
+    let Some(src) = definition.location(db).source() else {
+        return fail(CouldNotFindLocationSourceError {
+            location: reference.location(db),
+        });
+    };
+
+    let type_table =
+        if definition.location(db).text_source() == reference.location(db).text_source() {
+            ctx.env(db).definitions(db)
+        } else {
+            let hir_src = db.hir_lower(ctx.pkg(db), src);
+            db.infer_type_table(hir_src)?
+        };
+
+    let Some(elaborated_type) = type_table.get(&definition).cloned() else {
+        return fail(CouldNotFindTypeOfDefinitionError {
+            name: definition.name(db).to_string(db).unwrap(),
+            location: reference.location(db),
+        });
+    };
+
+    Ok(elaborated_type)
 }

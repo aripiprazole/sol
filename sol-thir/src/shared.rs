@@ -121,18 +121,19 @@ pub enum ConstructorKind {
 impl From<Literal> for ConstructorKind {
     fn from(literal: Literal) -> Self {
         match literal {
-            Literal::Empty => todo!(),
-            Literal::Int8(_) => todo!(),
-            Literal::UInt8(_) => todo!(),
-            Literal::Int16(_) => todo!(),
-            Literal::UInt16(_) => todo!(),
-            Literal::Int32(_) => todo!(),
-            Literal::UInt32(_) => todo!(),
-            Literal::Int64(_) => todo!(),
-            Literal::UInt64(_) => todo!(),
-            Literal::String(_) => todo!(),
-            Literal::Boolean(_) => todo!(),
-            Literal::Char(_) => todo!(),
+            Literal::Empty => ConstructorKind::Unit,
+            Literal::Int8(value) => ConstructorKind::Int(value as _),
+            Literal::UInt8(value) => ConstructorKind::Int(value as _),
+            Literal::Int16(value) => ConstructorKind::Int(value as _),
+            Literal::UInt16(value) => ConstructorKind::Int(value as _),
+            Literal::Int32(value) => ConstructorKind::Int(value as _),
+            Literal::UInt32(value) => ConstructorKind::Int(value as _),
+            Literal::Int64(value) => ConstructorKind::Int(value as _),
+            Literal::UInt64(value) => ConstructorKind::Int(value as _),
+            Literal::String(string) => ConstructorKind::String(string),
+            Literal::Boolean(true) => ConstructorKind::True,
+            Literal::Boolean(false) => ConstructorKind::False,
+            Literal::Char(char) => ConstructorKind::Int(char as _),
         }
     }
 }
