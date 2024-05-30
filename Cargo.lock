@@ -1762,6 +1762,7 @@ name = "sol-thir-lowering"
 version = "0.0.1"
 dependencies = [
  "im",
+ "miette",
  "salsa-2022",
  "sol-diagnostic",
  "sol-eyre",
@@ -1769,6 +1770,7 @@ dependencies = [
  "sol-syntax",
  "sol-thir",
  "sol-vfs",
+ "thiserror",
 ]
 
 [[package]]

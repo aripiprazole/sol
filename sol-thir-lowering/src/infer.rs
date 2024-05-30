@@ -1,4 +1,4 @@
-use sol_diagnostic::bail;
+use sol_diagnostic::{bail, fail};
 use sol_thir::{
     find_reference_type, infer_constructor,
     shared::{Constructor, ConstructorKind},
@@ -31,6 +31,15 @@ fn create_from_type(definition: sol_hir::source::expr::Type, location: Location)
     })
 }
 
+#[derive(Debug, thiserror::Error, miette::Diagnostic)]
+#[error("unsupported term")]
+#[diagnostic(code(sol::thir::unsupported_term))]
+pub struct UnsupportedTerm {
+    #[source_code]
+    #[label = "here"]
+    pub location: Location,
+}
+
 /// The infer function to infer the type of the term.
 #[salsa::tracked]
 pub fn thir_infer(
@@ -41,7 +50,11 @@ pub fn thir_infer(
     use Expr::*;
 
     Ok(ElaboratedTerm::from(match expr {
-        Empty | Error(_) | Match(_) => todo!(),
+        Empty | Error(_) | Match(_) => {
+            return fail(UnsupportedTerm {
+                location: expr.location(db),
+            })
+        }
         Path(path) => {
             let constructor = Constructor {
                 kind: ConstructorKind::Reference(path),
