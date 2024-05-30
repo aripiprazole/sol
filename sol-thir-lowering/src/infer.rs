@@ -1,7 +1,4 @@
-use std::str::pattern::Pattern;
-
-use sol_diagnostic::{bail, fail};
-use sol_hir::source::pattern::Pattern;
+use sol_diagnostic::fail;
 use sol_thir::{
     find_reference_type, infer_constructor,
     shared::{Constructor, ConstructorKind},
@@ -52,7 +49,6 @@ pub fn thir_infer(
 ) -> sol_diagnostic::Result<ElaboratedTerm> {
     use sol_hir::source::expr::Pi as EPi;
     use sol_hir::source::pattern::Pattern;
-    use sol_thir::value::Pi as VPi;
     use Expr::*;
 
     Ok(ElaboratedTerm::from(match expr {
@@ -92,9 +88,7 @@ pub fn thir_infer(
         Call(_) => todo!(),
         Lam(_) => todo!(),
         Pi(EPi {
-            parameters,
-            value,
-            location,
+            parameters, value, ..
         }) => {
             let mut codomain = db.thir_check(ctx, *value.expr, Value::U)?;
             for parameter in parameters {
