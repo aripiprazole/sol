@@ -99,11 +99,12 @@ pub fn thir_infer(
             let mut codomain = db.thir_check(ctx, *value.expr, Value::U)?;
             for parameter in parameters {
                 let parameter_type = parameter.parameter_type(db);
-                let name = match parameter.binding(db) {
-                    Pattern::Binding(binding) => Some(binding.name),
-                    _ => None,
-                };
                 let domain = db.thir_check(ctx, *parameter_type.expr, Value::U)?;
+                let name = if let Pattern::Binding(binding) = parameter.binding(db) {
+                    Some(binding.name)
+                } else {
+                    None
+                };
                 let implicitness = if parameter.is_implicit(db) {
                     Implicitness::Implicit
                 } else {
