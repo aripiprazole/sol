@@ -6,21 +6,21 @@
 #![feature(trait_upcasting)]
 #![feature(box_patterns)]
 
-use debruijin::Level;
 use salsa::DbWithJar;
-use shared::{Context, Env};
-use sol_diagnostic::DiagnosticDb;
+use sol_diagnostic::{fail, DiagnosticDb};
 use sol_hir::{
     lowering::HirLowering,
     package::HasManifest,
     primitives::PrimitiveProvider,
     solver::{Definition, Reference},
-    source::{expr::Expr, literal::Literal, Location},
+    source::{expr::Expr, literal::Literal, HirSource, Location},
     HirDb,
 };
 use sol_syntax::ParseDb;
 
 use crate::{
+    debruijin::Level,
+    shared::{Constructor, ConstructorKind, Context, Env},
     source::Term,
     value::{Type, Value},
 };
@@ -45,6 +45,8 @@ pub struct Jar(
     shared::Context_create_new_value,
     shared::Context_insert_new_binder,
     shared::Context_increase_level,
+    ThirConstructor,
+    infer_constructor,
     debruijin::Indices,
     debruijin::Level,
     debruijin::Level_as_idx,
@@ -53,6 +55,7 @@ pub struct Jar(
 
 pub trait ThirDb:
     PrimitiveProvider
+    + Typer
     + HirDb
     + ThirLowering
     + ThirTyping
@@ -66,6 +69,7 @@ pub trait ThirDb:
 
 impl<DB> ThirDb for DB where
     DB: ?Sized
+        + Typer
         + ParseDb
         + DiagnosticDb
         + HasManifest
@@ -76,6 +80,12 @@ impl<DB> ThirDb for DB where
         + PrimitiveProvider
         + salsa::DbWithJar<Jar>
 {
+}
+
+pub type TypeTable = im::HashMap<Definition, (Term, Type)>;
+
+pub trait Typer {
+    fn infer_type_table(&self, source: HirSource) -> sol_diagnostic::Result<TypeTable>;
 }
 
 /// Represents the lowering functions for Low-Level Intermediate Representation.
@@ -138,4 +148,86 @@ pub enum ThirErrorKind {
     #[error("incorrect kind: {0}")]
     #[diagnostic(code(solc::thir::incorrect_kind), url(docsrs))]
     IncorrectKind(String),
+}
+
+#[salsa::input]
+pub struct ThirConstructor {
+    pub constructor: Constructor,
+}
+
+#[derive(Debug, thiserror::Error, miette::Diagnostic)]
+#[error("could not find the source code location")]
+#[diagnostic(code(sol::thir::could_not_find_location_source))]
+pub struct CouldNotFindLocationSourceError {
+    #[source_code]
+    #[label = "here"]
+    pub location: Location,
+}
+
+#[derive(Debug, thiserror::Error, miette::Diagnostic)]
+#[error("could not find the type of the definition: {name}")]
+#[diagnostic(code(sol::thir::could_not_find_type_of_definition))]
+pub struct CouldNotFindTypeOfDefinitionError {
+    pub name: String,
+
+    #[source_code]
+    #[label = "here"]
+    pub location: Location,
+}
+
+#[salsa::tracked]
+pub fn infer_constructor(
+    db: &dyn ThirDb,
+    ctx: Context,
+    constructor: ThirConstructor,
+) -> sol_diagnostic::Result<Type> {
+    let constructor = constructor.constructor(db);
+    Ok(match constructor.kind {
+        ConstructorKind::UnitType
+        | ConstructorKind::BooleanType
+        | ConstructorKind::StringType
+        | ConstructorKind::NatType
+        | ConstructorKind::IntType(_, _) => Type::U,
+        ConstructorKind::Unit => Type::Constructor(Constructor {
+            kind: ConstructorKind::UnitType,
+            location: constructor.location,
+        }),
+        ConstructorKind::True | ConstructorKind::False => Type::Constructor(Constructor {
+            kind: ConstructorKind::BooleanType,
+            location: constructor.location,
+        }),
+        ConstructorKind::String(_) => Type::Constructor(Constructor {
+            kind: ConstructorKind::StringType,
+            location: constructor.location,
+        }),
+        ConstructorKind::Int(_) => Type::Constructor(Constructor {
+            kind: ConstructorKind::IntType(true, 32),
+            location: constructor.location,
+        }),
+        ConstructorKind::Reference(reference) => {
+            let definition = reference.definition(db);
+            let Some(src) = definition.location(db).source() else {
+                return fail(CouldNotFindLocationSourceError {
+                    location: reference.location(db),
+                });
+            };
+
+            let type_table =
+                if definition.location(db).text_source() == reference.location(db).text_source() {
+                    ctx.env(db).definitions(db)
+                } else {
+                    let hir_src = db.hir_lower(ctx.pkg(db), src);
+                    db.infer_type_table(hir_src)?
+                };
+
+            let Some((_, inferred_type)) = type_table.get(&definition).cloned() else {
+                return fail(CouldNotFindTypeOfDefinitionError {
+                    name: definition.name(db).to_string(db).unwrap(),
+                    location: reference.location(db),
+                });
+            };
+
+            inferred_type
+        }
+    })
 }

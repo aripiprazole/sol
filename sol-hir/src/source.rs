@@ -187,6 +187,13 @@ impl Location {
         }
     }
 
+    pub fn source(&self) -> Option<Source> {
+        match self {
+            Location::TextRange(range) => Some(range.abstract_source),
+            Location::CallSite => None,
+        }
+    }
+
     pub fn as_source_span(self) -> SourceSpan {
         match self {
             Location::TextRange(range) => SourceSpan::new(range.start, range.end),

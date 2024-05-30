@@ -1,7 +1,8 @@
 use sol_diagnostic::bail;
 use sol_thir::{
+    infer_constructor,
     shared::{Constructor, ConstructorKind},
-    ElaboratedTerm,
+    ElaboratedTerm, ThirConstructor,
 };
 
 use super::*;
@@ -47,7 +48,10 @@ pub fn thir_infer(
                 location: literal.location(db),
                 kind: literal.value.into(),
             };
-            (Term::Constructor(constructor.clone()), constructor.infer())
+            let inferred_type =
+                infer_constructor(db, ctx, ThirConstructor::new(db, constructor.clone()))?;
+
+            (Term::Constructor(constructor.clone()), inferred_type)
         }
         Type(definition, location) => match create_from_type(definition, location) {
             Term::U => (Term::U, Value::U),

@@ -11,7 +11,7 @@ use sol_hir::{
     source::HirSource,
 };
 use sol_hir_lowering::hir_lower;
-use sol_syntax::{parse, Source};
+use sol_syntax::Source;
 use sol_vfs::SourceFile;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -29,7 +29,7 @@ pub struct Manifest<'db> {
     pub root_folder: PathBuf,
     pub soruce_folder: PathBuf,
     pub config: Config,
-    pub diagnostics: im::Vector<sol_diagnostic::Diagnostic, FxBuildHasher>,
+    pub diagnostics: im::Vector<sol_diagnostic::Diagnostic>,
 }
 
 impl<'db> Manifest<'db> {

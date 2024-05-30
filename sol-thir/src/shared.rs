@@ -4,6 +4,8 @@ use std::{
     sync::{Arc, Mutex},
 };
 
+use sol_hir::package::Package;
+
 use self::debruijin::Index;
 use super::*;
 
@@ -12,12 +14,6 @@ use super::*;
 pub struct Constructor {
     pub kind: ConstructorKind,
     pub location: Location,
-}
-
-impl Constructor {
-    pub fn infer(self) -> Type {
-        todo!()
-    }
 }
 
 #[salsa::input]
@@ -30,11 +26,18 @@ pub struct Context {
     pub lvl: Level,
     pub locals: Env,
     pub env: GlobalEnv,
+    pub pkg: Package,
 }
 
 impl Context {
-    pub fn default_with_env(db: &dyn ThirDb, env: GlobalEnv) -> Self {
-        Self::new(db, Level::new(db, 0), Env::new(db, VecDeque::new()), env)
+    pub fn default_with_env(db: &dyn ThirDb, env: GlobalEnv, pkg: Package) -> Self {
+        Self::new(
+            db,
+            Level::new(db, 0),
+            Env::new(db, VecDeque::new()),
+            env,
+            pkg,
+        )
     }
 }
 
@@ -43,7 +46,7 @@ impl Context {
     #[salsa::tracked]
     pub fn increase_level(self, db: &dyn ThirDb) -> Context {
         let lvl = self.lvl(db).increase(db);
-        Context::new(db, lvl, self.locals(db), self.env(db))
+        Context::new(db, lvl, self.locals(db), self.env(db), self.pkg(db))
     }
 
     #[salsa::tracked]
@@ -108,7 +111,7 @@ pub enum ConstructorKind {
     False,
     BooleanType,
     NatType,
-    Definition(Definition),
+    Reference(Reference),
     IntType(bool, isize),
     Int(isize),
     StringType,
@@ -139,16 +142,16 @@ macro_rules! mutable_reference {
         pub struct $name(Arc<Mutex<$type>>);
 
         impl $name {
-            pub fn new(location: $type) -> Self {
-                Self(Arc::new(Mutex::new(location)))
+            pub fn new(value: $type) -> Self {
+                Self(Arc::new(Mutex::new(value)))
             }
 
             pub fn get(&self) -> $type {
                 self.0.lock().unwrap().clone()
             }
 
-            pub fn update(&self, location: $type) {
-                *self.0.lock().unwrap() = location;
+            pub fn update(&self, value: $type) {
+                *self.0.lock().unwrap() = value;
             }
         }
 

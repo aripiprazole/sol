@@ -9,7 +9,7 @@ use salsa_2022::DebugWithDb;
 use similar::{ChangeTag, TextDiff};
 use sol_diagnostic::Diagnostic;
 use sol_hir::{fmt::HirFormatter, source::HirElement};
-use sol_typer::TypeTable;
+use sol_thir::TypeTable;
 
 use crate::RootDb;
 

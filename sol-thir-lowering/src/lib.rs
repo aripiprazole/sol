@@ -8,7 +8,6 @@
 #![feature(stmt_expr_attributes)]
 
 use salsa::DbWithJar;
-use sol_diagnostic::IntoSolDiagnostic;
 use sol_hir::{
     solver::{Definition, DefinitionId, DefinitionKind::Variable, Reference},
     source::{

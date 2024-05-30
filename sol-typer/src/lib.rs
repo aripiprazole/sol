@@ -13,20 +13,16 @@ use std::{
 use salsa::DbWithJar;
 use sol_diagnostic::{report_error, TextSource, UnwrapOrReport};
 use sol_hir::{
-    solver::Definition,
     source::{declaration::Declaration, top_level::TopLevel, HirSource},
     HirDb,
 };
 use sol_thir::{
     shared::{Context, Env, GlobalEnv, MetaVar},
-    source::Term,
     value::Type,
-    ThirDb,
+    ThirDb, TypeTable,
 };
 
 extern crate salsa_2022 as salsa;
-
-pub type TypeTable = im::HashMap<Definition, (Term, Type)>;
 
 #[salsa::jar(db = TyperDb)]
 pub struct Jar(infer_type_table);
@@ -93,7 +89,7 @@ pub struct TyperPanicError {
 #[salsa::tracked]
 pub fn infer_type_table(db: &dyn TyperDb, global_env: GlobalEnv, source: HirSource) -> TypeTable {
     let mut table = TypeTable::new();
-    let ctx = Context::default_with_env(db, global_env);
+    let ctx = Context::default_with_env(db, global_env, source.package(db));
     let text_source = TextSource::new(
         source.source(db).file_path(db).to_string_lossy(),
         Arc::new(source.source(db).source_text(db).to_string()),
