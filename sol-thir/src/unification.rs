@@ -186,7 +186,7 @@ impl Value {
                 let rhs = db.thir_quote(ctx.lvl(db), rhs.clone())?;
                 fail(UnifyError::IcitMismatch(icit_a, icit_b, lhs, rhs))
             }
-            (Pi(VPi { type_repr: box dom_a, closure: cod_a, .. }), Pi(VPi { type_repr: box dom_b, closure: cod_b, .. })) => {
+            (Pi(VPi { domain: box dom_a, codomain: cod_a, .. }), Pi(VPi { domain: box dom_b, codomain: cod_b, .. })) => {
                 dom_a.unify(db, ctx, dom_b)?;
                 cod_a.apply(db, Value::new_var(ctx.lvl(db), None))?
                     .unify(db, ctx.increase_level(db), cod_b.apply(db, Value::new_var(ctx.lvl(db), None))?)?;

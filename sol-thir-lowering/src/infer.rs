@@ -1,8 +1,11 @@
+use std::str::pattern::Pattern;
+
 use sol_diagnostic::{bail, fail};
+use sol_hir::source::pattern::Pattern;
 use sol_thir::{
     find_reference_type, infer_constructor,
     shared::{Constructor, ConstructorKind},
-    ElaboratedTerm, ThirConstructor,
+    ElaboratedTerm,
 };
 
 use super::*;
@@ -47,10 +50,13 @@ pub fn thir_infer(
     ctx: Context,
     expr: Expr,
 ) -> sol_diagnostic::Result<ElaboratedTerm> {
+    use sol_hir::source::expr::Pi as EPi;
+    use sol_hir::source::pattern::Pattern;
+    use sol_thir::value::Pi as VPi;
     use Expr::*;
 
     Ok(ElaboratedTerm::from(match expr {
-        Empty | Error(_) | Match(_) => {
+        Empty | Error(_) | Match(_) | Sigma(_) => {
             return fail(UnsupportedTerm {
                 location: expr.location(db),
             })
@@ -83,12 +89,31 @@ pub fn thir_infer(
             let term = db.thir_check(ctx, *ann.value, actual_type.clone())?;
             (term, actual_type)
         }
-        Call(call) => {
-            todo!()
-        }
+        Call(_) => todo!(),
         Lam(_) => todo!(),
-        Pi(_) => todo!(),
-        Sigma(_) => bail!("sigma types are not supported yet"),
+        Pi(EPi {
+            parameters,
+            value,
+            location,
+        }) => {
+            let mut codomain = db.thir_check(ctx, *value.expr, Value::U)?;
+            for parameter in parameters {
+                let parameter_type = parameter.parameter_type(db);
+                let name = match parameter.binding(db) {
+                    Pattern::Binding(binding) => Some(binding.name),
+                    _ => None,
+                };
+                let domain = db.thir_check(ctx, *parameter_type.expr, Value::U)?;
+                let implicitness = if parameter.is_implicit(db) {
+                    Implicitness::Implicit
+                } else {
+                    Implicitness::Explicit
+                };
+                codomain = Term::Pi(name, implicitness, domain.into(), codomain.into());
+            }
+
+            (codomain, Value::U)
+        }
         Hole(_) => {
             let meta = MetaVar::new(None);
             let term = Term::InsertedMeta(meta.clone());

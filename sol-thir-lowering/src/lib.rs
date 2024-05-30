@@ -59,8 +59,8 @@ pub fn thir_eval(db: &dyn ThirLoweringDb, env: Env, term: Term) -> sol_diagnosti
         Term::Pi(name, implicitness, domain, codomain) => Value::Pi(Pi {
             name,
             implicitness,
-            type_repr: Box::new(db.thir_eval(env, *domain)?),
-            closure: Closure {
+            domain: Box::new(db.thir_eval(env, *domain)?),
+            codomain: Closure {
                 env,
                 expr: *codomain,
             },
@@ -110,7 +110,7 @@ pub fn thir_quote(
             Pi(pi) => {
                 // Pi (quote lvl pi.type_rep) (quote (lvl + 1) (pi.closure $$ (Var lvl pi.name)))
                 let name = create_reference_of(db, pi.name, location.clone());
-                let domain = db.thir_quote(lvl, *pi.type_repr.clone())?;
+                let domain = db.thir_quote(lvl, *pi.domain.clone())?;
                 let codomain = db.thir_quote(lvl.increase(db), Value::new_var(lvl, name))?;
 
                 Term::Pi(pi.name, pi.implicitness, domain.into(), codomain.into())

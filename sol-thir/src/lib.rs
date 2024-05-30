@@ -45,7 +45,6 @@ pub struct Jar(
     shared::Context_create_new_value,
     shared::Context_insert_new_binder,
     shared::Context_increase_level,
-    ThirConstructor,
     find_reference_type,
     debruijin::Indices,
     debruijin::Level,
@@ -148,11 +147,6 @@ pub enum ThirErrorKind {
     #[error("incorrect kind: {0}")]
     #[diagnostic(code(solc::thir::incorrect_kind), url(docsrs))]
     IncorrectKind(String),
-}
-
-#[salsa::input]
-pub struct ThirConstructor {
-    pub constructor: Constructor,
 }
 
 #[derive(Debug, thiserror::Error, miette::Diagnostic)]

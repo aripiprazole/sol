@@ -14,8 +14,8 @@ fn lam_pi(
     let Curried::Lam(definition, value) = lam else {
         panic!("handle: no parameters")
     };
-    let inner_ctx = ctx.create_new_value(db, definition, *pi.type_repr);
-    let term_type = pi.closure.apply(db, Value::new_var(ctx.lvl(db), None))?;
+    let inner_ctx = ctx.create_new_value(db, definition, *pi.domain);
+    let term_type = pi.codomain.apply(db, Value::new_var(ctx.lvl(db), None))?;
     let elab_term = lam_thir_check(db, inner_ctx, *value, term_type, icit)?;
 
     Ok(Term::Lam(definition, pi.implicitness, elab_term.into()))
@@ -66,8 +66,8 @@ fn implicit_fun_eta(
     value: Expr,
     pi: Pi,
 ) -> sol_diagnostic::Result<Term> {
-    let inner_ctx = ctx.insert_new_binder(db, pi.name.unwrap(), *pi.type_repr);
-    let term_type = pi.closure.apply(db, Value::new_var(ctx.lvl(db), None))?;
+    let inner_ctx = ctx.insert_new_binder(db, pi.name.unwrap(), *pi.domain);
+    let term_type = pi.codomain.apply(db, Value::new_var(ctx.lvl(db), None))?;
     let elab_term = db.thir_check(inner_ctx, value, term_type)?;
 
     Ok(Term::Lam(pi.name.unwrap(), Implicit, elab_term.into()))
